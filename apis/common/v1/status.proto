@@ -1,8 +1,0 @@
-syntax = "proto3";
-package common.v1;
-
-message ResponseStatus {
-    int32 code = 1;
-    string message = 2;
-    bytes details = 4;
-}

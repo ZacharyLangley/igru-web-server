@@ -1,7 +1,0 @@
-version: 1
-packages:
-  - name: "authentication"
-    path: "pkg/models/authentication"
-    engine: "postgresql"
-    schema: "build/authentication/schema.sql"
-    queries: "build/authentication/query.sql"
