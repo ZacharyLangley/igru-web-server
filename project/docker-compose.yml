@@ -4,7 +4,6 @@ services:
   broker-service:
     build:
       context: ./../broker-service
-      dockerfile: ./../broker-service/broker-service.dockerfile
     restart: always
     ports:
       - "8080:80"
@@ -15,7 +14,6 @@ services:
   authentication-service:
     build:
       context: ./../authentication-service
-      dockerfile: ./../authentication-service/authentication-service.dockerfile
     restart: always
     ports:
       - "8081:80"

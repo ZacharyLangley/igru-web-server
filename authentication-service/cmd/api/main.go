@@ -1,7 +1,6 @@
 package main
 
 import (
-	"authentication/data"
 	"database/sql"
 	"fmt"
 	"log"
@@ -9,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/ZacharyLangley/igru-web-server/authentication-service/pkg/service"
 	_ "github.com/jackc/pgconn"
 	_ "github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib"
@@ -18,11 +18,6 @@ const webPort = "80"
 
 var counts int64
 
-type Config struct {
-	DB     *sql.DB
-	Models data.Models
-}
-
 func main() {
 	log.Println("Starting authentication service")
 
@@ -31,14 +26,11 @@ func main() {
 		log.Panic("Can't connect to Postgres!")
 	}
 
-	app := Config{
-		DB:     conn,
-		Models: data.New(conn),
-	}
+	app := service.NewAuthentication(conn)
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", webPort),
-		Handler: app.routes(),
+		Handler: app.Routes(),
 	}
 
 	err := srv.ListenAndServe()
