@@ -1,3 +1,2 @@
-igru-web-server.code-workspace
-project/db-data
 *.code-workspace
+build/db-data
