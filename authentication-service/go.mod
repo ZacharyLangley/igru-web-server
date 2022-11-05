@@ -1,4 +1,4 @@
-module authentication
+module github.com/ZacharyLangley/igru-web-server/authentication-service
 
 go 1.18
 

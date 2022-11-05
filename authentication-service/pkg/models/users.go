@@ -1,4 +1,4 @@
-package data
+package models
 
 import (
 	"context"
@@ -9,22 +9,6 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 )
-
-const dbTimeout = time.Second * 3
-
-var db *sql.DB
-
-func New(dbPool *sql.DB) Models {
-	db = dbPool
-
-	return Models{
-		User: User{},
-	}
-}
-
-type Models struct {
-	User User
-}
 
 type User struct {
 	ID        int       `json:"id"`
@@ -37,10 +21,7 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func (u *User) GetAll() ([]*User, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-	defer cancel()
-
+func AllUsers(ctx context.Context, db *sql.DB) ([]*User, error) {
 	query := `select id, email, first_name, last_name, password, user_active, created_at, updated_at
 	from users order by last_name`
 
@@ -75,10 +56,7 @@ func (u *User) GetAll() ([]*User, error) {
 	return users, nil
 }
 
-func (u *User) GetByEmail(email string) (*User, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-	defer cancel()
-
+func UserByEmail(ctx context.Context, db *sql.DB, email string) (*User, error) {
 	query := `select id, email, first_name, last_name, password, user_active, created_at, updated_at from users where email = $1`
 
 	var user User
@@ -102,10 +80,7 @@ func (u *User) GetByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
-func (u *User) GetOne(id int) (*User, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-	defer cancel()
-
+func UserByID(ctx context.Context, db *sql.DB, id int) (*User, error) {
 	query := `select id, email, first_name, last_name, password, user_active, created_at, updated_at from users where id = $1`
 
 	var user User
@@ -129,10 +104,7 @@ func (u *User) GetOne(id int) (*User, error) {
 	return &user, nil
 }
 
-func (u *User) Update() error {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-	defer cancel()
-
+func (u *User) Update(ctx context.Context, db *sql.DB) error {
 	stmt := `update users set
 		email = $1,
 		first_name = $2,
@@ -158,10 +130,7 @@ func (u *User) Update() error {
 	return nil
 }
 
-func (u *User) Delete() error {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-	defer cancel()
-
+func (u *User) Delete(ctx context.Context, db *sql.DB) error {
 	stmt := `delete from users where id = $1`
 
 	_, err := db.ExecContext(ctx, stmt, u.ID)
@@ -172,10 +141,7 @@ func (u *User) Delete() error {
 	return nil
 }
 
-func (u *User) DeleteByID(id int) error {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-	defer cancel()
-
+func (u *User) DeleteByID(ctx context.Context, db *sql.DB, id int) error {
 	stmt := `delete from users where id = $1`
 
 	_, err := db.ExecContext(ctx, stmt, id)
@@ -186,11 +152,8 @@ func (u *User) DeleteByID(id int) error {
 	return nil
 }
 
-func (u *User) Insert(user User) (int, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-	defer cancel()
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 12)
+func (u *User) Insert(ctx context.Context, db *sql.DB) (int, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), 12)
 	if err != nil {
 		return 0, err
 	}
@@ -200,11 +163,11 @@ func (u *User) Insert(user User) (int, error) {
 		values ($1, $2, $3, $4, $5, $6, $7) returning id`
 
 	err = db.QueryRowContext(ctx, stmt,
-		user.Email,
-		user.FirstName,
-		user.LastName,
+		u.Email,
+		u.FirstName,
+		u.LastName,
 		hashedPassword,
-		user.Active,
+		u.Active,
 		time.Now(),
 		time.Now(),
 	).Scan(&newID)
@@ -217,10 +180,7 @@ func (u *User) Insert(user User) (int, error) {
 }
 
 // ResetPassword is the method we will use to change a user's password.
-func (u *User) ResetPassword(password string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-	defer cancel()
-
+func (u *User) ResetPassword(ctx context.Context, db *sql.DB, password string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
 		return err
