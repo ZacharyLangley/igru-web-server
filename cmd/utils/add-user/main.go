@@ -19,7 +19,7 @@ func main() {
 	req := connect.NewRequest(&authenticationv1.CreateRequest{
 		FirstName: "Eric",
 		LastName:  "Suedmeier",
-		Email:     "bobcob7@hotmail.com",
+		Email:     "bobcob333@hotmail.com",
 		Password:  "password123",
 	})
 	ctx, done := context.WithTimeout(context.Background(), time.Second*5)
