@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	authenticationv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
@@ -18,19 +19,13 @@ func main() {
 		http.DefaultClient,
 		"http://localhost:8081/",
 	)
-	req := connect.NewRequest(&authenticationv1.AuthenticateRequest{
-		Email:    "bobcob333@hotmail.com",
-		Password: "password123",
-	})
+	req := connect.NewRequest(&authenticationv1.WhoamiRequest{})
+	authentication.AddSessionToken(req.Header(), os.Args[1])
 	ctx, done := context.WithTimeout(context.Background(), time.Second*5)
 	defer done()
-	res, err := client.Authenticate(ctx, req)
+	res, err := client.Whoami(ctx, req)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	sessionID, err := authentication.ExtractSessionToken(res.Header())
-	if err != nil {
-		log.Fatalln(err)
-	}
-	fmt.Print(sessionID)
+	fmt.Println(res.Msg)
 }

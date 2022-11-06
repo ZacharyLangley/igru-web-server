@@ -11,4 +11,5 @@ CREATE TABLE IF NOT EXISTS users (
 	updated_at TIMESTAMP WITH TIME ZONE,
 	deleted_at TIMESTAMP WITH TIME ZONE
 );
+CREATE UNIQUE INDEX user_id_idx ON users(id);
 CREATE UNIQUE INDEX user_email_idx ON users(email);
