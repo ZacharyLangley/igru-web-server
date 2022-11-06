@@ -19,9 +19,17 @@ INSERT INTO sessions (
 RETURNING id;
 
 -- name: GetSessionUserID :one
-SELECT user_id FROM sessions
+SELECT user_id, expired_at FROM sessions
 WHERE id = $1 LIMIT 1;
 
 -- name: GetUserByID :one
 SELECT * FROM users
 WHERE id = $1 LIMIT 1;
+
+-- name: GetExpiredSessions :many
+SELECT * FROM sessions
+WHERE expired_at < NOW() LIMIT 100;
+
+-- name: DeleteSession :exec
+DELETE FROM sessions
+WHERE id = $1;

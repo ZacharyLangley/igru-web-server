@@ -17,6 +17,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+const sessionDuration = time.Minute * 5
+
 var errUnauthorizedUser = errors.New("could not authenticate user")
 
 func (s *Service) Authenticate(ctx context.Context, req *connect_go.Request[v1.AuthenticateRequest]) (*connect_go.Response[v1.AuthenticateResponse], error) {
@@ -47,7 +49,7 @@ func (s *Service) Authenticate(ctx context.Context, req *connect_go.Request[v1.A
 	sessionID, err := queries.CreateSession(ctx, models.CreateSessionParams{
 		UserID:    user.ID.UUID,
 		CreatedAt: time.Now(),
-		ExpiredAt: time.Now().Add(time.Hour * 3),
+		ExpiredAt: time.Now().Add(sessionDuration),
 	})
 	if err != nil {
 		return nil, connect_go.NewError(connect_go.CodeUnauthenticated, errUnauthorizedUser)
@@ -103,12 +105,15 @@ func (s *Service) Whoami(ctx context.Context, req *connect_go.Request[v1.WhoamiR
 		}
 	}()
 	queries := models.New(tx)
-	userID, err := queries.GetSessionUserID(ctx, sessionID)
+	row, err := queries.GetSessionUserID(ctx, sessionID)
 	if err != nil {
 		return nil, connect_go.NewError(connect_go.CodeInternal, err)
 	}
+	if row.ExpiredAt.Before(time.Now()) {
+		return nil, connect_go.NewError(connect_go.CodeUnauthenticated, err)
+	}
 	user, err := queries.GetUserByID(ctx, uuid.NullUUID{
-		UUID:  userID,
+		UUID:  row.UserID,
 		Valid: true,
 	})
 	if err != nil {

@@ -75,16 +75,64 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const deleteSession = `-- name: DeleteSession :exec
+DELETE FROM sessions
+WHERE id = $1
+`
+
+func (q *Queries) DeleteSession(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteSession, id)
+	return err
+}
+
+const getExpiredSessions = `-- name: GetExpiredSessions :many
+SELECT id, user_id, created_at, expired_at FROM sessions
+WHERE expired_at < NOW() LIMIT 100
+`
+
+func (q *Queries) GetExpiredSessions(ctx context.Context) ([]Session, error) {
+	rows, err := q.db.QueryContext(ctx, getExpiredSessions)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Session
+	for rows.Next() {
+		var i Session
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CreatedAt,
+			&i.ExpiredAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSessionUserID = `-- name: GetSessionUserID :one
-SELECT user_id FROM sessions
+SELECT user_id, expired_at FROM sessions
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetSessionUserID(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
+type GetSessionUserIDRow struct {
+	UserID    uuid.UUID
+	ExpiredAt time.Time
+}
+
+func (q *Queries) GetSessionUserID(ctx context.Context, id uuid.UUID) (GetSessionUserIDRow, error) {
 	row := q.db.QueryRowContext(ctx, getSessionUserID, id)
-	var user_id uuid.UUID
-	err := row.Scan(&user_id)
-	return user_id, err
+	var i GetSessionUserIDRow
+	err := row.Scan(&i.UserID, &i.ExpiredAt)
+	return i, err
 }
 
 const getUser = `-- name: GetUser :one
