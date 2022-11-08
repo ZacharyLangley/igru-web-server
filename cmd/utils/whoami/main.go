@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	authenticationv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1/authenticationv1connect"
+	"github.com/ZacharyLangley/igru-web-server/pkg/service/authentication"
 	"github.com/bufbuild/connect-go"
 )
 
@@ -16,17 +19,13 @@ func main() {
 		http.DefaultClient,
 		"http://localhost:8081/",
 	)
-	req := connect.NewRequest(&authenticationv1.CreateRequest{
-		FirstName: "Eric",
-		LastName:  "Suedmeier",
-		Email:     "bobcob333@hotmail.com",
-		Password:  "password123",
-	})
+	req := connect.NewRequest(&authenticationv1.WhoamiRequest{})
+	authentication.AddSessionToken(req.Header(), os.Args[1])
 	ctx, done := context.WithTimeout(context.Background(), time.Second*5)
 	defer done()
-	res, err := client.Create(ctx, req)
+	res, err := client.Whoami(ctx, req)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Println(res.Msg)
+	fmt.Println(res.Msg)
 }

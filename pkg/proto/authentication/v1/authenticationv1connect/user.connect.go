@@ -29,6 +29,7 @@ const (
 type UserServiceClient interface {
 	Authenticate(context.Context, *connect_go.Request[v1.AuthenticateRequest]) (*connect_go.Response[v1.AuthenticateResponse], error)
 	Create(context.Context, *connect_go.Request[v1.CreateRequest]) (*connect_go.Response[v1.CreateResponse], error)
+	Whoami(context.Context, *connect_go.Request[v1.WhoamiRequest]) (*connect_go.Response[v1.WhoamiResponse], error)
 }
 
 // NewUserServiceClient constructs a client for the authentication.v1.UserService service. By
@@ -51,6 +52,11 @@ func NewUserServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts
 			baseURL+"/authentication.v1.UserService/Create",
 			opts...,
 		),
+		whoami: connect_go.NewClient[v1.WhoamiRequest, v1.WhoamiResponse](
+			httpClient,
+			baseURL+"/authentication.v1.UserService/Whoami",
+			opts...,
+		),
 	}
 }
 
@@ -58,6 +64,7 @@ func NewUserServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts
 type userServiceClient struct {
 	authenticate *connect_go.Client[v1.AuthenticateRequest, v1.AuthenticateResponse]
 	create       *connect_go.Client[v1.CreateRequest, v1.CreateResponse]
+	whoami       *connect_go.Client[v1.WhoamiRequest, v1.WhoamiResponse]
 }
 
 // Authenticate calls authentication.v1.UserService.Authenticate.
@@ -70,10 +77,16 @@ func (c *userServiceClient) Create(ctx context.Context, req *connect_go.Request[
 	return c.create.CallUnary(ctx, req)
 }
 
+// Whoami calls authentication.v1.UserService.Whoami.
+func (c *userServiceClient) Whoami(ctx context.Context, req *connect_go.Request[v1.WhoamiRequest]) (*connect_go.Response[v1.WhoamiResponse], error) {
+	return c.whoami.CallUnary(ctx, req)
+}
+
 // UserServiceHandler is an implementation of the authentication.v1.UserService service.
 type UserServiceHandler interface {
 	Authenticate(context.Context, *connect_go.Request[v1.AuthenticateRequest]) (*connect_go.Response[v1.AuthenticateResponse], error)
 	Create(context.Context, *connect_go.Request[v1.CreateRequest]) (*connect_go.Response[v1.CreateResponse], error)
+	Whoami(context.Context, *connect_go.Request[v1.WhoamiRequest]) (*connect_go.Response[v1.WhoamiResponse], error)
 }
 
 // NewUserServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -93,6 +106,11 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect_go.HandlerOpt
 		svc.Create,
 		opts...,
 	))
+	mux.Handle("/authentication.v1.UserService/Whoami", connect_go.NewUnaryHandler(
+		"/authentication.v1.UserService/Whoami",
+		svc.Whoami,
+		opts...,
+	))
 	return "/authentication.v1.UserService/", mux
 }
 
@@ -105,4 +123,8 @@ func (UnimplementedUserServiceHandler) Authenticate(context.Context, *connect_go
 
 func (UnimplementedUserServiceHandler) Create(context.Context, *connect_go.Request[v1.CreateRequest]) (*connect_go.Response[v1.CreateResponse], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.UserService.Create is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) Whoami(context.Context, *connect_go.Request[v1.WhoamiRequest]) (*connect_go.Response[v1.WhoamiResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.UserService.Whoami is not implemented"))
 }
