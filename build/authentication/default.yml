@@ -1,5 +1,5 @@
 grpc:
-  address: 127.0.0.1:8080
+  address: :80
 database:
   host: postgres
   port: 5432
