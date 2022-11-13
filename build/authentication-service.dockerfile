@@ -9,5 +9,6 @@ FROM gcr.io/distroless/static-debian11
 # FROM alpine
 COPY --from=build /go/bin/authApp /
 COPY build/authentication/migrations /migrations
-# RUN ls -lah /migrations
+COPY build/authentication/default.yml .
 ENTRYPOINT ["/authApp"]
+CMD ["-config", "default.yml"]
