@@ -6,36 +6,42 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
+	"github.com/ZacharyLangley/igru-web-server/pkg/config"
 	"github.com/ZacharyLangley/igru-web-server/pkg/connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/database"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/authentication"
 	"github.com/ZacharyLangley/igru-web-server/pkg/service/authentication"
 )
 
-const webPort = "80"
-
-var counts int64
+type Config struct {
+	Database config.Database `mapstructure:"database"`
+	GRPC     config.GRPC     `mapstructure:"grpc"`
+	GCPeriod time.Duration   `mapstructure:"gcPeriod"`
+}
 
 func main() {
+	var cfg Config
+	if err := config.New(&cfg); err != nil {
+		log.Fatalln(err)
+	}
 	log.Println("Starting authentication service")
 
-	conn := connectToDB()
-	if conn == nil {
-		log.Panic("Can't connect to Postgres!")
+	conn, err := connectToDB(context.Background(), cfg.Database)
+	if err != nil {
+		log.Fatalln("Can't connect to Postgres!", err)
 	}
 
 	mux := connect.CreateMux(authentication.New(conn))
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", webPort),
+		Addr:    cfg.GRPC.Address,
 		Handler: mux,
 	}
 
 	// Start cleanup process
 	go func(ctx context.Context) {
-		t := time.NewTicker(time.Second * 10)
+		t := time.NewTicker(cfg.GCPeriod)
 		for range t.C {
 			queries := models.New(conn)
 			sessions, err := queries.GetExpiredSessions(context.Background())
@@ -53,34 +59,26 @@ func main() {
 			}
 		}
 	}(context.Background())
-
-	err := srv.ListenAndServe()
-	if err != nil {
+	if err := srv.ListenAndServe(); err != nil {
 		log.Panic(err)
 	}
 }
 
-func connectToDB() *sql.DB {
-	dsn := os.Getenv("DSN")
-
-	for {
-		connection, err := database.Open(context.Background(), dsn)
-		if err != nil {
-			log.Println("Postgres not yet ready ...")
-			log.Println(err)
-			counts++
-		} else {
-			log.Println("Connected to Postgres!")
-			return connection
-		}
-
-		if counts > 10 {
-			log.Println(err)
-			return nil
-		}
-
-		log.Println("Backing off for two seconds....")
-		time.Sleep(2 * time.Second)
-		continue
+func connectToDB(ctx context.Context, cfg config.Database) (*sql.DB, error) {
+	dsn, err := cfg.DSN()
+	if err != nil {
+		return nil, err
 	}
+	backoff := time.Second
+	var lastErr error
+	var connection *sql.DB
+	for i := 0; i < cfg.MaxRetries; i++ {
+		connection, lastErr = database.Open(ctx, dsn)
+		if err == nil {
+			return connection, nil
+		}
+		time.Sleep(backoff)
+		backoff *= 2
+	}
+	return nil, fmt.Errorf("failed to connect in time: %w", lastErr)
 }

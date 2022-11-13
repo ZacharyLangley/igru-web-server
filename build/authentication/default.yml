@@ -1,0 +1,13 @@
+grpc:
+  address: :80
+database:
+  host: postgres
+  port: 5432
+  username: postgres
+  database: users
+  password: ""
+  sslmode: disable
+  timezone: UTC
+  connect_timeout: 5
+  maxRetries: 5
+gcPeriod: 5s

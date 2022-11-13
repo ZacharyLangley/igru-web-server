@@ -1,29 +1,32 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/ZacharyLangley/igru-web-server/pkg/config"
 	"github.com/ZacharyLangley/igru-web-server/pkg/connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/service/broker"
 )
 
-const webPort = "80"
-
-type Config struct{}
+type Config struct {
+	GRPC config.GRPC `mapstructure:"grpc"`
+}
 
 func main() {
-	log.Println("Broker Server Started on port:", webPort)
+	var cfg Config
+	if err := config.New(&cfg); err != nil {
+		log.Fatalln(err)
+	}
+	log.Println("Broker Server Started")
 
 	mux := connect.CreateMux(broker.New())
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", webPort),
+		Addr:    cfg.GRPC.Address,
 		Handler: mux,
 	}
 
-	err := srv.ListenAndServe()
-	if err != nil {
+	if err := srv.ListenAndServe(); err != nil {
 		log.Panic(err)
 	}
 }
