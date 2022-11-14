@@ -12,6 +12,7 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1/authenticationv1connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/service/authentication"
 	"github.com/bufbuild/connect-go"
+	"github.com/google/uuid"
 )
 
 func main() {
@@ -20,7 +21,11 @@ func main() {
 		"http://localhost:8081/",
 	)
 	req := connect.NewRequest(&authenticationv1.WhoamiRequest{})
-	authentication.AddSessionToken(req.Header(), os.Args[1])
+	sessionID, err := uuid.Parse(os.Args[1])
+	if err != nil {
+		log.Fatalln(err)
+	}
+	authentication.AddSessionToken(req.Header(), sessionID)
 	ctx, done := context.WithTimeout(context.Background(), time.Second*5)
 	defer done()
 	res, err := client.Whoami(ctx, req)

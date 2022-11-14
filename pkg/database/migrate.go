@@ -13,7 +13,7 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-func Open(ctx context.Context, dsn string) (*sql.DB, error) {
+func Open(ctx context.Context, dsn string, disableMigration bool) (*sql.DB, error) {
 	// Connect to DB
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
@@ -24,21 +24,23 @@ func Open(ctx context.Context, dsn string) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	// Setup DB migration
-	driver, err := postgres.WithInstance(db, &postgres.Config{})
-	if err != nil {
-		return nil, err
-	}
-	m, err := migrate.NewWithDatabaseInstance(
-		"file:///migrations",
-		"pgx", driver)
-	if err != nil {
-		return nil, err
-	}
-	// Run DB migration
-	err = m.Up()
-	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return nil, err
+	if !disableMigration {
+		// Setup DB migration
+		driver, err := postgres.WithInstance(db, &postgres.Config{})
+		if err != nil {
+			return nil, err
+		}
+		m, err := migrate.NewWithDatabaseInstance(
+			"file:///migrations",
+			"pgx", driver)
+		if err != nil {
+			return nil, err
+		}
+		// Run DB migration
+		err = m.Up()
+		if err != nil && !errors.Is(err, migrate.ErrNoChange) {
+			return nil, err
+		}
 	}
 	return db, nil
 }

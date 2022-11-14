@@ -5,17 +5,18 @@ import (
 	"strings"
 )
 
-type Database struct {
-	Host       string                 `mapstructure:"host"`
-	Port       int                    `mapstructure:"port"`
-	Database   string                 `mapstructure:"database"`
-	Username   string                 `mapstructure:"username"`
-	Password   string                 `mapstructure:"password"`
-	MaxRetries int                    `mapstructure:"maxRetries"`
-	Args       map[string]interface{} `mapstructure:",remain"`
+type SQL struct {
+	Host             string                 `mapstructure:"host"`
+	Port             int                    `mapstructure:"port"`
+	Database         string                 `mapstructure:"database"`
+	Username         string                 `mapstructure:"username"`
+	Password         string                 `mapstructure:"password"`
+	MaxRetries       int                    `mapstructure:"maxRetries"`
+	DisableMigration bool                   `mapstructure:"disableMigration"`
+	Args             map[string]interface{} `mapstructure:",remain"`
 }
 
-func (d Database) DSN() (string, error) {
+func (d SQL) DSN() (string, error) {
 	// Example DSN: "host=postgres port=5432 user=postgres password=password dbname=users sslmode=disable timezone=UTC connect_timeout=5"
 	parts := make([]string, 0, 10)
 	if d.Host != "" {

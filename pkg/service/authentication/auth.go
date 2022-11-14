@@ -46,17 +46,38 @@ func (s *Service) Authenticate(ctx context.Context, req *connect_go.Request[v1.A
 	if !checkHash(user, req.Msg.Password) {
 		return nil, connect_go.NewError(connect_go.CodeUnauthenticated, errUnauthorizedUser)
 	}
-	sessionID, err := queries.CreateSession(ctx, models.CreateSessionParams{
-		UserID:    user.ID.UUID,
-		CreatedAt: time.Now(),
-		ExpiredAt: time.Now().Add(sessionDuration),
-	})
+	sessionID, err := s.createSession(ctx, req.Msg.Email, user.ID.UUID)
 	if err != nil {
 		return nil, connect_go.NewError(connect_go.CodeUnauthenticated, errUnauthorizedUser)
 	}
 	success = true
-	AddSessionToken(res.Header(), sessionID.String())
+	AddSessionToken(res.Header(), sessionID)
 	return res, nil
+}
+
+func (s *Service) createSession(ctx context.Context, email string, userID uuid.UUID) (uuid.UUID, error) {
+	var sessionID = uuid.New()
+	var sessionString = sessionID.String()
+	err := s.cache.HSet(ctx, sessionString, map[string]interface{}{
+		"email":   email,
+		"user_id": userID.String(),
+	}).Err()
+	if err != nil {
+		return sessionID, err
+	}
+	err = s.cache.Expire(ctx, sessionString, s.sessionDuration).Err()
+	if err != nil {
+		return sessionID, err
+	}
+	return sessionID, nil
+}
+
+func (s *Service) getSession(ctx context.Context, token string) (uuid.UUID, error) {
+	val, err := s.cache.HGet(ctx, token, "user_id").Result()
+	if err != nil {
+		return uuid.UUID{}, err
+	}
+	return uuid.Parse(val)
 }
 
 func (s *Service) Create(ctx context.Context, req *connect_go.Request[v1.CreateRequest]) (*connect_go.Response[v1.CreateResponse], error) {
@@ -105,15 +126,15 @@ func (s *Service) Whoami(ctx context.Context, req *connect_go.Request[v1.WhoamiR
 		}
 	}()
 	queries := models.New(tx)
-	row, err := queries.GetSessionUserID(ctx, sessionID)
 	if err != nil {
 		return nil, connect_go.NewError(connect_go.CodeInternal, err)
 	}
-	if row.ExpiredAt.Before(time.Now()) {
+	userID, err := s.getSession(ctx, sessionID.String())
+	if err != nil {
 		return nil, connect_go.NewError(connect_go.CodeUnauthenticated, err)
 	}
 	user, err := queries.GetUserByID(ctx, uuid.NullUUID{
-		UUID:  row.UserID,
+		UUID:  userID,
 		Valid: true,
 	})
 	if err != nil {
@@ -158,8 +179,8 @@ func checkHash(user models.User, password string) bool {
 	return true
 }
 
-func AddSessionToken(h http.Header, token string) {
-	h.Add("Authentication", "Bearer: "+token)
+func AddSessionToken(h http.Header, token uuid.UUID) {
+	h.Add("Authentication", "Bearer: "+token.String())
 }
 
 func ExtractSessionToken(h http.Header) (uuid.UUID, error) {

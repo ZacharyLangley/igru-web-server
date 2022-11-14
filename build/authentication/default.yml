@@ -10,4 +10,10 @@ database:
   timezone: UTC
   connect_timeout: 5
   maxRetries: 5
+  disableMigration: false
+cache:
+  host: redis
+  port: 6379
+  username: ""
+  password: ""
 gcPeriod: 5s
