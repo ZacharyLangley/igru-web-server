@@ -24,6 +24,7 @@ services:
       replicas: 1
     environment:
       DATABASE.PASSWORD: password
+      LOGGER.LEVEL: debug
 
   postgres:
     image: "postgres:14.2"

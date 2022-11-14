@@ -1,7 +1,7 @@
 package authentication
 
 import (
-	"context"
+	gocontext "context"
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
@@ -9,11 +9,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/authentication"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	"github.com/bufbuild/connect-go"
 	connect_go "github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -21,18 +23,25 @@ const sessionDuration = time.Minute * 5
 
 var errUnauthorizedUser = errors.New("could not authenticate user")
 
-func (s *Service) Authenticate(ctx context.Context, req *connect_go.Request[v1.AuthenticateRequest]) (*connect_go.Response[v1.AuthenticateResponse], error) {
+func (s *Service) Authenticate(baseCtx gocontext.Context, req *connect_go.Request[v1.AuthenticateRequest]) (*connect_go.Response[v1.AuthenticateResponse], error) {
+	ctx := context.New(baseCtx).Named("authenticate")
+	logger := ctx.L()
 	res := connect.NewResponse(&v1.AuthenticateResponse{})
 	if req.Msg == nil {
+		logger.Error("failed beginning transaction", zap.Error(errors.New("missing request body")))
 		return nil, connect_go.NewError(connect_go.CodeInternal, errors.New("missing request body"))
 	}
+	logger.Debug("starting transaction")
 	tx, err := s.conn.Begin()
 	if err != nil {
+		logger.Error("failed beginning transaction", zap.Error(err))
 		return nil, connect_go.NewError(connect_go.CodeInternal, err)
 	}
 	var success bool
 	defer func() {
+		logger.Debug("ending transaction")
 		if !success {
+			logger.Warn("rolling back")
 			tx.Rollback()
 		} else {
 			tx.Commit()
@@ -41,6 +50,7 @@ func (s *Service) Authenticate(ctx context.Context, req *connect_go.Request[v1.A
 	queries := models.New(tx)
 	user, err := queries.GetUser(ctx, req.Msg.Email)
 	if err != nil {
+		logger.Error("failed getting user", zap.Error(err), zap.String("email", req.Msg.Email))
 		return nil, connect_go.NewError(connect_go.CodeUnauthenticated, errUnauthorizedUser)
 	}
 	if !checkHash(user, req.Msg.Password) {
@@ -52,6 +62,7 @@ func (s *Service) Authenticate(ctx context.Context, req *connect_go.Request[v1.A
 		ExpiredAt: time.Now().Add(sessionDuration),
 	})
 	if err != nil {
+		logger.Error("failed creating session", zap.Error(err), zap.String("userID", user.ID.UUID.String()))
 		return nil, connect_go.NewError(connect_go.CodeUnauthenticated, errUnauthorizedUser)
 	}
 	success = true
@@ -59,13 +70,17 @@ func (s *Service) Authenticate(ctx context.Context, req *connect_go.Request[v1.A
 	return res, nil
 }
 
-func (s *Service) Create(ctx context.Context, req *connect_go.Request[v1.CreateRequest]) (*connect_go.Response[v1.CreateResponse], error) {
+func (s *Service) Create(baseCtx gocontext.Context, req *connect_go.Request[v1.CreateRequest]) (*connect_go.Response[v1.CreateResponse], error) {
+	ctx := context.New(baseCtx).Named("create")
+	logger := ctx.L()
 	res := connect.NewResponse(&v1.CreateResponse{})
 	if req.Msg == nil {
+		logger.Error("failed beginning transaction", zap.Error(errors.New("missing request body")))
 		return nil, connect_go.NewError(connect_go.CodeInternal, errors.New("missing request body"))
 	}
 	hash, salt, err := generateCred(req.Msg.Password)
 	if err != nil {
+		logger.Error("failed generating credentials", zap.Error(err))
 		return nil, connect_go.NewError(connect_go.CodeInternal, err)
 	}
 	queries := models.New(s.conn)
@@ -77,6 +92,7 @@ func (s *Service) Create(ctx context.Context, req *connect_go.Request[v1.CreateR
 		Salt:      salt,
 	})
 	if err != nil {
+		logger.Error("failed creating user", zap.Error(err))
 		return nil, connect_go.NewError(connect_go.CodeInternal, err)
 	}
 	res.Msg.Id = user.ID.UUID.String()
@@ -86,19 +102,26 @@ func (s *Service) Create(ctx context.Context, req *connect_go.Request[v1.CreateR
 	return res, nil
 }
 
-func (s *Service) Whoami(ctx context.Context, req *connect_go.Request[v1.WhoamiRequest]) (*connect_go.Response[v1.WhoamiResponse], error) {
+func (s *Service) Whoami(baseCtx gocontext.Context, req *connect_go.Request[v1.WhoamiRequest]) (*connect_go.Response[v1.WhoamiResponse], error) {
+	ctx := context.New(baseCtx).Named("whoami")
+	logger := ctx.L()
 	res := connect.NewResponse(&v1.WhoamiResponse{})
 	sessionID, err := ExtractSessionToken(req.Header())
 	if err != nil {
 		return nil, connect_go.NewError(connect_go.CodeUnauthenticated, err)
 	}
+	logger = logger.With(zap.String("sessionID", sessionID.String()))
+	logger.Debug("starting transaction")
 	tx, err := s.conn.Begin()
 	if err != nil {
+		logger.Error("failed beginning transaction", zap.Error(err))
 		return nil, connect_go.NewError(connect_go.CodeInternal, err)
 	}
 	var success bool
 	defer func() {
+		logger.Debug("ending transaction")
 		if !success {
+			logger.Warn("rolling back")
 			tx.Rollback()
 		} else {
 			tx.Commit()
@@ -107,6 +130,7 @@ func (s *Service) Whoami(ctx context.Context, req *connect_go.Request[v1.WhoamiR
 	queries := models.New(tx)
 	row, err := queries.GetSessionUserID(ctx, sessionID)
 	if err != nil {
+		logger.Error("failed getting session")
 		return nil, connect_go.NewError(connect_go.CodeInternal, err)
 	}
 	if row.ExpiredAt.Before(time.Now()) {
@@ -117,12 +141,14 @@ func (s *Service) Whoami(ctx context.Context, req *connect_go.Request[v1.WhoamiR
 		Valid: true,
 	})
 	if err != nil {
+		logger.Error("failed getting user id", zap.String("userID", row.UserID.String()))
 		return nil, connect_go.NewError(connect_go.CodeInternal, err)
 	}
 	res.Msg.Id = user.ID.UUID.String()
 	res.Msg.Email = user.Email
 	res.Msg.FirstName = user.FirstName
 	res.Msg.LastName = user.LastName
+	success = true
 	return res, nil
 }
 

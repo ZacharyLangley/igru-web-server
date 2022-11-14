@@ -12,7 +12,12 @@
             "program": "${workspaceFolder}/cmd/auth",
             "args":[
                 "-config", "${workspaceFolder}/build/authentication/default.yml"
-            ]
+            ],
+            "env": {
+                "DATABASE.DISABLEMIGRATION": "true",
+                "DATABASE.HOST": "127.0.0.1",
+                "DATABASE.PASSWORD": "password"
+            }
         }
     ]
 }
