@@ -25,6 +25,7 @@ services:
     environment:
       DATABASE.PASSWORD: password
       LOGGER.LEVEL: debug
+      METRICS.JAEGERADDRESS: jaeger:14268
 
   postgres:
     image: "postgres:14.2"
@@ -39,3 +40,9 @@ services:
       POSTGRES_DB: users
     volumes:
       - ./db-data/postgres/:/var/lib/postgresql/data/
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.6
+    ports:
+      - 14268:14268 # Services
+      - 16686:16686 # Frontent

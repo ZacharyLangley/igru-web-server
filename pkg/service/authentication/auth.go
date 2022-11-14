@@ -31,6 +31,7 @@ func (s *Service) Authenticate(baseCtx gocontext.Context, req *connect_go.Reques
 		logger.Error("failed beginning transaction", zap.Error(errors.New("missing request body")))
 		return nil, connect_go.NewError(connect_go.CodeInternal, errors.New("missing request body"))
 	}
+	ctx.AddEvent("rolled back")
 	logger.Debug("starting transaction")
 	tx, err := s.conn.Begin()
 	if err != nil {
@@ -42,6 +43,7 @@ func (s *Service) Authenticate(baseCtx gocontext.Context, req *connect_go.Reques
 		logger.Debug("ending transaction")
 		if !success {
 			logger.Warn("rolling back")
+			ctx.AddEvent("rolled back")
 			tx.Rollback()
 		} else {
 			tx.Commit()
@@ -51,6 +53,7 @@ func (s *Service) Authenticate(baseCtx gocontext.Context, req *connect_go.Reques
 	user, err := queries.GetUser(ctx, req.Msg.Email)
 	if err != nil {
 		logger.Error("failed getting user", zap.Error(err), zap.String("email", req.Msg.Email))
+		ctx.AddEvent("rolled back")
 		return nil, connect_go.NewError(connect_go.CodeUnauthenticated, errUnauthorizedUser)
 	}
 	if !checkHash(user, req.Msg.Password) {
@@ -95,6 +98,7 @@ func (s *Service) Create(baseCtx gocontext.Context, req *connect_go.Request[v1.C
 		logger.Error("failed creating user", zap.Error(err))
 		return nil, connect_go.NewError(connect_go.CodeInternal, err)
 	}
+	ctx.AddEvent("Created new user")
 	res.Msg.Id = user.ID.UUID.String()
 	res.Msg.Email = user.Email
 	res.Msg.FirstName = user.FirstName
@@ -122,6 +126,7 @@ func (s *Service) Whoami(baseCtx gocontext.Context, req *connect_go.Request[v1.W
 		logger.Debug("ending transaction")
 		if !success {
 			logger.Warn("rolling back")
+			ctx.AddEvent("rolled back")
 			tx.Rollback()
 		} else {
 			tx.Commit()

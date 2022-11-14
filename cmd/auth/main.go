@@ -22,6 +22,7 @@ type Config struct {
 	Database config.Database `mapstructure:"database"`
 	GRPC     config.GRPC     `mapstructure:"grpc"`
 	Logger   config.Logger   `mapstructure:"logger"`
+	Metrics  config.Metrics  `mapstructure:"metrics"`
 	GCPeriod time.Duration   `mapstructure:"gcPeriod"`
 }
 
@@ -36,6 +37,9 @@ func main() {
 	baseCtx, done := context.WithCancel(context.Background())
 	defer done()
 	ctx := internalcontext.New(baseCtx).Named("auth")
+	// Setup tracing
+	cfg.Metrics.Setup()
+	// Connect to DB
 	conn, err := connectToDB(ctx, cfg.Database)
 	if err != nil {
 		ctx.L().Fatal("failed to connect to database", zap.Error(err))

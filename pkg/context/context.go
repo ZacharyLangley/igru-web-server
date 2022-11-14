@@ -3,6 +3,7 @@ package context
 import (
 	"context"
 
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
 
@@ -11,6 +12,7 @@ type Context interface {
 	L() *zap.Logger
 	Named(name string) Context
 	WithFields(fields ...zap.Field) Context
+	AddEvent(string)
 }
 
 type internalContext struct {
@@ -32,6 +34,12 @@ func (c *internalContext) WithFields(fields ...zap.Field) Context {
 	}
 }
 
+func (c *internalContext) AddEvent(msg string) {
+	if span := trace.SpanFromContext(c); span != nil {
+		span.AddEvent(msg)
+	}
+}
+
 func (c *internalContext) L() *zap.Logger {
 	if c.logger != nil {
 		return c.logger
@@ -49,6 +57,12 @@ func New(ctx context.Context) Context {
 }
 
 func WithLogger(ctx context.Context, logger *zap.Logger) Context {
+	if nested, ok := ctx.(*internalContext); ok {
+		return &internalContext{
+			Context: nested.Context,
+			logger:  logger,
+		}
+	}
 	return &internalContext{
 		Context: ctx,
 		logger:  logger,
