@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package authentication.v1;
+
+import "authentication/v1/schema.proto";
+
+service GroupService {
+  rpc CreateGroup(CreateGroupRequest) returns (CreateGroupResponse) {}
+  rpc UpdateGroup(UpdateGroupRequest) returns (UpdateGroupResponse) {}
+  rpc DeleteGroup(DeleteGroupRequest) returns (DeleteGroupResponse) {}
+  rpc GetGroup(GetGroupRequest) returns (GetGroupResponse) {}
+  rpc GetGroups(GetGroupsRequest) returns (GetGroupsResponse) {}
+
+  rpc AddUser(AddUserRequest) returns (AddUserResponse) {}
+  rpc RemoveUser(RemoveUserRequest) returns (RemoveUserResponse) {}
+}
+
+message CreateGroupRequest {
+  string id = 1;
+  string name = 2;
+}
+message CreateGroupResponse {
+  authentication.v1.Group group = 1;
+}
+
+message UpdateGroupRequest {
+  string id = 1;
+  string name = 2;
+}
+message UpdateGroupResponse {
+  authentication.v1.Group group = 1;
+}
+
+message DeleteGroupRequest {
+  string id = 1;
+}
+message DeleteGroupResponse {}
+
+message GetGroupRequest {
+  string id = 1;
+}
+message GetGroupResponse {
+  authentication.v1.Group group = 1;
+}
+
+message GetGroupsRequest {}
+message GetGroupsResponse {
+  repeated authentication.v1.Group groups = 1;
+}
+
+message AddUserRequest {
+  string id = 1;
+  string user_id = 2;
+}
+message AddUserResponse {}
+
+message RemoveUserRequest {
+  string id = 1;
+  string user_id = 2;
+}
+message RemoveUserResponse {}

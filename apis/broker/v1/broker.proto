@@ -1,10 +1,11 @@
 syntax = "proto3";
+
 package broker.v1;
 
 import "common/v1/status.proto";
 
 service BrokerService {
-  rpc Ping (PingRequest) returns (PingResponse) {}
+  rpc Ping(PingRequest) returns (PingResponse) {}
 }
 
 message PingRequest {

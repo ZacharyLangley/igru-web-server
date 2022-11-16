@@ -1,38 +1,48 @@
 syntax = "proto3";
+
 package authentication.v1;
 
+import "authentication/v1/schema.proto";
+import "common/v1/pagination.proto";
+
 service UserService {
-  rpc Authenticate (AuthenticateRequest) returns (AuthenticateResponse) {}
-  rpc Create (CreateRequest) returns (CreateResponse) {}
-  rpc Whoami (WhoamiRequest) returns (WhoamiResponse) {}
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
+  rpc ResetUserPassword(ResetUserPasswordRequest) returns (ResetUserPasswordResponse) {}
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
+  rpc GetUsers(GetUsersRequest) returns (GetUsersResponse) {}
 }
 
-message AuthenticateRequest {
+message CreateUserRequest {
   string email = 1;
+  string full_name = 2;
+  string password = 3;
+}
+message CreateUserResponse {
+  authentication.v1.User user = 1;
+}
+
+message DeleteUserRequest {
+  string user_id = 1;
+}
+message DeleteUserResponse {}
+
+message ResetUserPasswordRequest {
+  string user_id = 1;
   string password = 2;
 }
+message ResetUserPasswordResponse {}
 
-message AuthenticateResponse {}
-
-message CreateRequest {
-  string email = 1;
-  string password = 2;
-  string first_name = 3;
-  string last_name = 4;
+message UpdateUserRequest {
+  authentication.v1.User user = 1;
+}
+message UpdateUserResponse {
+  authentication.v1.User user = 1;
 }
 
-message CreateResponse {
-  string id = 1;
-  string email = 2;
-  string first_name = 3;
-  string last_name = 4;
+message GetUsersRequest {
+  common.v1.PaginationRequest pagination = 1;
 }
-
-message WhoamiRequest {}
-
-message WhoamiResponse {
-  string id = 1;
-  string email = 2;
-  string first_name = 3;
-  string last_name = 4;
+message GetUsersResponse {
+  repeated authentication.v1.User users = 1;
 }
