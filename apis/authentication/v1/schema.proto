@@ -10,7 +10,6 @@ message User {
   string full_name = 3;
   google.protobuf.Timestamp created_at = 4;
   google.protobuf.Timestamp updated_at = 5;
-  google.protobuf.Timestamp deleted_at = 6;
 }
 
 message Session {
@@ -32,14 +31,12 @@ message GroupMember {
   GroupRole role = 3;
   google.protobuf.Timestamp added_at = 4;
   google.protobuf.Timestamp updated_at = 5;
-  google.protobuf.Timestamp deleted_at = 6;
 }
 
 message Group {
   string id = 1;
   string name = 2;
-  repeated GroupMember members = 3;
+  int64 num_members = 3;
   google.protobuf.Timestamp created_at = 4;
   google.protobuf.Timestamp updated_at = 5;
-  google.protobuf.Timestamp deleted_at = 6;
 }

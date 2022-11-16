@@ -1,2 +1,3 @@
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS passwords;
+DROP TABLE users ;
+DROP TABLE groups;
+DROP TABLE group_members;

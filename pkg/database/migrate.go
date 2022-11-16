@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	"github.com/golang-migrate/migrate/v4"
@@ -11,9 +12,10 @@ import (
 	_ "github.com/jackc/pgconn"
 	_ "github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib"
+	"go.uber.org/zap"
 )
 
-func Open(ctx context.Context, dsn string, disableMigration bool) (*sql.DB, error) {
+func Open(ctx context.Context, dsn string, migrationPath string) (*sql.DB, error) {
 	// Connect to DB
 	ctx.L().Debug("Opening connection to DB")
 	db, err := sql.Open("pgx", dsn)
@@ -26,7 +28,7 @@ func Open(ctx context.Context, dsn string, disableMigration bool) (*sql.DB, erro
 	if err != nil {
 		return nil, err
 	}
-	if !disableMigration {
+	if migrationPath != "" {
 		ctx.L().Info("Running DB migration")
 		// Setup DB migration
 		driver, err := postgres.WithInstance(db, &postgres.Config{})
@@ -34,7 +36,7 @@ func Open(ctx context.Context, dsn string, disableMigration bool) (*sql.DB, erro
 			return nil, err
 		}
 		m, err := migrate.NewWithDatabaseInstance(
-			"file:///migrations",
+			fmt.Sprintf("file://%s", migrationPath),
 			"pgx", driver)
 		if err != nil {
 			return nil, err
@@ -48,4 +50,33 @@ func Open(ctx context.Context, dsn string, disableMigration bool) (*sql.DB, erro
 		ctx.L().Info("Skipping DB migration")
 	}
 	return db, nil
+}
+
+func RunTransaction(ctx context.Context, db *sql.DB, f func(context.Context, *sql.Tx) error) error {
+	tx, err := db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return err
+	}
+	var pErr, fErr error
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				pErr = fmt.Errorf("Recovered tx: %#v", r)
+			}
+		}()
+		fErr = f(ctx, tx)
+	}()
+	if pErr != nil {
+		if err := tx.Rollback(); err != nil {
+			ctx.L().Error("failed to rollback", zap.Error(err))
+		}
+		return pErr
+	}
+	if fErr != nil {
+		if err := tx.Rollback(); err != nil {
+			ctx.L().Error("failed to rollback", zap.Error(err))
+		}
+		return fErr
+	}
+	return tx.Commit()
 }

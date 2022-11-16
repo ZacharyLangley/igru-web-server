@@ -7,55 +7,85 @@ package authentication
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
 )
 
-const createSession = `-- name: CreateSession :one
-INSERT INTO sessions (
-  user_id, created_at, expired_at
+const addGroupMember = `-- name: AddGroupMember :exec
+INSERT INTO group_members (
+  user_id, group_id, role
 ) VALUES (
   $1, $2, $3
 )
-RETURNING id
 `
 
-type CreateSessionParams struct {
-	UserID    uuid.UUID
-	CreatedAt time.Time
-	ExpiredAt time.Time
+type AddGroupMemberParams struct {
+	UserID  uuid.UUID
+	GroupID uuid.UUID
+	Role    int32
 }
 
-func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (uuid.UUID, error) {
-	row := q.db.QueryRowContext(ctx, createSession, arg.UserID, arg.CreatedAt, arg.ExpiredAt)
-	var id uuid.UUID
-	err := row.Scan(&id)
-	return id, err
+func (q *Queries) AddGroupMember(ctx context.Context, arg AddGroupMemberParams) error {
+	_, err := q.db.ExecContext(ctx, addGroupMember, arg.UserID, arg.GroupID, arg.Role)
+	return err
+}
+
+const countGroupMembers = `-- name: CountGroupMembers :one
+SELECT COUNT(*)
+FROM "group_members"
+WHERE group_id = $1
+`
+
+func (q *Queries) CountGroupMembers(ctx context.Context, groupID uuid.UUID) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countGroupMembers, groupID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const createGroup = `-- name: CreateGroup :one
+INSERT INTO groups (
+  name
+) VALUES (
+  $1
+)
+RETURNING id, name, created_at, updated_at
+`
+
+func (q *Queries) CreateGroup(ctx context.Context, name string) (Group, error) {
+	row := q.db.QueryRowContext(ctx, createGroup, name)
+	var i Group
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  email, first_name, last_name, salt, hash
+  email, full_name, salt, hash
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4
 )
-RETURNING id, email, first_name, last_name, active, salt, hash, created_at, updated_at, deleted_at
+RETURNING id, email, full_name, active, salt, hash, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	Email     string
-	FirstName string
-	LastName  string
-	Salt      string
-	Hash      string
+	Email    string
+	FullName sql.NullString
+	Salt     string
+	Hash     string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRowContext(ctx, createUser,
 		arg.Email,
-		arg.FirstName,
-		arg.LastName,
+		arg.FullName,
 		arg.Salt,
 		arg.Hash,
 	)
@@ -63,47 +93,105 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
-		&i.FirstName,
-		&i.LastName,
+		&i.FullName,
 		&i.Active,
 		&i.Salt,
 		&i.Hash,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.DeletedAt,
 	)
 	return i, err
 }
 
-const deleteSession = `-- name: DeleteSession :exec
-DELETE FROM sessions
+const deleteGroup = `-- name: DeleteGroup :exec
+DELETE FROM groups
 WHERE id = $1
 `
 
-func (q *Queries) DeleteSession(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteSession, id)
+func (q *Queries) DeleteGroup(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteGroup, id)
 	return err
 }
 
-const getExpiredSessions = `-- name: GetExpiredSessions :many
-SELECT id, user_id, created_at, expired_at FROM sessions
-WHERE expired_at < NOW() LIMIT 100
+const deleteGroupMember = `-- name: DeleteGroupMember :exec
+DELETE FROM group_members
+WHERE user_id = $1 AND group_id = $2
 `
 
-func (q *Queries) GetExpiredSessions(ctx context.Context) ([]Session, error) {
-	rows, err := q.db.QueryContext(ctx, getExpiredSessions)
+type DeleteGroupMemberParams struct {
+	UserID  uuid.UUID
+	GroupID uuid.UUID
+}
+
+func (q *Queries) DeleteGroupMember(ctx context.Context, arg DeleteGroupMemberParams) error {
+	_, err := q.db.ExecContext(ctx, deleteGroupMember, arg.UserID, arg.GroupID)
+	return err
+}
+
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users
+WHERE id = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteUser, id)
+	return err
+}
+
+const getGroup = `-- name: GetGroup :one
+SELECT id, name, created_at, updated_at FROM groups
+WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetGroup(ctx context.Context, id uuid.UUID) (Group, error) {
+	row := q.db.QueryRowContext(ctx, getGroup, id)
+	var i Group
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getGroupMembers = `-- name: GetGroupMembers :many
+SELECT user_id, full_name, role, group_members.created_at AS added_at, group_members.updated_at
+FROM "group_members" JOIN "users" ON user_id=users.id
+WHERE group_id = $3
+LIMIT $1
+OFFSET $2
+`
+
+type GetGroupMembersParams struct {
+	Limit   int32
+	Offset  int32
+	GroupID uuid.UUID
+}
+
+type GetGroupMembersRow struct {
+	UserID    uuid.UUID
+	FullName  sql.NullString
+	Role      int32
+	AddedAt   time.Time
+	UpdatedAt sql.NullTime
+}
+
+func (q *Queries) GetGroupMembers(ctx context.Context, arg GetGroupMembersParams) ([]GetGroupMembersRow, error) {
+	rows, err := q.db.QueryContext(ctx, getGroupMembers, arg.Limit, arg.Offset, arg.GroupID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Session
+	var items []GetGroupMembersRow
 	for rows.Next() {
-		var i Session
+		var i GetGroupMembersRow
 		if err := rows.Scan(
-			&i.ID,
 			&i.UserID,
-			&i.CreatedAt,
-			&i.ExpiredAt,
+			&i.FullName,
+			&i.Role,
+			&i.AddedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -118,65 +206,252 @@ func (q *Queries) GetExpiredSessions(ctx context.Context) ([]Session, error) {
 	return items, nil
 }
 
-const getSessionUserID = `-- name: GetSessionUserID :one
-SELECT user_id, expired_at FROM sessions
-WHERE id = $1 LIMIT 1
+const getGroups = `-- name: GetGroups :many
+SELECT id, name, created_at, updated_at FROM groups
+LIMIT $1
+OFFSET $2
 `
 
-type GetSessionUserIDRow struct {
-	UserID    uuid.UUID
-	ExpiredAt time.Time
+type GetGroupsParams struct {
+	Limit  int32
+	Offset int32
 }
 
-func (q *Queries) GetSessionUserID(ctx context.Context, id uuid.UUID) (GetSessionUserIDRow, error) {
-	row := q.db.QueryRowContext(ctx, getSessionUserID, id)
-	var i GetSessionUserIDRow
-	err := row.Scan(&i.UserID, &i.ExpiredAt)
-	return i, err
+func (q *Queries) GetGroups(ctx context.Context, arg GetGroupsParams) ([]Group, error) {
+	rows, err := q.db.QueryContext(ctx, getGroups, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Group
+	for rows.Next() {
+		var i Group
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, email, first_name, last_name, active, salt, hash, created_at, updated_at, deleted_at FROM users
-WHERE email = $1 LIMIT 1
+SELECT id, email, full_name, active, salt, hash, created_at, updated_at FROM users
+WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, email string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, email)
+func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUser, id)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
-		&i.FirstName,
-		&i.LastName,
+		&i.FullName,
 		&i.Active,
 		&i.Salt,
 		&i.Hash,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.DeletedAt,
 	)
 	return i, err
 }
 
-const getUserByID = `-- name: GetUserByID :one
-SELECT id, email, first_name, last_name, active, salt, hash, created_at, updated_at, deleted_at FROM users
-WHERE id = $1 LIMIT 1
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, email, full_name, active, salt, hash, created_at, updated_at FROM users
+WHERE email = $1 LIMIT 1
 `
 
-func (q *Queries) GetUserByID(ctx context.Context, id uuid.NullUUID) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUserByID, id)
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
-		&i.FirstName,
-		&i.LastName,
+		&i.FullName,
 		&i.Active,
 		&i.Salt,
 		&i.Hash,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const getUserGroups = `-- name: GetUserGroups :many
+SELECT groups.id, groups.name, groups.created_at, groups.updated_at
+FROM "group_members" JOIN "groups" ON group_id=groups.id
+WHERE user_id = $3
+LIMIT $1
+OFFSET $2
+`
+
+type GetUserGroupsParams struct {
+	Limit  int32
+	Offset int32
+	UserID uuid.UUID
+}
+
+func (q *Queries) GetUserGroups(ctx context.Context, arg GetUserGroupsParams) ([]Group, error) {
+	rows, err := q.db.QueryContext(ctx, getUserGroups, arg.Limit, arg.Offset, arg.UserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Group
+	for rows.Next() {
+		var i Group
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUsers = `-- name: GetUsers :many
+SELECT id, email, full_name, active, salt, hash, created_at, updated_at FROM users LIMIT $1 OFFSET $2
+`
+
+type GetUsersParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, getUsers, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.FullName,
+			&i.Active,
+			&i.Salt,
+			&i.Hash,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateGroup = `-- name: UpdateGroup :one
+UPDATE groups
+SET name = $2, updated_at=CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING id, name, created_at, updated_at
+`
+
+type UpdateGroupParams struct {
+	ID   uuid.UUID
+	Name string
+}
+
+func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) (Group, error) {
+	row := q.db.QueryRowContext(ctx, updateGroup, arg.ID, arg.Name)
+	var i Group
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateGroupMember = `-- name: UpdateGroupMember :exec
+UPDATE group_members
+SET role = $3, updated_at=CURRENT_TIMESTAMP
+WHERE user_id = $1 AND group_id = $2
+`
+
+type UpdateGroupMemberParams struct {
+	UserID  uuid.UUID
+	GroupID uuid.UUID
+	Role    int32
+}
+
+func (q *Queries) UpdateGroupMember(ctx context.Context, arg UpdateGroupMemberParams) error {
+	_, err := q.db.ExecContext(ctx, updateGroupMember, arg.UserID, arg.GroupID, arg.Role)
+	return err
+}
+
+const updateUser = `-- name: UpdateUser :one
+UPDATE users
+SET full_name=$2, updated_at=CURRENT_TIMESTAMP
+WHERE id=$1
+RETURNING id, email, full_name, active, salt, hash, created_at, updated_at
+`
+
+type UpdateUserParams struct {
+	ID       uuid.UUID
+	FullName sql.NullString
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, updateUser, arg.ID, arg.FullName)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.FullName,
+		&i.Active,
+		&i.Salt,
+		&i.Hash,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateUserPassword = `-- name: UpdateUserPassword :exec
+UPDATE users
+SET salt=$2, hash=$3, updated_at=CURRENT_TIMESTAMP
+WHERE id=$1
+`
+
+type UpdateUserPasswordParams struct {
+	ID   uuid.UUID
+	Salt string
+	Hash string
+}
+
+func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserPassword, arg.ID, arg.Salt, arg.Hash)
+	return err
 }

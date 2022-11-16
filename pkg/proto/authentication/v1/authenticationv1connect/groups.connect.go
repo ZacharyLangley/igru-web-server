@@ -32,8 +32,11 @@ type GroupServiceClient interface {
 	DeleteGroup(context.Context, *connect_go.Request[v1.DeleteGroupRequest]) (*connect_go.Response[v1.DeleteGroupResponse], error)
 	GetGroup(context.Context, *connect_go.Request[v1.GetGroupRequest]) (*connect_go.Response[v1.GetGroupResponse], error)
 	GetGroups(context.Context, *connect_go.Request[v1.GetGroupsRequest]) (*connect_go.Response[v1.GetGroupsResponse], error)
-	AddUser(context.Context, *connect_go.Request[v1.AddUserRequest]) (*connect_go.Response[v1.AddUserResponse], error)
-	RemoveUser(context.Context, *connect_go.Request[v1.RemoveUserRequest]) (*connect_go.Response[v1.RemoveUserResponse], error)
+	AddGroupMember(context.Context, *connect_go.Request[v1.AddGroupMemberRequest]) (*connect_go.Response[v1.AddGroupMemberResponse], error)
+	UpdateGroupMember(context.Context, *connect_go.Request[v1.UpdateGroupMemberRequest]) (*connect_go.Response[v1.UpdateGroupMemberResponse], error)
+	RemoveGroupMember(context.Context, *connect_go.Request[v1.RemoveGroupMemberRequest]) (*connect_go.Response[v1.RemoveGroupMemberResponse], error)
+	GetGroupMembers(context.Context, *connect_go.Request[v1.GetGroupMembersRequest]) (*connect_go.Response[v1.GetGroupMembersResponse], error)
+	GetUserGroups(context.Context, *connect_go.Request[v1.GetUserGroupsRequest]) (*connect_go.Response[v1.GetUserGroupsResponse], error)
 }
 
 // NewGroupServiceClient constructs a client for the authentication.v1.GroupService service. By
@@ -71,14 +74,29 @@ func NewGroupServiceClient(httpClient connect_go.HTTPClient, baseURL string, opt
 			baseURL+"/authentication.v1.GroupService/GetGroups",
 			opts...,
 		),
-		addUser: connect_go.NewClient[v1.AddUserRequest, v1.AddUserResponse](
+		addGroupMember: connect_go.NewClient[v1.AddGroupMemberRequest, v1.AddGroupMemberResponse](
 			httpClient,
-			baseURL+"/authentication.v1.GroupService/AddUser",
+			baseURL+"/authentication.v1.GroupService/AddGroupMember",
 			opts...,
 		),
-		removeUser: connect_go.NewClient[v1.RemoveUserRequest, v1.RemoveUserResponse](
+		updateGroupMember: connect_go.NewClient[v1.UpdateGroupMemberRequest, v1.UpdateGroupMemberResponse](
 			httpClient,
-			baseURL+"/authentication.v1.GroupService/RemoveUser",
+			baseURL+"/authentication.v1.GroupService/UpdateGroupMember",
+			opts...,
+		),
+		removeGroupMember: connect_go.NewClient[v1.RemoveGroupMemberRequest, v1.RemoveGroupMemberResponse](
+			httpClient,
+			baseURL+"/authentication.v1.GroupService/RemoveGroupMember",
+			opts...,
+		),
+		getGroupMembers: connect_go.NewClient[v1.GetGroupMembersRequest, v1.GetGroupMembersResponse](
+			httpClient,
+			baseURL+"/authentication.v1.GroupService/GetGroupMembers",
+			opts...,
+		),
+		getUserGroups: connect_go.NewClient[v1.GetUserGroupsRequest, v1.GetUserGroupsResponse](
+			httpClient,
+			baseURL+"/authentication.v1.GroupService/GetUserGroups",
 			opts...,
 		),
 	}
@@ -86,13 +104,16 @@ func NewGroupServiceClient(httpClient connect_go.HTTPClient, baseURL string, opt
 
 // groupServiceClient implements GroupServiceClient.
 type groupServiceClient struct {
-	createGroup *connect_go.Client[v1.CreateGroupRequest, v1.CreateGroupResponse]
-	updateGroup *connect_go.Client[v1.UpdateGroupRequest, v1.UpdateGroupResponse]
-	deleteGroup *connect_go.Client[v1.DeleteGroupRequest, v1.DeleteGroupResponse]
-	getGroup    *connect_go.Client[v1.GetGroupRequest, v1.GetGroupResponse]
-	getGroups   *connect_go.Client[v1.GetGroupsRequest, v1.GetGroupsResponse]
-	addUser     *connect_go.Client[v1.AddUserRequest, v1.AddUserResponse]
-	removeUser  *connect_go.Client[v1.RemoveUserRequest, v1.RemoveUserResponse]
+	createGroup       *connect_go.Client[v1.CreateGroupRequest, v1.CreateGroupResponse]
+	updateGroup       *connect_go.Client[v1.UpdateGroupRequest, v1.UpdateGroupResponse]
+	deleteGroup       *connect_go.Client[v1.DeleteGroupRequest, v1.DeleteGroupResponse]
+	getGroup          *connect_go.Client[v1.GetGroupRequest, v1.GetGroupResponse]
+	getGroups         *connect_go.Client[v1.GetGroupsRequest, v1.GetGroupsResponse]
+	addGroupMember    *connect_go.Client[v1.AddGroupMemberRequest, v1.AddGroupMemberResponse]
+	updateGroupMember *connect_go.Client[v1.UpdateGroupMemberRequest, v1.UpdateGroupMemberResponse]
+	removeGroupMember *connect_go.Client[v1.RemoveGroupMemberRequest, v1.RemoveGroupMemberResponse]
+	getGroupMembers   *connect_go.Client[v1.GetGroupMembersRequest, v1.GetGroupMembersResponse]
+	getUserGroups     *connect_go.Client[v1.GetUserGroupsRequest, v1.GetUserGroupsResponse]
 }
 
 // CreateGroup calls authentication.v1.GroupService.CreateGroup.
@@ -120,14 +141,29 @@ func (c *groupServiceClient) GetGroups(ctx context.Context, req *connect_go.Requ
 	return c.getGroups.CallUnary(ctx, req)
 }
 
-// AddUser calls authentication.v1.GroupService.AddUser.
-func (c *groupServiceClient) AddUser(ctx context.Context, req *connect_go.Request[v1.AddUserRequest]) (*connect_go.Response[v1.AddUserResponse], error) {
-	return c.addUser.CallUnary(ctx, req)
+// AddGroupMember calls authentication.v1.GroupService.AddGroupMember.
+func (c *groupServiceClient) AddGroupMember(ctx context.Context, req *connect_go.Request[v1.AddGroupMemberRequest]) (*connect_go.Response[v1.AddGroupMemberResponse], error) {
+	return c.addGroupMember.CallUnary(ctx, req)
 }
 
-// RemoveUser calls authentication.v1.GroupService.RemoveUser.
-func (c *groupServiceClient) RemoveUser(ctx context.Context, req *connect_go.Request[v1.RemoveUserRequest]) (*connect_go.Response[v1.RemoveUserResponse], error) {
-	return c.removeUser.CallUnary(ctx, req)
+// UpdateGroupMember calls authentication.v1.GroupService.UpdateGroupMember.
+func (c *groupServiceClient) UpdateGroupMember(ctx context.Context, req *connect_go.Request[v1.UpdateGroupMemberRequest]) (*connect_go.Response[v1.UpdateGroupMemberResponse], error) {
+	return c.updateGroupMember.CallUnary(ctx, req)
+}
+
+// RemoveGroupMember calls authentication.v1.GroupService.RemoveGroupMember.
+func (c *groupServiceClient) RemoveGroupMember(ctx context.Context, req *connect_go.Request[v1.RemoveGroupMemberRequest]) (*connect_go.Response[v1.RemoveGroupMemberResponse], error) {
+	return c.removeGroupMember.CallUnary(ctx, req)
+}
+
+// GetGroupMembers calls authentication.v1.GroupService.GetGroupMembers.
+func (c *groupServiceClient) GetGroupMembers(ctx context.Context, req *connect_go.Request[v1.GetGroupMembersRequest]) (*connect_go.Response[v1.GetGroupMembersResponse], error) {
+	return c.getGroupMembers.CallUnary(ctx, req)
+}
+
+// GetUserGroups calls authentication.v1.GroupService.GetUserGroups.
+func (c *groupServiceClient) GetUserGroups(ctx context.Context, req *connect_go.Request[v1.GetUserGroupsRequest]) (*connect_go.Response[v1.GetUserGroupsResponse], error) {
+	return c.getUserGroups.CallUnary(ctx, req)
 }
 
 // GroupServiceHandler is an implementation of the authentication.v1.GroupService service.
@@ -137,8 +173,11 @@ type GroupServiceHandler interface {
 	DeleteGroup(context.Context, *connect_go.Request[v1.DeleteGroupRequest]) (*connect_go.Response[v1.DeleteGroupResponse], error)
 	GetGroup(context.Context, *connect_go.Request[v1.GetGroupRequest]) (*connect_go.Response[v1.GetGroupResponse], error)
 	GetGroups(context.Context, *connect_go.Request[v1.GetGroupsRequest]) (*connect_go.Response[v1.GetGroupsResponse], error)
-	AddUser(context.Context, *connect_go.Request[v1.AddUserRequest]) (*connect_go.Response[v1.AddUserResponse], error)
-	RemoveUser(context.Context, *connect_go.Request[v1.RemoveUserRequest]) (*connect_go.Response[v1.RemoveUserResponse], error)
+	AddGroupMember(context.Context, *connect_go.Request[v1.AddGroupMemberRequest]) (*connect_go.Response[v1.AddGroupMemberResponse], error)
+	UpdateGroupMember(context.Context, *connect_go.Request[v1.UpdateGroupMemberRequest]) (*connect_go.Response[v1.UpdateGroupMemberResponse], error)
+	RemoveGroupMember(context.Context, *connect_go.Request[v1.RemoveGroupMemberRequest]) (*connect_go.Response[v1.RemoveGroupMemberResponse], error)
+	GetGroupMembers(context.Context, *connect_go.Request[v1.GetGroupMembersRequest]) (*connect_go.Response[v1.GetGroupMembersResponse], error)
+	GetUserGroups(context.Context, *connect_go.Request[v1.GetUserGroupsRequest]) (*connect_go.Response[v1.GetUserGroupsResponse], error)
 }
 
 // NewGroupServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -173,14 +212,29 @@ func NewGroupServiceHandler(svc GroupServiceHandler, opts ...connect_go.HandlerO
 		svc.GetGroups,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.GroupService/AddUser", connect_go.NewUnaryHandler(
-		"/authentication.v1.GroupService/AddUser",
-		svc.AddUser,
+	mux.Handle("/authentication.v1.GroupService/AddGroupMember", connect_go.NewUnaryHandler(
+		"/authentication.v1.GroupService/AddGroupMember",
+		svc.AddGroupMember,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.GroupService/RemoveUser", connect_go.NewUnaryHandler(
-		"/authentication.v1.GroupService/RemoveUser",
-		svc.RemoveUser,
+	mux.Handle("/authentication.v1.GroupService/UpdateGroupMember", connect_go.NewUnaryHandler(
+		"/authentication.v1.GroupService/UpdateGroupMember",
+		svc.UpdateGroupMember,
+		opts...,
+	))
+	mux.Handle("/authentication.v1.GroupService/RemoveGroupMember", connect_go.NewUnaryHandler(
+		"/authentication.v1.GroupService/RemoveGroupMember",
+		svc.RemoveGroupMember,
+		opts...,
+	))
+	mux.Handle("/authentication.v1.GroupService/GetGroupMembers", connect_go.NewUnaryHandler(
+		"/authentication.v1.GroupService/GetGroupMembers",
+		svc.GetGroupMembers,
+		opts...,
+	))
+	mux.Handle("/authentication.v1.GroupService/GetUserGroups", connect_go.NewUnaryHandler(
+		"/authentication.v1.GroupService/GetUserGroups",
+		svc.GetUserGroups,
 		opts...,
 	))
 	return "/authentication.v1.GroupService/", mux
@@ -209,10 +263,22 @@ func (UnimplementedGroupServiceHandler) GetGroups(context.Context, *connect_go.R
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.GroupService.GetGroups is not implemented"))
 }
 
-func (UnimplementedGroupServiceHandler) AddUser(context.Context, *connect_go.Request[v1.AddUserRequest]) (*connect_go.Response[v1.AddUserResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.GroupService.AddUser is not implemented"))
+func (UnimplementedGroupServiceHandler) AddGroupMember(context.Context, *connect_go.Request[v1.AddGroupMemberRequest]) (*connect_go.Response[v1.AddGroupMemberResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.GroupService.AddGroupMember is not implemented"))
 }
 
-func (UnimplementedGroupServiceHandler) RemoveUser(context.Context, *connect_go.Request[v1.RemoveUserRequest]) (*connect_go.Response[v1.RemoveUserResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.GroupService.RemoveUser is not implemented"))
+func (UnimplementedGroupServiceHandler) UpdateGroupMember(context.Context, *connect_go.Request[v1.UpdateGroupMemberRequest]) (*connect_go.Response[v1.UpdateGroupMemberResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.GroupService.UpdateGroupMember is not implemented"))
+}
+
+func (UnimplementedGroupServiceHandler) RemoveGroupMember(context.Context, *connect_go.Request[v1.RemoveGroupMemberRequest]) (*connect_go.Response[v1.RemoveGroupMemberResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.GroupService.RemoveGroupMember is not implemented"))
+}
+
+func (UnimplementedGroupServiceHandler) GetGroupMembers(context.Context, *connect_go.Request[v1.GetGroupMembersRequest]) (*connect_go.Response[v1.GetGroupMembersResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.GroupService.GetGroupMembers is not implemented"))
+}
+
+func (UnimplementedGroupServiceHandler) GetUserGroups(context.Context, *connect_go.Request[v1.GetUserGroupsRequest]) (*connect_go.Response[v1.GetUserGroupsResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.GroupService.GetUserGroups is not implemented"))
 }

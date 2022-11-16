@@ -11,22 +11,28 @@ import (
 	"github.com/google/uuid"
 )
 
-type Session struct {
+type Group struct {
 	ID        uuid.UUID
-	UserID    uuid.UUID
+	Name      string
 	CreatedAt time.Time
-	ExpiredAt time.Time
+	UpdatedAt sql.NullTime
+}
+
+type GroupMember struct {
+	UserID    uuid.UUID
+	GroupID   uuid.UUID
+	Role      int32
+	CreatedAt time.Time
+	UpdatedAt sql.NullTime
 }
 
 type User struct {
-	ID        uuid.NullUUID
+	ID        uuid.UUID
 	Email     string
-	FirstName string
-	LastName  string
-	Active    bool
+	FullName  sql.NullString
+	Active    sql.NullBool
 	Salt      string
 	Hash      string
 	CreatedAt time.Time
 	UpdatedAt sql.NullTime
-	DeletedAt sql.NullTime
 }
