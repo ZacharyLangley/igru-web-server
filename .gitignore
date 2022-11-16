@@ -1,2 +1,3 @@
 *.code-workspace
 build/db-data
+__debug_bin

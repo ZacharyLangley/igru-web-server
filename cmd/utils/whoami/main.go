@@ -17,7 +17,7 @@ import (
 func main() {
 	client := authenticationv1connect.NewUserServiceClient(
 		http.DefaultClient,
-		"http://localhost:8081/",
+		"http://localhost:80/",
 	)
 	req := connect.NewRequest(&authenticationv1.WhoamiRequest{})
 	authentication.AddSessionToken(req.Header(), os.Args[1])

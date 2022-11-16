@@ -10,4 +10,10 @@ database:
   timezone: UTC
   connect_timeout: 5
   maxRetries: 5
+  disableMigration: false
+logger:
+  development: false
+  level: info
+metrics:
+  jaegerAddress: "localhost:14268"
 gcPeriod: 5s
