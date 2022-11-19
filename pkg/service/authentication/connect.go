@@ -1,22 +1,22 @@
 package authentication
 
 import (
-	"database/sql"
 	"net/http"
 
+	"github.com/ZacharyLangley/igru-web-server/pkg/database"
 	"github.com/ZacharyLangley/igru-web-server/pkg/middleware"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1/authenticationv1connect"
 	"github.com/bufbuild/connect-go"
 )
 
-func New(conn *sql.DB) *Service {
+func New(pool *database.Pool) *Service {
 	return &Service{
-		conn: conn,
+		pool: pool,
 	}
 }
 
 type Service struct {
-	conn *sql.DB
+	pool *database.Pool
 	authenticationv1connect.UnimplementedUserServiceHandler
 	authenticationv1connect.UnimplementedGroupServiceHandler
 }

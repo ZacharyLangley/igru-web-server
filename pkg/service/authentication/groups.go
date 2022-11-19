@@ -2,16 +2,15 @@ package authentication
 
 import (
 	gocontext "context"
-	"database/sql"
 	"errors"
 	"fmt"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
-	"github.com/ZacharyLangley/igru-web-server/pkg/database"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/authentication"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	"github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v4"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -22,7 +21,7 @@ func (s *Service) CreateGroup(baseCtx gocontext.Context, req *connect.Request[v1
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}
 	var group models.Group
-	if err := database.RunTransaction(ctx, s.conn, func(ctx context.Context, tx *sql.Tx) error {
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
 		query := models.New(tx)
 		group, err = query.CreateGroup(ctx, req.Msg.Name)
@@ -49,7 +48,7 @@ func (s *Service) UpdateGroup(baseCtx gocontext.Context, req *connect.Request[v1
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid user id format: %w", err))
 	}
 	var group models.Group
-	if err := database.RunTransaction(ctx, s.conn, func(ctx context.Context, tx *sql.Tx) error {
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
 		query := models.New(tx)
 		params := models.UpdateGroupParams{
@@ -82,7 +81,7 @@ func (s *Service) DeleteGroup(baseCtx gocontext.Context, req *connect.Request[v1
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid user id format: %w", err))
 	}
-	if err := database.RunTransaction(ctx, s.conn, func(ctx context.Context, tx *sql.Tx) error {
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
 		return query.DeleteGroup(ctx, groupID)
 	}); err != nil {
@@ -102,7 +101,7 @@ func (s *Service) GetGroup(baseCtx gocontext.Context, req *connect.Request[v1.Ge
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid user id format: %w", err))
 	}
 	var group models.Group
-	if err := database.RunTransaction(ctx, s.conn, func(ctx context.Context, tx *sql.Tx) error {
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
 		group, err = query.GetGroup(ctx, groupID)
 		return err
@@ -129,7 +128,7 @@ func (s *Service) GetGroups(baseCtx gocontext.Context, req *connect.Request[v1.G
 	if req.Msg.Pagination.Length <= 0 {
 		req.Msg.Pagination.Length = 100
 	}
-	if err := database.RunTransaction(ctx, s.conn, func(ctx context.Context, tx *sql.Tx) error {
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
 		groups, err := query.GetGroups(ctx, models.GetGroupsParams{
 			Limit:  req.Msg.Pagination.Length,
@@ -172,7 +171,7 @@ func (s *Service) AddGroupMember(baseCtx gocontext.Context, req *connect.Request
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid group id format: %w", err))
 	}
-	if err := database.RunTransaction(ctx, s.conn, func(ctx context.Context, tx *sql.Tx) error {
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
 		return query.AddGroupMember(ctx, models.AddGroupMemberParams{
 			UserID:  userID,
@@ -199,7 +198,7 @@ func (s *Service) UpdateGroupMember(baseCtx gocontext.Context, req *connect.Requ
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid group id format: %w", err))
 	}
-	if err := database.RunTransaction(ctx, s.conn, func(ctx context.Context, tx *sql.Tx) error {
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
 		return query.UpdateGroupMember(ctx, models.UpdateGroupMemberParams{
 			UserID:  userID,
@@ -226,7 +225,7 @@ func (s *Service) RemoveGroupMember(baseCtx gocontext.Context, req *connect.Requ
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid group id format: %w", err))
 	}
-	if err := database.RunTransaction(ctx, s.conn, func(ctx context.Context, tx *sql.Tx) error {
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
 		return query.DeleteGroupMember(ctx, models.DeleteGroupMemberParams{
 			UserID:  userID,
@@ -251,7 +250,7 @@ func (s *Service) GetUserGroups(baseCtx gocontext.Context, req *connect.Request[
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid user id format: %w", err))
 	}
-	if err := database.RunTransaction(ctx, s.conn, func(ctx context.Context, tx *sql.Tx) error {
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
 		groups, err := query.GetUserGroups(ctx, models.GetUserGroupsParams{
 			Limit:  req.Msg.Pagination.Length,

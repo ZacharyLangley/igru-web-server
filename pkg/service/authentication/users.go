@@ -7,11 +7,11 @@ import (
 	"fmt"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
-	"github.com/ZacharyLangley/igru-web-server/pkg/database"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/authentication"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	"github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v4"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -26,7 +26,7 @@ func (s *Service) CreateUser(baseCtx gocontext.Context, req *connect.Request[v1.
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	var user models.User
-	if err := database.RunTransaction(ctx, s.conn, func(ctx context.Context, tx *sql.Tx) error {
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		params := models.CreateUserParams{
 			Email: req.Msg.Email,
@@ -60,7 +60,7 @@ func (s *Service) DeleteUser(baseCtx gocontext.Context, req *connect.Request[v1.
 	if req.Msg != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid user id format: %w", err))
 	}
-	if err := database.RunTransaction(ctx, s.conn, func(ctx context.Context, tx *sql.Tx) error {
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		return queries.DeleteUser(ctx, userID)
 	}); err != nil {
@@ -83,7 +83,7 @@ func (s *Service) ResetUserPassword(baseCtx gocontext.Context, req *connect.Requ
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	if err := database.RunTransaction(ctx, s.conn, func(ctx context.Context, tx *sql.Tx) error {
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		params := models.UpdateUserPasswordParams{
 			ID:   userID,
@@ -108,7 +108,7 @@ func (s *Service) UpdateUser(baseCtx gocontext.Context, req *connect.Request[v1.
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid user id format: %w", err))
 	}
 	var user models.User
-	if err := database.RunTransaction(ctx, s.conn, func(ctx context.Context, tx *sql.Tx) error {
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		params := models.UpdateUserParams{
 			ID: userID,
@@ -140,7 +140,7 @@ func (s *Service) GetUsers(baseCtx gocontext.Context, req *connect.Request[v1.Ge
 		req.Msg.Pagination.Length = 100
 	}
 	var users []models.User
-	if err := database.RunTransaction(ctx, s.conn, func(ctx context.Context, tx *sql.Tx) error {
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
 		queries := models.New(tx)
 		params := models.GetUsersParams{

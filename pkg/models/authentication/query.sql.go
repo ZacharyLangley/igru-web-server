@@ -28,7 +28,7 @@ type AddGroupMemberParams struct {
 }
 
 func (q *Queries) AddGroupMember(ctx context.Context, arg AddGroupMemberParams) error {
-	_, err := q.db.ExecContext(ctx, addGroupMember, arg.UserID, arg.GroupID, arg.Role)
+	_, err := q.db.Exec(ctx, addGroupMember, arg.UserID, arg.GroupID, arg.Role)
 	return err
 }
 
@@ -39,7 +39,7 @@ WHERE group_id = $1
 `
 
 func (q *Queries) CountGroupMembers(ctx context.Context, groupID uuid.UUID) (int64, error) {
-	row := q.db.QueryRowContext(ctx, countGroupMembers, groupID)
+	row := q.db.QueryRow(ctx, countGroupMembers, groupID)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -55,7 +55,7 @@ RETURNING id, name, created_at, updated_at
 `
 
 func (q *Queries) CreateGroup(ctx context.Context, name string) (Group, error) {
-	row := q.db.QueryRowContext(ctx, createGroup, name)
+	row := q.db.QueryRow(ctx, createGroup, name)
 	var i Group
 	err := row.Scan(
 		&i.ID,
@@ -83,7 +83,7 @@ type CreateUserParams struct {
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser,
+	row := q.db.QueryRow(ctx, createUser,
 		arg.Email,
 		arg.FullName,
 		arg.Salt,
@@ -109,7 +109,7 @@ WHERE id = $1
 `
 
 func (q *Queries) DeleteGroup(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteGroup, id)
+	_, err := q.db.Exec(ctx, deleteGroup, id)
 	return err
 }
 
@@ -124,7 +124,7 @@ type DeleteGroupMemberParams struct {
 }
 
 func (q *Queries) DeleteGroupMember(ctx context.Context, arg DeleteGroupMemberParams) error {
-	_, err := q.db.ExecContext(ctx, deleteGroupMember, arg.UserID, arg.GroupID)
+	_, err := q.db.Exec(ctx, deleteGroupMember, arg.UserID, arg.GroupID)
 	return err
 }
 
@@ -134,7 +134,7 @@ WHERE id = $1
 `
 
 func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteUser, id)
+	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
 }
 
@@ -144,7 +144,7 @@ WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetGroup(ctx context.Context, id uuid.UUID) (Group, error) {
-	row := q.db.QueryRowContext(ctx, getGroup, id)
+	row := q.db.QueryRow(ctx, getGroup, id)
 	var i Group
 	err := row.Scan(
 		&i.ID,
@@ -178,7 +178,7 @@ type GetGroupMembersRow struct {
 }
 
 func (q *Queries) GetGroupMembers(ctx context.Context, arg GetGroupMembersParams) ([]GetGroupMembersRow, error) {
-	rows, err := q.db.QueryContext(ctx, getGroupMembers, arg.Limit, arg.Offset, arg.GroupID)
+	rows, err := q.db.Query(ctx, getGroupMembers, arg.Limit, arg.Offset, arg.GroupID)
 	if err != nil {
 		return nil, err
 	}
@@ -196,9 +196,6 @@ func (q *Queries) GetGroupMembers(ctx context.Context, arg GetGroupMembersParams
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -218,7 +215,7 @@ type GetGroupsParams struct {
 }
 
 func (q *Queries) GetGroups(ctx context.Context, arg GetGroupsParams) ([]Group, error) {
-	rows, err := q.db.QueryContext(ctx, getGroups, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, getGroups, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -236,9 +233,6 @@ func (q *Queries) GetGroups(ctx context.Context, arg GetGroupsParams) ([]Group, 
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -251,7 +245,7 @@ WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, id)
+	row := q.db.QueryRow(ctx, getUser, id)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -272,7 +266,7 @@ WHERE email = $1 LIMIT 1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
+	row := q.db.QueryRow(ctx, getUserByEmail, email)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -302,7 +296,7 @@ type GetUserGroupsParams struct {
 }
 
 func (q *Queries) GetUserGroups(ctx context.Context, arg GetUserGroupsParams) ([]Group, error) {
-	rows, err := q.db.QueryContext(ctx, getUserGroups, arg.Limit, arg.Offset, arg.UserID)
+	rows, err := q.db.Query(ctx, getUserGroups, arg.Limit, arg.Offset, arg.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -320,9 +314,6 @@ func (q *Queries) GetUserGroups(ctx context.Context, arg GetUserGroupsParams) ([
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -339,7 +330,7 @@ type GetUsersParams struct {
 }
 
 func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, getUsers, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, getUsers, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -361,9 +352,6 @@ func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]User, err
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -383,7 +371,7 @@ type UpdateGroupParams struct {
 }
 
 func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) (Group, error) {
-	row := q.db.QueryRowContext(ctx, updateGroup, arg.ID, arg.Name)
+	row := q.db.QueryRow(ctx, updateGroup, arg.ID, arg.Name)
 	var i Group
 	err := row.Scan(
 		&i.ID,
@@ -407,7 +395,7 @@ type UpdateGroupMemberParams struct {
 }
 
 func (q *Queries) UpdateGroupMember(ctx context.Context, arg UpdateGroupMemberParams) error {
-	_, err := q.db.ExecContext(ctx, updateGroupMember, arg.UserID, arg.GroupID, arg.Role)
+	_, err := q.db.Exec(ctx, updateGroupMember, arg.UserID, arg.GroupID, arg.Role)
 	return err
 }
 
@@ -424,7 +412,7 @@ type UpdateUserParams struct {
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, updateUser, arg.ID, arg.FullName)
+	row := q.db.QueryRow(ctx, updateUser, arg.ID, arg.FullName)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -452,6 +440,6 @@ type UpdateUserPasswordParams struct {
 }
 
 func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) error {
-	_, err := q.db.ExecContext(ctx, updateUserPassword, arg.ID, arg.Salt, arg.Hash)
+	_, err := q.db.Exec(ctx, updateUserPassword, arg.ID, arg.Salt, arg.Hash)
 	return err
 }

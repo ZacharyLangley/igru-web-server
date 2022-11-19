@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -39,7 +37,7 @@ func main() {
 	// Setup tracing
 	cfg.Metrics.Setup()
 	// Connect to DB
-	conn, err := connectToDB(ctx, cfg.Database)
+	conn, err := database.Open(ctx, cfg.Database)
 	if err != nil {
 		ctx.L().Fatal("failed to connect to database", zap.Error(err))
 	}
@@ -58,27 +56,4 @@ func main() {
 	if err := srv.Serve(listener); err != nil {
 		ctx.L().Fatal("failed to serve", zap.Error(err))
 	}
-}
-
-func connectToDB(ctx internalcontext.Context, cfg config.Database) (*sql.DB, error) {
-	dsn, err := cfg.DSN()
-	if err != nil {
-		return nil, err
-	}
-	backoff := time.Second
-	var lastErr error
-	var connection *sql.DB
-	logger := ctx.L()
-	logger.Info("connecting to db")
-	for i := 0; i < cfg.MaxRetries; i++ {
-		connection, lastErr = database.Open(ctx, dsn, cfg.MigrationPath)
-		if lastErr == nil {
-			logger.Info("connected to db")
-			return connection, nil
-		}
-		logger.Warn("retrying", zap.Duration("backoff", backoff), zap.Int("attempt", i), zap.Error(lastErr))
-		time.Sleep(backoff)
-		backoff *= 2
-	}
-	return nil, fmt.Errorf("failed to connect in time: %w", lastErr)
 }
