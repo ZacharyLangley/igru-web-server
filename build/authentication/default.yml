@@ -10,7 +10,7 @@ database:
   timezone: UTC
   connect_timeout: 5
   maxRetries: 5
-  migrationPath: "/migration"
+  migrationPath: "/migrations"
 logger:
   development: false
   level: info

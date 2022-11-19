@@ -12,6 +12,18 @@ services:
       mode: replicated
       replicas: 1
 
+  init-authentication-service:
+    image: cockroachdb/cockroach:v22.1.11
+    command:
+      - "sql"
+      - "--insecure"
+      - "--host"
+      - "db"
+      - "-e"
+      - "CREATE DATABASE IF NOT EXISTS authentication;"
+    depends_on:
+      - db
+
   authentication-service:
     build:
       context: ./..
@@ -23,26 +35,31 @@ services:
       mode: replicated
       replicas: 1
     environment:
-      DATABASE.PASSWORD: password
+      DATABASE.PORT: "26257"
+      DATABASE.USERNAME: root
+      DATABASE.DATABASE: authentication
+      DATABASE.HOST: db
       LOGGER.LEVEL: debug
       METRICS.JAEGERADDRESS: jaeger:14268
+    depends_on:
+      - init-authentication-service
 
-  postgres:
-    image: "postgres:14.2"
+  db:
+    image: cockroachdb/cockroach:v22.1.11
     ports:
-      - "5432:5432"
+      - "8888:8080" # Dashboard
+      - "26257:26257"
+    command:
+      - "start-single-node"
+      - "--insecure"
     deploy:
       mode: replicated
       replicas: 1
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: users
     volumes:
-      - ./db-data/postgres/:/var/lib/postgresql/data/
+      - ./db-data/cockroach/://cockroach/cockroach-data
 
   jaeger:
     image: jaegertracing/all-in-one:1.6
     ports:
       - 14268:14268 # Services
-      - 16686:16686 # Frontent
+      - 16686:16686 # Frontend

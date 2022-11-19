@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cockroachdb
+  labels:
+    app: igru
+    database: dev
+spec:
+  selector:
+    matchLabels:
+      app: igru
+      database: dev
+  template:
+    metadata:
+      labels:
+        app: igru
+        database: dev
+    spec:
+      containers:
+      - image: cockroachdb/cockroach:v22.1.11
+        name: cockroachdb
+        args:
+        - "start-single-node"
+        - "--insecure"
+        env:
+        - name: DATABASE.PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cockroach-credentials
+              key: password
+        ports:
+        - containerPort: 8080
+          name: dashboard
+        - containerPort: 26257
+          name: db
+        volumeMounts:
+        - name: cockroach-persistent-storage
+          mountPath: /cockroach/cockroach-data
+      volumes:
+      - name: cockroach-persistent-storage
+        emptyDir: {}

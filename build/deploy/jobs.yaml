@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: authentication-init
+spec:
+  template:
+    metadata:
+      labels:
+        app: igru
+        database: dev
+        init: authentication
+    spec:
+      containers:
+      - image: cockroachdb/cockroach:v22.1.11
+        name: cockroachdb
+        args:
+        - "sql"
+        - "--insecure"
+        - "--host"
+        - "cockroachdb.default.svc"
+        - "-e"
+        - "CREATE DATABASE IF NOT EXISTS authentication;"
+      restartPolicy: OnFailure
