@@ -26,6 +26,7 @@ func Open(ctx context.Context, cfg config.Database) (*Pool, error) {
 	if err != nil {
 		return nil, err
 	}
+	ctx = ctx.WithFields(zap.String("dsn", cfg.SecureDSN()))
 	// Connect to DB Pool
 	pool, err := pgxpool.Connect(ctx, dsn)
 	if err != nil {
