@@ -8,7 +8,7 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/pkg/config"
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/golang-migrate/migrate/v4/database/cockroachdb"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
@@ -46,7 +46,7 @@ func Open(ctx context.Context, cfg config.Database) (*Pool, error) {
 	if cfg.MigrationPath != "" {
 		ctx.L().Info("Running DB migration")
 		// Setup DB migration
-		driver, err := postgres.WithInstance(db, &postgres.Config{})
+		driver, err := cockroachdb.WithInstance(db, &cockroachdb.Config{})
 		if err != nil {
 			return nil, err
 		}

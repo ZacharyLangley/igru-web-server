@@ -1,0 +1,6 @@
+resources:
+- deploy/secret.yaml
+- deploy/database.yaml
+- deploy/authentication.yaml
+- deploy/services.yaml
+- deploy/jobs.yaml

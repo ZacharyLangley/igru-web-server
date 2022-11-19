@@ -16,7 +16,8 @@
             "env": {
                 "DATABASE.MIGRATIONPATH": "${workspaceFolder}/build/authentication/migrations",
                 "DATABASE.HOST": "127.0.0.1",
-                "DATABASE.PASSWORD": "password"
+                "DATABASE.USERNAME": "root",
+                "DATABASE.PORT": "26257"
             }
         }
     ]
