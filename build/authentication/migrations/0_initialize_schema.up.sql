@@ -1,15 +1,42 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS users (
 	id uuid DEFAULT uuid_generate_v4 (),
-	email VARCHAR(255) NOT NULL,
-	first_name VARCHAR(255) NOT NULL,
-	last_name VARCHAR(255) NOT NULL,
+	email TEXT NOT NULL,
+	full_name TEXT,
 	active BOOLEAN DEFAULT TRUE,
-	salt VARCHAR(255) NOT NULL,
-	hash VARCHAR(255) NOT NULL,
-	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+	salt TEXT NOT NULL,
+	hash TEXT NOT NULL,
+	created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP WITH TIME ZONE,
-	deleted_at TIMESTAMP WITH TIME ZONE
+    PRIMARY KEY(id)
 );
-CREATE UNIQUE INDEX user_id_idx ON users(id);
-CREATE UNIQUE INDEX user_email_idx ON users(email);
+CREATE UNIQUE INDEX ON users(id);
+CREATE UNIQUE INDEX ON users(email);
+
+CREATE TABLE IF NOT EXISTS groups (
+	id uuid NOT NULL DEFAULT uuid_generate_v4 (),
+	name TEXT NOT NULL,
+	created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP WITH TIME ZONE,
+    PRIMARY KEY(id)
+);
+CREATE UNIQUE INDEX ON groups(id);
+
+CREATE TABLE IF NOT EXISTS group_members (
+	user_id uuid NOT NULL,
+	group_id uuid NOT NULL,
+	role INTEGER NOT NULL,
+	created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP WITH TIME ZONE,
+    PRIMARY KEY(user_id, group_id),
+	CONSTRAINT fk_users
+      FOREIGN KEY(user_id) 
+	  REFERENCES users(id)
+	  ON DELETE CASCADE,
+	CONSTRAINT fk_groups
+      FOREIGN KEY(group_id) 
+	  REFERENCES groups(id)
+	  ON DELETE CASCADE
+);
+CREATE INDEX ON group_members(user_id);
+CREATE INDEX ON group_members(group_id);

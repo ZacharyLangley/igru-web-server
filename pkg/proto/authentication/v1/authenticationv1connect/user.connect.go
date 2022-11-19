@@ -27,9 +27,11 @@ const (
 
 // UserServiceClient is a client for the authentication.v1.UserService service.
 type UserServiceClient interface {
-	Authenticate(context.Context, *connect_go.Request[v1.AuthenticateRequest]) (*connect_go.Response[v1.AuthenticateResponse], error)
-	Create(context.Context, *connect_go.Request[v1.CreateRequest]) (*connect_go.Response[v1.CreateResponse], error)
-	Whoami(context.Context, *connect_go.Request[v1.WhoamiRequest]) (*connect_go.Response[v1.WhoamiResponse], error)
+	CreateUser(context.Context, *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[v1.CreateUserResponse], error)
+	DeleteUser(context.Context, *connect_go.Request[v1.DeleteUserRequest]) (*connect_go.Response[v1.DeleteUserResponse], error)
+	ResetUserPassword(context.Context, *connect_go.Request[v1.ResetUserPasswordRequest]) (*connect_go.Response[v1.ResetUserPasswordResponse], error)
+	UpdateUser(context.Context, *connect_go.Request[v1.UpdateUserRequest]) (*connect_go.Response[v1.UpdateUserResponse], error)
+	GetUsers(context.Context, *connect_go.Request[v1.GetUsersRequest]) (*connect_go.Response[v1.GetUsersResponse], error)
 }
 
 // NewUserServiceClient constructs a client for the authentication.v1.UserService service. By
@@ -42,19 +44,29 @@ type UserServiceClient interface {
 func NewUserServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) UserServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &userServiceClient{
-		authenticate: connect_go.NewClient[v1.AuthenticateRequest, v1.AuthenticateResponse](
+		createUser: connect_go.NewClient[v1.CreateUserRequest, v1.CreateUserResponse](
 			httpClient,
-			baseURL+"/authentication.v1.UserService/Authenticate",
+			baseURL+"/authentication.v1.UserService/CreateUser",
 			opts...,
 		),
-		create: connect_go.NewClient[v1.CreateRequest, v1.CreateResponse](
+		deleteUser: connect_go.NewClient[v1.DeleteUserRequest, v1.DeleteUserResponse](
 			httpClient,
-			baseURL+"/authentication.v1.UserService/Create",
+			baseURL+"/authentication.v1.UserService/DeleteUser",
 			opts...,
 		),
-		whoami: connect_go.NewClient[v1.WhoamiRequest, v1.WhoamiResponse](
+		resetUserPassword: connect_go.NewClient[v1.ResetUserPasswordRequest, v1.ResetUserPasswordResponse](
 			httpClient,
-			baseURL+"/authentication.v1.UserService/Whoami",
+			baseURL+"/authentication.v1.UserService/ResetUserPassword",
+			opts...,
+		),
+		updateUser: connect_go.NewClient[v1.UpdateUserRequest, v1.UpdateUserResponse](
+			httpClient,
+			baseURL+"/authentication.v1.UserService/UpdateUser",
+			opts...,
+		),
+		getUsers: connect_go.NewClient[v1.GetUsersRequest, v1.GetUsersResponse](
+			httpClient,
+			baseURL+"/authentication.v1.UserService/GetUsers",
 			opts...,
 		),
 	}
@@ -62,31 +74,45 @@ func NewUserServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts
 
 // userServiceClient implements UserServiceClient.
 type userServiceClient struct {
-	authenticate *connect_go.Client[v1.AuthenticateRequest, v1.AuthenticateResponse]
-	create       *connect_go.Client[v1.CreateRequest, v1.CreateResponse]
-	whoami       *connect_go.Client[v1.WhoamiRequest, v1.WhoamiResponse]
+	createUser        *connect_go.Client[v1.CreateUserRequest, v1.CreateUserResponse]
+	deleteUser        *connect_go.Client[v1.DeleteUserRequest, v1.DeleteUserResponse]
+	resetUserPassword *connect_go.Client[v1.ResetUserPasswordRequest, v1.ResetUserPasswordResponse]
+	updateUser        *connect_go.Client[v1.UpdateUserRequest, v1.UpdateUserResponse]
+	getUsers          *connect_go.Client[v1.GetUsersRequest, v1.GetUsersResponse]
 }
 
-// Authenticate calls authentication.v1.UserService.Authenticate.
-func (c *userServiceClient) Authenticate(ctx context.Context, req *connect_go.Request[v1.AuthenticateRequest]) (*connect_go.Response[v1.AuthenticateResponse], error) {
-	return c.authenticate.CallUnary(ctx, req)
+// CreateUser calls authentication.v1.UserService.CreateUser.
+func (c *userServiceClient) CreateUser(ctx context.Context, req *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[v1.CreateUserResponse], error) {
+	return c.createUser.CallUnary(ctx, req)
 }
 
-// Create calls authentication.v1.UserService.Create.
-func (c *userServiceClient) Create(ctx context.Context, req *connect_go.Request[v1.CreateRequest]) (*connect_go.Response[v1.CreateResponse], error) {
-	return c.create.CallUnary(ctx, req)
+// DeleteUser calls authentication.v1.UserService.DeleteUser.
+func (c *userServiceClient) DeleteUser(ctx context.Context, req *connect_go.Request[v1.DeleteUserRequest]) (*connect_go.Response[v1.DeleteUserResponse], error) {
+	return c.deleteUser.CallUnary(ctx, req)
 }
 
-// Whoami calls authentication.v1.UserService.Whoami.
-func (c *userServiceClient) Whoami(ctx context.Context, req *connect_go.Request[v1.WhoamiRequest]) (*connect_go.Response[v1.WhoamiResponse], error) {
-	return c.whoami.CallUnary(ctx, req)
+// ResetUserPassword calls authentication.v1.UserService.ResetUserPassword.
+func (c *userServiceClient) ResetUserPassword(ctx context.Context, req *connect_go.Request[v1.ResetUserPasswordRequest]) (*connect_go.Response[v1.ResetUserPasswordResponse], error) {
+	return c.resetUserPassword.CallUnary(ctx, req)
+}
+
+// UpdateUser calls authentication.v1.UserService.UpdateUser.
+func (c *userServiceClient) UpdateUser(ctx context.Context, req *connect_go.Request[v1.UpdateUserRequest]) (*connect_go.Response[v1.UpdateUserResponse], error) {
+	return c.updateUser.CallUnary(ctx, req)
+}
+
+// GetUsers calls authentication.v1.UserService.GetUsers.
+func (c *userServiceClient) GetUsers(ctx context.Context, req *connect_go.Request[v1.GetUsersRequest]) (*connect_go.Response[v1.GetUsersResponse], error) {
+	return c.getUsers.CallUnary(ctx, req)
 }
 
 // UserServiceHandler is an implementation of the authentication.v1.UserService service.
 type UserServiceHandler interface {
-	Authenticate(context.Context, *connect_go.Request[v1.AuthenticateRequest]) (*connect_go.Response[v1.AuthenticateResponse], error)
-	Create(context.Context, *connect_go.Request[v1.CreateRequest]) (*connect_go.Response[v1.CreateResponse], error)
-	Whoami(context.Context, *connect_go.Request[v1.WhoamiRequest]) (*connect_go.Response[v1.WhoamiResponse], error)
+	CreateUser(context.Context, *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[v1.CreateUserResponse], error)
+	DeleteUser(context.Context, *connect_go.Request[v1.DeleteUserRequest]) (*connect_go.Response[v1.DeleteUserResponse], error)
+	ResetUserPassword(context.Context, *connect_go.Request[v1.ResetUserPasswordRequest]) (*connect_go.Response[v1.ResetUserPasswordResponse], error)
+	UpdateUser(context.Context, *connect_go.Request[v1.UpdateUserRequest]) (*connect_go.Response[v1.UpdateUserResponse], error)
+	GetUsers(context.Context, *connect_go.Request[v1.GetUsersRequest]) (*connect_go.Response[v1.GetUsersResponse], error)
 }
 
 // NewUserServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -96,19 +122,29 @@ type UserServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewUserServiceHandler(svc UserServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle("/authentication.v1.UserService/Authenticate", connect_go.NewUnaryHandler(
-		"/authentication.v1.UserService/Authenticate",
-		svc.Authenticate,
+	mux.Handle("/authentication.v1.UserService/CreateUser", connect_go.NewUnaryHandler(
+		"/authentication.v1.UserService/CreateUser",
+		svc.CreateUser,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.UserService/Create", connect_go.NewUnaryHandler(
-		"/authentication.v1.UserService/Create",
-		svc.Create,
+	mux.Handle("/authentication.v1.UserService/DeleteUser", connect_go.NewUnaryHandler(
+		"/authentication.v1.UserService/DeleteUser",
+		svc.DeleteUser,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.UserService/Whoami", connect_go.NewUnaryHandler(
-		"/authentication.v1.UserService/Whoami",
-		svc.Whoami,
+	mux.Handle("/authentication.v1.UserService/ResetUserPassword", connect_go.NewUnaryHandler(
+		"/authentication.v1.UserService/ResetUserPassword",
+		svc.ResetUserPassword,
+		opts...,
+	))
+	mux.Handle("/authentication.v1.UserService/UpdateUser", connect_go.NewUnaryHandler(
+		"/authentication.v1.UserService/UpdateUser",
+		svc.UpdateUser,
+		opts...,
+	))
+	mux.Handle("/authentication.v1.UserService/GetUsers", connect_go.NewUnaryHandler(
+		"/authentication.v1.UserService/GetUsers",
+		svc.GetUsers,
 		opts...,
 	))
 	return "/authentication.v1.UserService/", mux
@@ -117,14 +153,22 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect_go.HandlerOpt
 // UnimplementedUserServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedUserServiceHandler struct{}
 
-func (UnimplementedUserServiceHandler) Authenticate(context.Context, *connect_go.Request[v1.AuthenticateRequest]) (*connect_go.Response[v1.AuthenticateResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.UserService.Authenticate is not implemented"))
+func (UnimplementedUserServiceHandler) CreateUser(context.Context, *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[v1.CreateUserResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.UserService.CreateUser is not implemented"))
 }
 
-func (UnimplementedUserServiceHandler) Create(context.Context, *connect_go.Request[v1.CreateRequest]) (*connect_go.Response[v1.CreateResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.UserService.Create is not implemented"))
+func (UnimplementedUserServiceHandler) DeleteUser(context.Context, *connect_go.Request[v1.DeleteUserRequest]) (*connect_go.Response[v1.DeleteUserResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.UserService.DeleteUser is not implemented"))
 }
 
-func (UnimplementedUserServiceHandler) Whoami(context.Context, *connect_go.Request[v1.WhoamiRequest]) (*connect_go.Response[v1.WhoamiResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.UserService.Whoami is not implemented"))
+func (UnimplementedUserServiceHandler) ResetUserPassword(context.Context, *connect_go.Request[v1.ResetUserPasswordRequest]) (*connect_go.Response[v1.ResetUserPasswordResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.UserService.ResetUserPassword is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) UpdateUser(context.Context, *connect_go.Request[v1.UpdateUserRequest]) (*connect_go.Response[v1.UpdateUserResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.UserService.UpdateUser is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) GetUsers(context.Context, *connect_go.Request[v1.GetUsersRequest]) (*connect_go.Response[v1.GetUsersResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.UserService.GetUsers is not implemented"))
 }

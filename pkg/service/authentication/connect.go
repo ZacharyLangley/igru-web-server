@@ -1,62 +1,30 @@
 package authentication
 
 import (
-	gocontext "context"
-	"database/sql"
 	"net/http"
 
-	"github.com/ZacharyLangley/igru-web-server/pkg/context"
+	"github.com/ZacharyLangley/igru-web-server/pkg/database"
+	"github.com/ZacharyLangley/igru-web-server/pkg/middleware"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1/authenticationv1connect"
 	"github.com/bufbuild/connect-go"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/codes"
-	"go.uber.org/zap"
 )
 
-func New(conn *sql.DB) *Service {
+func New(pool *database.Pool) *Service {
 	return &Service{
-		conn: conn,
+		pool: pool,
 	}
 }
 
 type Service struct {
-	conn *sql.DB
+	pool *database.Pool
 	authenticationv1connect.UnimplementedUserServiceHandler
+	authenticationv1connect.UnimplementedGroupServiceHandler
 }
 
 func (s *Service) Register(mux *http.ServeMux) {
+	interceptors := middleware.Interceptors("authorization-service")
 	mux.Handle(authenticationv1connect.NewUserServiceHandler(s,
-		connect.WithInterceptors(
-			connect.UnaryInterceptorFunc(logRequest),
-			connect.UnaryInterceptorFunc(otelInterceptor),
-		)))
-}
-
-const serviceName = "authorization-service"
-
-func otelInterceptor(next connect.UnaryFunc) connect.UnaryFunc {
-	return connect.UnaryFunc(func(baseCtx gocontext.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-		ctx, span := otel.Tracer(serviceName).Start(baseCtx, req.Spec().Procedure)
-		res, err := next(ctx, req)
-		if err != nil {
-			if cErr, ok := err.(*connect.Error); ok {
-				span.SetStatus(codes.Error, cErr.Message())
-			}
-		}
-		span.End()
-		return res, err
-	})
-}
-
-func logRequest(next connect.UnaryFunc) connect.UnaryFunc {
-	return connect.UnaryFunc(func(baseCtx gocontext.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-		ctx := context.New(baseCtx).Named("service").WithFields(
-			zap.String("procedure", req.Spec().Procedure),
-			zap.String("peer", req.Peer().Addr),
-		)
-		ctx.L().Info("start")
-		res, err := next(ctx, req)
-		ctx.L().Info("end")
-		return res, err
-	})
+		connect.WithInterceptors(interceptors...)))
+	mux.Handle(authenticationv1connect.NewGroupServiceHandler(s,
+		connect.WithInterceptors(interceptors...)))
 }

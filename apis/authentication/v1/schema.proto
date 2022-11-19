@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package authentication.v1;
+
+import "google/protobuf/timestamp.proto";
+
+message User {
+  string id = 1;
+  string email = 2;
+  string full_name = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+message Session {
+  string id = 1;
+  string address = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp expired_at = 4;
+}
+
+enum GroupRole {
+  GROUP_ROLE_UNSPECIFIED = 0;
+  GROUP_ROLE_ADMIN = 1;
+  GROUP_ROLE_READ_ONLY = 2;
+}
+
+message GroupMember {
+  string user_id = 1;
+  string full_name = 2;
+  GroupRole role = 3;
+  google.protobuf.Timestamp added_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+message Group {
+  string id = 1;
+  string name = 2;
+  int64 num_members = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}

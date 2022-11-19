@@ -6,14 +6,14 @@ import (
 )
 
 type Database struct {
-	Host             string                 `mapstructure:"host"`
-	Port             int                    `mapstructure:"port"`
-	Database         string                 `mapstructure:"database"`
-	Username         string                 `mapstructure:"username"`
-	Password         string                 `mapstructure:"password"`
-	MaxRetries       int                    `mapstructure:"maxRetries"`
-	DisableMigration bool                   `mapstructure:"disableMigration"`
-	Args             map[string]interface{} `mapstructure:",remain"`
+	Host          string                 `mapstructure:"host"`
+	Port          int                    `mapstructure:"port"`
+	Database      string                 `mapstructure:"database"`
+	Username      string                 `mapstructure:"username"`
+	Password      string                 `mapstructure:"password"`
+	MaxRetries    int                    `mapstructure:"maxRetries"`
+	MigrationPath string                 `mapstructure:"migrationPath"`
+	Args          map[string]interface{} `mapstructure:",remain"`
 }
 
 func (d Database) DSN() (string, error) {

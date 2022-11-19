@@ -1,6 +1,8 @@
 package connect
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type Service interface {
 	Register(*http.ServeMux)

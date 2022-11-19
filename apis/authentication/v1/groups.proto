@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package authentication.v1;
+
+import "authentication/v1/schema.proto";
+import "common/v1/pagination.proto";
+
+service GroupService {
+  rpc CreateGroup(CreateGroupRequest) returns (CreateGroupResponse) {}
+  rpc UpdateGroup(UpdateGroupRequest) returns (UpdateGroupResponse) {}
+  rpc DeleteGroup(DeleteGroupRequest) returns (DeleteGroupResponse) {}
+  rpc GetGroup(GetGroupRequest) returns (GetGroupResponse) {}
+  rpc GetGroups(GetGroupsRequest) returns (GetGroupsResponse) {}
+
+  rpc AddGroupMember(AddGroupMemberRequest) returns (AddGroupMemberResponse) {}
+  rpc UpdateGroupMember(UpdateGroupMemberRequest) returns (UpdateGroupMemberResponse) {}
+  rpc RemoveGroupMember(RemoveGroupMemberRequest) returns (RemoveGroupMemberResponse) {}
+  rpc GetGroupMembers(GetGroupMembersRequest) returns (GetGroupMembersResponse) {}
+  rpc GetUserGroups(GetUserGroupsRequest) returns (GetUserGroupsResponse) {}
+}
+
+message CreateGroupRequest {
+  string name = 1;
+}
+message CreateGroupResponse {
+  authentication.v1.Group group = 1;
+}
+
+message UpdateGroupRequest {
+  string id = 1;
+  string name = 2;
+}
+message UpdateGroupResponse {
+  authentication.v1.Group group = 1;
+}
+
+message DeleteGroupRequest {
+  string id = 1;
+}
+message DeleteGroupResponse {}
+
+message GetGroupRequest {
+  string id = 1;
+}
+message GetGroupResponse {
+  authentication.v1.Group group = 1;
+}
+
+message GetGroupsRequest {
+  common.v1.PaginationRequest pagination = 1;
+}
+message GetGroupsResponse {
+  repeated authentication.v1.Group groups = 1;
+}
+
+message AddGroupMemberRequest {
+  string group_id = 1;
+  string user_id = 2;
+}
+message AddGroupMemberResponse {}
+
+message UpdateGroupMemberRequest {
+  string group_id = 1;
+  string user_id = 2;
+  authentication.v1.GroupRole role = 3;
+}
+message UpdateGroupMemberResponse {}
+
+message RemoveGroupMemberRequest {
+  string group_id = 1;
+  string user_id = 2;
+}
+message RemoveGroupMemberResponse {}
+
+message GetGroupMembersRequest {
+  common.v1.PaginationRequest pagination = 1;
+  string group_id = 2;
+}
+message GetGroupMembersResponse {
+  repeated authentication.v1.GroupMember members = 1;
+}
+
+message GetUserGroupsRequest {
+  common.v1.PaginationRequest pagination = 1;
+  string user_id = 2;
+}
+message GetUserGroupsResponse {
+  repeated authentication.v1.Group groups = 1;
+}
