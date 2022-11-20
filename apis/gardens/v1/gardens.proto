@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package gardens.v1;
+
+import "google/protobuf/timestamp.proto";
+
+service GardensService {
+    rpc CreateGarden (CreateGardenRequest) returns (CreateGardenResponse) {}
+    rpc DeleteGarden (DeleteGardenRequest) returns (DeleteGardenResponse) {}
+    rpc UpdateGarden(UpdateGardenRequest) returns (UpdateGardenResponse) {}
+    rpc GetGardens (GetGardensRequest) returns (GetGardensResponse) {}
+    rpc GetGarden (GetGardenRequest) returns (GetGardenResponse) {}
+}
+
+message Garden {
+    string id = 1;
+    string name = 2;
+    string comment = 3;
+    string location = 4;
+    string grow_type = 5;
+    string grow_size = 6;
+    string grow_style = 7;
+    string container_size = 8;
+    string tags = 9;
+    google.protobuf.Timestamp created_at = 10;
+    google.protobuf.Timestamp updated_at = 11;
+}
+
+message CreateGardenRequest {
+    string name = 1;
+    string comment = 2;
+    string location = 3;
+    string grow_type = 4;
+    string grow_size = 5;
+    string grow_style = 6;
+    string container_size = 7;
+    string tags = 8;
+}
+message CreateGardenResponse {
+    gardens.v1.Garden garden = 1;
+}
+
+message DeleteGardenRequest {
+    string id = 1;
+}
+message DeleteGardenResponse {
+    Garden garden = 1;
+}
+
+message UpdateGardenRequest {
+    string id = 1;
+    string name = 2;
+    string comment = 3;
+    string location = 4;
+    string grow_type = 5;
+    string grow_size = 6;
+    string grow_style = 7;
+    string container_size = 8;
+    string tags = 9;
+}
+message UpdateGardenResponse {
+    Garden garden = 1;
+}
+
+message GetGardensRequest {}
+message GetGardensResponse {
+    repeated Garden gardens = 1;
+}
+
+message GetGardenRequest {
+    string id = 1;
+}
+message GetGardenResponse {
+    Garden garden = 1;
+}

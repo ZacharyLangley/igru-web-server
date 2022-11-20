@@ -58,8 +58,48 @@ services:
     volumes:
       - ./db-data/cockroach/://cockroach/cockroach-data
 
+  gardens-service:
+    build:
+      context: ./..
+      dockerfile: build/gardens-service.dockerfile
+    restart: always
+    ports:
+      - "8082:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      DATABASE.PASSWORD: password
+      LOGGER.LEVEL: debug
+      METRICS.JAEGERADDRESS: jaeger:14268
+    depends_on:
+      - gardens-db
+    networks:
+      - gardens
+
+  # TODO: ZL | Add auto create gardens db
+  gardens-db:
+    image: "postgres:14.2"
+    ports:
+      - "5433:5432"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: gardens
+    volumes:
+      - ./db-data/postgres/:/var/lib/postgresql/data/
+    networks:
+      - gardens
+
   jaeger:
     image: jaegertracing/all-in-one:1.6
     ports:
       - 14268:14268 # Services
       - 16686:16686 # Frontend
+
+networks:
+  gardens:
+    driver: bridge
