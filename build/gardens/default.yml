@@ -1,10 +1,10 @@
 grpc:
   address: :80
 database:
-  host: gardens-db
-  port: 5432
-  username: postgres
-  database: gardens
+  host: localhost
+  port: 26257
+  username: root
+  database: garden
   password: ""
   sslmode: disable
   timezone: UTC

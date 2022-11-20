@@ -1,16 +1,15 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS gardens (
-	id uuid DEFAULT uuid_generate_v4 () NOT NULL,
-	name VARCHAR(255) NOT NULL,
-	comment VARCHAR(255) NOT NULL,
-	location VARCHAR(255) NOT NULL,
-    grow_type VARCHAR(255) NOT NULL,
-	grow_size VARCHAR(255) NOT NULL,
-	grow_style VARCHAR(255) NOT NULL,
-	container_size VARCHAR(255) NOT NULL,
-    tags VARCHAR(255) NOT NULL,
-	created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-	updated_at TIMESTAMP WITH TIME ZONE,
-	deleted_at TIMESTAMP WITH TIME ZONE
+	id UUID DEFAULT gen_random_uuid(),
+	name TEXT NOT NULL,
+	comment TEXT NOT NULL,
+	location TEXT NOT NULL,
+    grow_type TEXT NOT NULL,
+	grow_size TEXT NOT NULL,
+	grow_style TEXT NOT NULL,
+	container_size TEXT NOT NULL,
+    tags TEXT NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP,
+    PRIMARY KEY(id)
 );
-CREATE UNIQUE INDEX garden_id_idx ON gardens(id);
+CREATE UNIQUE INDEX ON gardens(id);

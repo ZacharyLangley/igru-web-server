@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger
+  labels:
+    app: igru
+    jaeger: dev
+spec:
+  selector:
+    matchLabels:
+      app: igru
+      jaeger: dev
+  template:
+    metadata:
+      labels:
+        app: igru
+        jaeger: dev
+    spec:
+      containers:
+      - image: jaegertracing/all-in-one:1.6
+        name: jaeger
+        ports:
+        - containerPort: 14268
+          name: ingress
+        - containerPort: 16686
+          name: dashboard
