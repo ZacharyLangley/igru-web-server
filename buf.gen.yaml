@@ -3,8 +3,6 @@ managed:
   enabled: true
   go_package_prefix:
     default: github.com/ZacharyLangley/igru-web-server/pkg/proto
-    except:
-      - buf.build/googleapis/googleapis
 plugins:
   - name: go
     out: pkg/proto

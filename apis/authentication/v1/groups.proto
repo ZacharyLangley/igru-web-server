@@ -27,8 +27,7 @@ message CreateGroupResponse {
 }
 
 message UpdateGroupRequest {
-  string id = 1;
-  string name = 2;
+  authentication.v1.Group group = 1;
 }
 message UpdateGroupResponse {
   authentication.v1.Group group = 1;

@@ -3,7 +3,6 @@ package authentication
 import (
 	gocontext "context"
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
@@ -18,8 +17,8 @@ import (
 func (s *Service) CreateUser(baseCtx gocontext.Context, req *connect.Request[v1.CreateUserRequest]) (*connect.Response[v1.CreateUserResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.CreateUserResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := validateCreateUserRequest(req.Msg); err != nil {
+		return nil, err
 	}
 	hash, salt, err := generateCred(req.Msg.Password)
 	if err != nil {
@@ -53,12 +52,12 @@ func (s *Service) CreateUser(baseCtx gocontext.Context, req *connect.Request[v1.
 func (s *Service) DeleteUser(baseCtx gocontext.Context, req *connect.Request[v1.DeleteUserRequest]) (*connect.Response[v1.DeleteUserResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.DeleteUserResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := validateDeleteUserRequest(req.Msg); err != nil {
+		return nil, err
 	}
 	userID, err := uuid.Parse(req.Msg.UserId)
-	if req.Msg != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid user id format: %w", err))
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("failed to re-parse UUID: %w", err))
 	}
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
@@ -72,12 +71,12 @@ func (s *Service) DeleteUser(baseCtx gocontext.Context, req *connect.Request[v1.
 func (s *Service) ResetUserPassword(baseCtx gocontext.Context, req *connect.Request[v1.ResetUserPasswordRequest]) (*connect.Response[v1.ResetUserPasswordResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.ResetUserPasswordResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := validateResetUserPasswordRequest(req.Msg); err != nil {
+		return nil, err
 	}
 	userID, err := uuid.Parse(req.Msg.UserId)
-	if req.Msg != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid user id format: %w", err))
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("failed to re-parse UUID: %w", err))
 	}
 	hash, salt, err := generateCred(req.Msg.Password)
 	if err != nil {
@@ -100,12 +99,12 @@ func (s *Service) ResetUserPassword(baseCtx gocontext.Context, req *connect.Requ
 func (s *Service) UpdateUser(baseCtx gocontext.Context, req *connect.Request[v1.UpdateUserRequest]) (*connect.Response[v1.UpdateUserResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.UpdateUserResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := validateUpdateUserRequest(req.Msg); err != nil {
+		return nil, err
 	}
 	userID, err := uuid.Parse(req.Msg.User.Id)
-	if req.Msg != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid user id format: %w", err))
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("failed to re-parse UUID: %w", err))
 	}
 	var user models.User
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
@@ -133,11 +132,8 @@ func (s *Service) UpdateUser(baseCtx gocontext.Context, req *connect.Request[v1.
 func (s *Service) GetUsers(baseCtx gocontext.Context, req *connect.Request[v1.GetUsersRequest]) (*connect.Response[v1.GetUsersResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetUsersResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
-	}
-	if req.Msg.Pagination.Length <= 0 {
-		req.Msg.Pagination.Length = 100
+	if err := validatePaginationRequest(req.Msg); err != nil {
+		return nil, err
 	}
 	var users []models.User
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
