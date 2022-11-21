@@ -37,7 +37,7 @@ message CreateGardenRequest {
     string tags = 8;
 }
 message CreateGardenResponse {
-    gardens.v1.Garden garden = 1;
+    Garden garden = 1;
 }
 
 message DeleteGardenRequest {

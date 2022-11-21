@@ -23,5 +23,4 @@ type Garden struct {
 	Tags          string
 	CreatedAt     time.Time
 	UpdatedAt     sql.NullTime
-	DeletedAt     sql.NullTime
 }

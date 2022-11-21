@@ -60,10 +60,10 @@ services:
     volumes:
       - ./db-data/cockroach/://cockroach/cockroach-data
 
-  gardens-service:
+  garden-service:
     build:
       context: ./..
-      dockerfile: build/gardens-service.dockerfile
+      dockerfile: build/garden-service.dockerfile
     restart: always
     ports:
       - "8082:80"

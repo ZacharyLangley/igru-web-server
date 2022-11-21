@@ -18,7 +18,7 @@ INSERT INTO gardens (
 ) VALUES (
   $1, $2, $3, $4, $5, $6, $7, $8, $9
 )
-RETURNING id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at, deleted_at
+RETURNING id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at
 `
 
 type CreateGardenParams struct {
@@ -58,7 +58,6 @@ func (q *Queries) CreateGarden(ctx context.Context, arg CreateGardenParams) (Gar
 		&i.Tags,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -74,7 +73,7 @@ func (q *Queries) DeleteGarden(ctx context.Context, id uuid.UUID) error {
 }
 
 const getGarden = `-- name: GetGarden :one
-SELECT id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at, deleted_at FROM gardens
+SELECT id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at FROM gardens
 WHERE id = $1 LIMIT 1
 `
 
@@ -93,13 +92,12 @@ func (q *Queries) GetGarden(ctx context.Context, id uuid.UUID) (Garden, error) {
 		&i.Tags,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const getGardens = `-- name: GetGardens :many
-SELECT id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at, deleted_at FROM gardens
+SELECT id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at FROM gardens
 `
 
 func (q *Queries) GetGardens(ctx context.Context) ([]Garden, error) {
@@ -123,7 +121,6 @@ func (q *Queries) GetGardens(ctx context.Context) ([]Garden, error) {
 			&i.Tags,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -139,7 +136,7 @@ const updateGarden = `-- name: UpdateGarden :one
 UPDATE gardens
 SET name = $2, comment= $3, location = $4, grow_type = $5, grow_size = $6, grow_style = $7, container_size = $8, tags = $9, created_at = $10, updated_at=CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at, deleted_at
+RETURNING id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at
 `
 
 type UpdateGardenParams struct {
@@ -181,7 +178,6 @@ func (q *Queries) UpdateGarden(ctx context.Context, arg UpdateGardenParams) (Gar
 		&i.Tags,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.DeletedAt,
 	)
 	return i, err
 }

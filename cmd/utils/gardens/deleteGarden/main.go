@@ -17,7 +17,7 @@ func main() {
 		"http://localhost:8082/",
 	)
 	req := connect.NewRequest(&gardensv1.DeleteGardenRequest{
-		Id: "c299e110-3944-4b4e-a5a7-af8cab0e8bc7",
+		Id: "INSERT-NEW-UUID-HERE",
 	})
 	ctx, done := context.WithTimeout(context.Background(), time.Second*5)
 	defer done()
