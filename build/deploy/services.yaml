@@ -14,3 +14,64 @@ spec:
   selector:
     app: igru
     database: dev
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authentication-service
+  labels:
+    app: igru
+spec:
+  type: LoadBalancer
+  ports:
+    - name: api
+      port: 80
+      targetPort: 8080
+  selector:
+    app: igru
+    service: authentication
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: garden-service
+  labels:
+    app: igru
+spec:
+  type: LoadBalancer
+  ports:
+    - name: api
+      port: 80
+      targetPort: 8081
+  selector:
+    app: igru
+    service: garden
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger
+  labels:
+    app: igru
+spec:
+  type: LoadBalancer
+  ports:
+    - name: api
+      port: 16686
+  selector:
+    app: igru
+    jaeger: dev
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-ingress
+  labels:
+    app: igru
+spec:
+  ports:
+    - name: api
+      port: 14268
+  selector:
+    app: igru
+    jaeger: dev

@@ -1,6 +1,6 @@
 resources:
-- deploy/secret.yaml
 - deploy/database.yaml
+- deploy/jaeger.yaml
 - deploy/authentication.yaml
+- deploy/garden.yaml
 - deploy/services.yaml
-- deploy/jobs.yaml

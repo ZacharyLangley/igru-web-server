@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: authentication
+  name: garden
   labels:
     app: igru
-    service: authentication
+    service: garden
 spec:
   selector:
     matchLabels:
       app: igru
-      service: authentication
+      service: garden
   template:
     metadata:
       labels:
         app: igru
-        service: authentication
+        service: garden
     spec:
       containers:
-      - image: authentication:latest
-        name: authentication
+      - image: garden:latest
+        name: garden
         env:
         - name: DATABASE.HOST
           value: cockroachdb.default.svc

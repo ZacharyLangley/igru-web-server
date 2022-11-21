@@ -43,7 +43,7 @@ func (s *Service) UpdateGroup(baseCtx gocontext.Context, req *connect.Request[v1
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}
-	groupID, err := uuid.Parse(req.Msg.Id)
+	groupID, err := uuid.Parse(req.Msg.Group.Id)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid user id format: %w", err))
 	}
@@ -53,7 +53,7 @@ func (s *Service) UpdateGroup(baseCtx gocontext.Context, req *connect.Request[v1
 		query := models.New(tx)
 		params := models.UpdateGroupParams{
 			ID:   groupID,
-			Name: req.Msg.Name,
+			Name: req.Msg.Group.Name,
 		}
 		group, err = query.UpdateGroup(ctx, params)
 		return err
@@ -122,11 +122,8 @@ func (s *Service) GetGroup(baseCtx gocontext.Context, req *connect.Request[v1.Ge
 func (s *Service) GetGroups(baseCtx gocontext.Context, req *connect.Request[v1.GetGroupsRequest]) (*connect.Response[v1.GetGroupsResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetGroupsResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
-	}
-	if req.Msg.Pagination.Length <= 0 {
-		req.Msg.Pagination.Length = 100
+	if err := validatePaginationRequest(req.Msg); err != nil {
+		return nil, err
 	}
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
@@ -240,11 +237,8 @@ func (s *Service) RemoveGroupMember(baseCtx gocontext.Context, req *connect.Requ
 func (s *Service) GetUserGroups(baseCtx gocontext.Context, req *connect.Request[v1.GetUserGroupsRequest]) (*connect.Response[v1.GetUserGroupsResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetUserGroupsResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
-	}
-	if req.Msg.Pagination.Length <= 0 {
-		req.Msg.Pagination.Length = 100
+	if err := validatePaginationRequest(req.Msg); err != nil {
+		return nil, err
 	}
 	userID, err := uuid.Parse(req.Msg.UserId)
 	if err != nil {

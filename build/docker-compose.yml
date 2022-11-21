@@ -12,7 +12,7 @@ services:
       mode: replicated
       replicas: 1
 
-  init-authentication-service:
+  init-db:
     image: cockroachdb/cockroach:v22.1.11
     command:
       - "sql"
@@ -21,8 +21,13 @@ services:
       - "db"
       - "-e"
       - "CREATE DATABASE IF NOT EXISTS authentication;"
+      - "-e"
+      - "CREATE DATABASE IF NOT EXISTS garden;"
     depends_on:
       - db
+    deploy:
+      restart_policy:
+          condition: on-failure
 
   authentication-service:
     build:
@@ -35,14 +40,11 @@ services:
       mode: replicated
       replicas: 1
     environment:
-      DATABASE.PORT: "26257"
-      DATABASE.USERNAME: root
-      DATABASE.DATABASE: authentication
       DATABASE.HOST: db
       LOGGER.LEVEL: debug
       METRICS.JAEGERADDRESS: jaeger:14268
     depends_on:
-      - init-authentication-service
+      - init-db
 
   db:
     image: cockroachdb/cockroach:v22.1.11
@@ -69,37 +71,14 @@ services:
       mode: replicated
       replicas: 1
     environment:
-      DATABASE.PASSWORD: password
+      DATABASE.HOST: db
       LOGGER.LEVEL: debug
       METRICS.JAEGERADDRESS: jaeger:14268
     depends_on:
-      - gardens-db
-    networks:
-      - gardens
-
-  # TODO: ZL | Add auto create gardens db
-  gardens-db:
-    image: "postgres:14.2"
-    ports:
-      - "5433:5432"
-    deploy:
-      mode: replicated
-      replicas: 1
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: gardens
-    volumes:
-      - ./db-data/postgres/:/var/lib/postgresql/data/
-    networks:
-      - gardens
+      - init-db
 
   jaeger:
     image: jaegertracing/all-in-one:1.6
     ports:
       - 14268:14268 # Services
       - 16686:16686 # Frontend
-
-networks:
-  gardens:
-    driver: bridge

@@ -22,12 +22,6 @@ spec:
         args:
         - "start-single-node"
         - "--insecure"
-        env:
-        - name: DATABASE.PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: cockroach-credentials
-              key: password
         ports:
         - containerPort: 8080
           name: dashboard
@@ -39,3 +33,28 @@ spec:
       volumes:
       - name: cockroach-persistent-storage
         emptyDir: {}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-init
+spec:
+  template:
+    metadata:
+      labels:
+        app: igru
+        database: dev
+    spec:
+      containers:
+      - image: cockroachdb/cockroach:v22.1.11
+        name: cockroachdb
+        args:
+        - "sql"
+        - "--insecure"
+        - "--host"
+        - "cockroachdb.default.svc"
+        - "-e"
+        - "CREATE DATABASE IF NOT EXISTS authentication;"
+        - "-e"
+        - "CREATE DATABASE IF NOT EXISTS garden;"
+      restartPolicy: OnFailure
