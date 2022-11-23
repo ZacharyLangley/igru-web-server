@@ -62,6 +62,74 @@ func (q *Queries) CreateGarden(ctx context.Context, arg CreateGardenParams) (Gar
 	return i, err
 }
 
+const createPlant = `-- name: CreatePlant :one
+INSERT INTO plants (
+  name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at
+) VALUES (
+  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+)
+RETURNING id, name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at, updated_at
+`
+
+type CreatePlantParams struct {
+	Name            string
+	Comment         string
+	Notes           string
+	GrowCycleLength string
+	Parentage       string
+	Origin          string
+	Gender          string
+	DaysFlowering   float64
+	DaysCured       float64
+	HarvestedWeight string
+	BudDensity      float64
+	BudPistils      bool
+	Tags            string
+	AcquiredAt      time.Time
+	CreatedAt       time.Time
+}
+
+func (q *Queries) CreatePlant(ctx context.Context, arg CreatePlantParams) (Plant, error) {
+	row := q.db.QueryRow(ctx, createPlant,
+		arg.Name,
+		arg.Comment,
+		arg.Notes,
+		arg.GrowCycleLength,
+		arg.Parentage,
+		arg.Origin,
+		arg.Gender,
+		arg.DaysFlowering,
+		arg.DaysCured,
+		arg.HarvestedWeight,
+		arg.BudDensity,
+		arg.BudPistils,
+		arg.Tags,
+		arg.AcquiredAt,
+		arg.CreatedAt,
+	)
+	var i Plant
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Comment,
+		&i.Notes,
+		&i.GrowCycleLength,
+		&i.Parentage,
+		&i.Origin,
+		&i.Gender,
+		&i.DaysFlowering,
+		&i.DaysCured,
+		&i.HarvestedWeight,
+		&i.BudDensity,
+		&i.BudPistils,
+		&i.Tags,
+		&i.AcquiredAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const deleteGarden = `-- name: DeleteGarden :exec
 DELETE FROM gardens
 WHERE id = $1
@@ -69,6 +137,16 @@ WHERE id = $1
 
 func (q *Queries) DeleteGarden(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteGarden, id)
+	return err
+}
+
+const deletePlant = `-- name: DeletePlant :exec
+DELETE FROM plants
+WHERE id = $1
+`
+
+func (q *Queries) DeletePlant(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deletePlant, id)
 	return err
 }
 
@@ -132,6 +210,78 @@ func (q *Queries) GetGardens(ctx context.Context) ([]Garden, error) {
 	return items, nil
 }
 
+const getPlant = `-- name: GetPlant :one
+SELECT id, name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at, updated_at FROM plants
+WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetPlant(ctx context.Context, id uuid.UUID) (Plant, error) {
+	row := q.db.QueryRow(ctx, getPlant, id)
+	var i Plant
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Comment,
+		&i.Notes,
+		&i.GrowCycleLength,
+		&i.Parentage,
+		&i.Origin,
+		&i.Gender,
+		&i.DaysFlowering,
+		&i.DaysCured,
+		&i.HarvestedWeight,
+		&i.BudDensity,
+		&i.BudPistils,
+		&i.Tags,
+		&i.AcquiredAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getPlants = `-- name: GetPlants :many
+SELECT id, name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at, updated_at FROM plants
+`
+
+func (q *Queries) GetPlants(ctx context.Context) ([]Plant, error) {
+	rows, err := q.db.Query(ctx, getPlants)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Plant
+	for rows.Next() {
+		var i Plant
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Comment,
+			&i.Notes,
+			&i.GrowCycleLength,
+			&i.Parentage,
+			&i.Origin,
+			&i.Gender,
+			&i.DaysFlowering,
+			&i.DaysCured,
+			&i.HarvestedWeight,
+			&i.BudDensity,
+			&i.BudPistils,
+			&i.Tags,
+			&i.AcquiredAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateGarden = `-- name: UpdateGarden :one
 UPDATE gardens
 SET name = $2, comment= $3, location = $4, grow_type = $5, grow_size = $6, grow_style = $7, container_size = $8, tags = $9, created_at = $10, updated_at=CURRENT_TIMESTAMP
@@ -176,6 +326,74 @@ func (q *Queries) UpdateGarden(ctx context.Context, arg UpdateGardenParams) (Gar
 		&i.GrowStyle,
 		&i.ContainerSize,
 		&i.Tags,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updatePlant = `-- name: UpdatePlant :one
+UPDATE plants
+SET name = $2, comment = $3, notes = $4, grow_cycle_length = $5, parentage = $6, origin = $7, gender = $8, days_flowering = $9, days_cured = $10, harvested_weight = $11, bud_density = $12, bud_pistils = $13, tags = $14, acquired_at=$15, created_at = $16, updated_at=CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING id, name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at, updated_at
+`
+
+type UpdatePlantParams struct {
+	ID              uuid.UUID
+	Name            string
+	Comment         string
+	Notes           string
+	GrowCycleLength string
+	Parentage       string
+	Origin          string
+	Gender          string
+	DaysFlowering   float64
+	DaysCured       float64
+	HarvestedWeight string
+	BudDensity      float64
+	BudPistils      bool
+	Tags            string
+	AcquiredAt      time.Time
+	CreatedAt       time.Time
+}
+
+func (q *Queries) UpdatePlant(ctx context.Context, arg UpdatePlantParams) (Plant, error) {
+	row := q.db.QueryRow(ctx, updatePlant,
+		arg.ID,
+		arg.Name,
+		arg.Comment,
+		arg.Notes,
+		arg.GrowCycleLength,
+		arg.Parentage,
+		arg.Origin,
+		arg.Gender,
+		arg.DaysFlowering,
+		arg.DaysCured,
+		arg.HarvestedWeight,
+		arg.BudDensity,
+		arg.BudPistils,
+		arg.Tags,
+		arg.AcquiredAt,
+		arg.CreatedAt,
+	)
+	var i Plant
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Comment,
+		&i.Notes,
+		&i.GrowCycleLength,
+		&i.Parentage,
+		&i.Origin,
+		&i.Gender,
+		&i.DaysFlowering,
+		&i.DaysCured,
+		&i.HarvestedWeight,
+		&i.BudDensity,
+		&i.BudPistils,
+		&i.Tags,
+		&i.AcquiredAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

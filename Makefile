@@ -12,7 +12,10 @@ build-authentication:
 build-garden:
 	docker build -f build/garden-service.dockerfile -t garden:latest .
 
+build-plant:
+	docker build -f build/plant-service.dockerfile -t plant:latest .
+
 build-broker:
 	docker build -f build/broker-service.dockerfile -t broker:latest .
 
-build: build-authentication build-garden build-broker
+build: build-authentication build-garden build-broker build_plant

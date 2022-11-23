@@ -24,3 +24,23 @@ type Garden struct {
 	CreatedAt     time.Time
 	UpdatedAt     sql.NullTime
 }
+
+type Plant struct {
+	ID              uuid.UUID
+	Name            string
+	Comment         string
+	Notes           string
+	GrowCycleLength string
+	Parentage       string
+	Origin          string
+	Gender          string
+	DaysFlowering   float64
+	DaysCured       float64
+	HarvestedWeight string
+	BudDensity      float64
+	BudPistils      bool
+	Tags            string
+	AcquiredAt      time.Time
+	CreatedAt       time.Time
+	UpdatedAt       sql.NullTime
+}
