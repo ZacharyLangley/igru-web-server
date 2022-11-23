@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package gardens.v1;
+
+import "gardens/v1/schema.proto";
+import "google/protobuf/timestamp.proto";
+
+service PlantsService {
+    rpc CreatePlant (CreatePlantRequest) returns (CreatePlantResponse) {}
+    rpc DeletePlant (DeletePlantRequest) returns (DeletePlantResponse) {}
+    rpc UpdatePlant(UpdatePlantRequest) returns (UpdatePlantResponse) {}
+    rpc GetPlants (GetPlantsRequest) returns (GetPlantsResponse) {}
+    rpc GetPlant (GetPlantRequest) returns (GetPlantResponse) {}
+}
+
+message CreatePlantRequest {
+    string name = 1;
+    string comment = 2;
+    string notes = 3;
+    string grow_cycle_length = 4;
+    string parentage = 5;
+    string origin = 6;
+    string gender = 7;
+    double days_flowering = 8;
+    double days_cured = 9;
+    string harvested_weight = 10;
+    double bud_density = 11;
+    bool bud_pistils = 12;
+    string tags = 13;
+    google.protobuf.Timestamp acquired_at = 14;
+}
+message CreatePlantResponse {
+    gardens.v1.Plant plant = 1;
+}
+
+message DeletePlantRequest {
+    string id = 1;
+}
+message DeletePlantResponse {
+    gardens.v1.Plant plant = 1;
+}
+
+message UpdatePlantRequest {
+    string id = 1;
+    string name = 2;
+    string comment = 3;
+    string notes = 4;
+    string grow_cycle_length = 5;
+    string parentage = 6;
+    string origin = 7;
+    string gender = 8;
+    double days_flowering = 9;
+    double days_cured = 10;
+    string harvested_weight = 11;
+    double bud_density = 12;
+    bool bud_pistils = 13;
+    string tags = 14;
+    google.protobuf.Timestamp acquired_at = 15;
+}
+message UpdatePlantResponse {
+    gardens.v1.Plant plant = 1;
+}
+
+message GetPlantsRequest {}
+message GetPlantsResponse {
+    repeated gardens.v1.Plant plants = 1;
+}
+
+message GetPlantRequest {
+    string id = 1;
+
+}
+message GetPlantResponse {
+    gardens.v1.Plant plant = 1;
+}

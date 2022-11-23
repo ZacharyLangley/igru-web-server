@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package gardens.v1;
 
+import "gardens/v1/schema.proto";
 import "google/protobuf/timestamp.proto";
 
 service GardensService {
@@ -10,20 +11,6 @@ service GardensService {
     rpc UpdateGarden(UpdateGardenRequest) returns (UpdateGardenResponse) {}
     rpc GetGardens (GetGardensRequest) returns (GetGardensResponse) {}
     rpc GetGarden (GetGardenRequest) returns (GetGardenResponse) {}
-}
-
-message Garden {
-    string id = 1;
-    string name = 2;
-    string comment = 3;
-    string location = 4;
-    string grow_type = 5;
-    string grow_size = 6;
-    string grow_style = 7;
-    string container_size = 8;
-    string tags = 9;
-    google.protobuf.Timestamp created_at = 10;
-    google.protobuf.Timestamp updated_at = 11;
 }
 
 message CreateGardenRequest {
@@ -37,14 +24,14 @@ message CreateGardenRequest {
     string tags = 8;
 }
 message CreateGardenResponse {
-    Garden garden = 1;
+    gardens.v1.Garden garden = 1;
 }
 
 message DeleteGardenRequest {
     string id = 1;
 }
 message DeleteGardenResponse {
-    Garden garden = 1;
+    gardens.v1.Garden garden = 1;
 }
 
 message UpdateGardenRequest {
@@ -59,17 +46,17 @@ message UpdateGardenRequest {
     string tags = 9;
 }
 message UpdateGardenResponse {
-    Garden garden = 1;
+    gardens.v1.Garden garden = 1;
 }
 
 message GetGardensRequest {}
 message GetGardensResponse {
-    repeated Garden gardens = 1;
+    repeated gardens.v1.Garden gardens = 1;
 }
 
 message GetGardenRequest {
     string id = 1;
 }
 message GetGardenResponse {
-    Garden garden = 1;
+    gardens.v1.Garden garden = 1;
 }

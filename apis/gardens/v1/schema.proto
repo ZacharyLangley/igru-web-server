@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package gardens.v1;
+
+import "google/protobuf/timestamp.proto";
+
+message Garden {
+    string id = 1;
+    string name = 2;
+    string comment = 3;
+    string location = 4;
+    string grow_type = 5;
+    string grow_size = 6;
+    string grow_style = 7;
+    string container_size = 8;
+    string tags = 9;
+    google.protobuf.Timestamp created_at = 10;
+    google.protobuf.Timestamp updated_at = 11;
+}
+
+message Plant {
+    string id = 1;
+    string name = 2;
+    string comment = 3;
+    string notes = 4;
+    string grow_cycle_length = 5;
+    string parentage = 6;
+    string origin = 7;
+    string gender = 8;
+    double days_flowering = 9;
+    double days_cured = 10;
+    string harvested_weight = 11;
+    double bud_density = 12;
+    bool bud_pistils = 13;
+    string tags = 14;
+    google.protobuf.Timestamp acquired_at = 15;
+    google.protobuf.Timestamp created_at = 16;
+    google.protobuf.Timestamp updated_at = 17;
+}

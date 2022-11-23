@@ -18,11 +18,13 @@ func New(pool *database.Pool) *Service {
 type Service struct {
 	pool *database.Pool
 	gardensv1connect.UnimplementedGardensServiceHandler
+	gardensv1connect.UnimplementedPlantsServiceHandler
 }
 
 func (s *Service) Register(mux *http.ServeMux) {
-
-	interceptors := middleware.Interceptors("authorization-service")
+	interceptors := middleware.Interceptors("garden-service")
 	mux.Handle(gardensv1connect.NewGardensServiceHandler(s,
+		connect.WithInterceptors(interceptors...)))
+	mux.Handle(gardensv1connect.NewPlantsServiceHandler(s,
 		connect.WithInterceptors(interceptors...)))
 }

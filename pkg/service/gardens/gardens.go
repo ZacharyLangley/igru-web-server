@@ -92,14 +92,14 @@ func (s *Service) UpdateGarden(baseCtx gocontext.Context, req *connect_go.Reques
 		query := models.New(tx)
 		params := models.UpdateGardenParams{
 			ID:            gardenID,
-			Name:          garden.Name,
-			Comment:       garden.Comment,
-			Location:      garden.Location,
-			GrowType:      garden.GrowType,
-			GrowSize:      garden.GrowSize,
-			GrowStyle:     garden.GrowStyle,
-			ContainerSize: garden.ContainerSize,
-			Tags:          garden.Tags,
+			Name:          req.Msg.Name,
+			Comment:       req.Msg.Comment,
+			Location:      req.Msg.Location,
+			GrowType:      req.Msg.GrowType,
+			GrowSize:      req.Msg.GrowSize,
+			GrowStyle:     req.Msg.GrowStyle,
+			ContainerSize: req.Msg.ContainerSize,
+			Tags:          req.Msg.Tags,
 		}
 		garden, err = query.UpdateGarden(ctx, params)
 		return err

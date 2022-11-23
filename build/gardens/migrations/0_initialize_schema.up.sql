@@ -13,3 +13,25 @@ CREATE TABLE IF NOT EXISTS gardens (
     PRIMARY KEY(id)
 );
 CREATE UNIQUE INDEX ON gardens(id);
+
+CREATE TABLE IF NOT EXISTS plants (
+	id UUID DEFAULT gen_random_uuid(),
+	name TEXT NOT NULL,
+	comment TEXT NOT NULL,
+	notes TEXT NOT NULL,
+    grow_cycle_length TEXT NOT NULL,
+	parentage TEXT NOT NULL,
+	origin TEXT NOT NULL,
+	gender TEXT NOT NULL,
+    days_flowering FLOAT NOT NULL,
+    days_cured FLOAT NOT NULL,
+    harvested_weight TEXT NOT NULL,
+    bud_density FLOAT NOT NULL,
+    bud_pistils BOOLEAN NOT NULL DEFAULT FALSE,
+    tags TEXT NOT NULL,
+    acquired_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP,
+    PRIMARY KEY(id)
+);
+CREATE UNIQUE INDEX ON plants(id);
