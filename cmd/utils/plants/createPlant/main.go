@@ -21,7 +21,7 @@ func main() {
 		Comment:         "Plant Mock Comment",
 		Notes:           "Plant Mock Note",
 		GrowCycleLength: "{\"value\":\"28\",\"metric\":\"days\"}",
-		Parentage:       "Mock Parent Strain",
+		Parentage:       "INSERT-PARENTAGE-PLANT-ID",
 		Origin:          "Clone",
 		Gender:          "Feminized",
 		DaysFlowering:   2.4,

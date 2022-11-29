@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS plants (
 	comment TEXT NOT NULL,
 	notes TEXT NOT NULL,
     grow_cycle_length TEXT NOT NULL,
-	parentage TEXT NOT NULL,
+	parentage UUID NOT NULL,
 	origin TEXT NOT NULL,
 	gender TEXT NOT NULL,
     days_flowering FLOAT NOT NULL,
