@@ -17,7 +17,7 @@ func main() {
 		"http://localhost:8082/",
 	)
 	req := connect.NewRequest(&gardensv1.UpdatePlantRequest{
-		Id:              "INSERT-NEW-UUID-HERE",
+		Id:              "d646e8c0-e547-42a5-9070-038014911840",
 		Name:            "Plant A_2",
 		Comment:         "Plant Mock Updated Comment",
 		Notes:           "Plant Mock Updated Note",

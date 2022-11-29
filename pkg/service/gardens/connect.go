@@ -27,4 +27,6 @@ func (s *Service) Register(mux *http.ServeMux) {
 		connect.WithInterceptors(interceptors...)))
 	mux.Handle(gardensv1connect.NewPlantsServiceHandler(s,
 		connect.WithInterceptors(interceptors...)))
+	mux.Handle(gardensv1connect.NewStrainsServiceHandler(s,
+		connect.WithInterceptors(interceptors...)))
 }

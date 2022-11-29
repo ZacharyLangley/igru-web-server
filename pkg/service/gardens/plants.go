@@ -129,6 +129,7 @@ func (s *Service) UpdatePlant(baseCtx gocontext.Context, req *connect_go.Request
 	// TODO: ZL | ADD AcquiredAt Data Point for when it was obtained vs when the data is made.
 	res.Msg.Plant = &v1.Plant{
 		Id:              plant.ID.String(),
+		Name:            plant.Name,
 		Comment:         plant.Comment,
 		Notes:           plant.Notes,
 		GrowCycleLength: plant.GrowCycleLength,

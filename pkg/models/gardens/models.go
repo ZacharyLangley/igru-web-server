@@ -44,3 +44,20 @@ type Plant struct {
 	CreatedAt       time.Time
 	UpdatedAt       sql.NullTime
 }
+
+type Strain struct {
+	ID         uuid.UUID
+	Name       string
+	Comment    string
+	Notes      string
+	Type       string
+	Price      float64
+	ThcPercent float64
+	CbdPercent float64
+	Parentage  uuid.UUID
+	Aroma      string
+	Taste      string
+	Tags       string
+	CreatedAt  time.Time
+	UpdatedAt  sql.NullTime
+}

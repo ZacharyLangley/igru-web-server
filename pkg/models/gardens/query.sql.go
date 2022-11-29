@@ -130,6 +130,65 @@ func (q *Queries) CreatePlant(ctx context.Context, arg CreatePlantParams) (Plant
 	return i, err
 }
 
+const createStrain = `-- name: CreateStrain :one
+INSERT INTO strains (
+  name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at
+) VALUES (
+  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+)
+RETURNING id, name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at, updated_at
+`
+
+type CreateStrainParams struct {
+	Name       string
+	Comment    string
+	Notes      string
+	Type       string
+	Price      float64
+	ThcPercent float64
+	CbdPercent float64
+	Parentage  uuid.UUID
+	Aroma      string
+	Taste      string
+	Tags       string
+	CreatedAt  time.Time
+}
+
+func (q *Queries) CreateStrain(ctx context.Context, arg CreateStrainParams) (Strain, error) {
+	row := q.db.QueryRow(ctx, createStrain,
+		arg.Name,
+		arg.Comment,
+		arg.Notes,
+		arg.Type,
+		arg.Price,
+		arg.ThcPercent,
+		arg.CbdPercent,
+		arg.Parentage,
+		arg.Aroma,
+		arg.Taste,
+		arg.Tags,
+		arg.CreatedAt,
+	)
+	var i Strain
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Comment,
+		&i.Notes,
+		&i.Type,
+		&i.Price,
+		&i.ThcPercent,
+		&i.CbdPercent,
+		&i.Parentage,
+		&i.Aroma,
+		&i.Taste,
+		&i.Tags,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const deleteGarden = `-- name: DeleteGarden :exec
 DELETE FROM gardens
 WHERE id = $1
@@ -147,6 +206,16 @@ WHERE id = $1
 
 func (q *Queries) DeletePlant(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deletePlant, id)
+	return err
+}
+
+const deleteStrain = `-- name: DeleteStrain :exec
+DELETE FROM strains
+WHERE id = $1
+`
+
+func (q *Queries) DeleteStrain(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteStrain, id)
 	return err
 }
 
@@ -282,6 +351,72 @@ func (q *Queries) GetPlants(ctx context.Context) ([]Plant, error) {
 	return items, nil
 }
 
+const getStrain = `-- name: GetStrain :one
+SELECT id, name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at, updated_at FROM strains
+WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetStrain(ctx context.Context, id uuid.UUID) (Strain, error) {
+	row := q.db.QueryRow(ctx, getStrain, id)
+	var i Strain
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Comment,
+		&i.Notes,
+		&i.Type,
+		&i.Price,
+		&i.ThcPercent,
+		&i.CbdPercent,
+		&i.Parentage,
+		&i.Aroma,
+		&i.Taste,
+		&i.Tags,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getStrains = `-- name: GetStrains :many
+SELECT id, name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at, updated_at FROM strains
+`
+
+func (q *Queries) GetStrains(ctx context.Context) ([]Strain, error) {
+	rows, err := q.db.Query(ctx, getStrains)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Strain
+	for rows.Next() {
+		var i Strain
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Comment,
+			&i.Notes,
+			&i.Type,
+			&i.Price,
+			&i.ThcPercent,
+			&i.CbdPercent,
+			&i.Parentage,
+			&i.Aroma,
+			&i.Taste,
+			&i.Tags,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateGarden = `-- name: UpdateGarden :one
 UPDATE gardens
 SET name = $2, comment= $3, location = $4, grow_type = $5, grow_size = $6, grow_style = $7, container_size = $8, tags = $9, created_at = $10, updated_at=CURRENT_TIMESTAMP
@@ -394,6 +529,65 @@ func (q *Queries) UpdatePlant(ctx context.Context, arg UpdatePlantParams) (Plant
 		&i.BudPistils,
 		&i.Tags,
 		&i.AcquiredAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateStrain = `-- name: UpdateStrain :one
+UPDATE strains
+SET name = $2, comment = $3, notes = $4, type = $5, price = $6, thc_percent = $7, cbd_percent = $8, parentage = $9, aroma = $10, taste = $11, tags = $12, created_at = $13, updated_at=CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING id, name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at, updated_at
+`
+
+type UpdateStrainParams struct {
+	ID         uuid.UUID
+	Name       string
+	Comment    string
+	Notes      string
+	Type       string
+	Price      float64
+	ThcPercent float64
+	CbdPercent float64
+	Parentage  uuid.UUID
+	Aroma      string
+	Taste      string
+	Tags       string
+	CreatedAt  time.Time
+}
+
+func (q *Queries) UpdateStrain(ctx context.Context, arg UpdateStrainParams) (Strain, error) {
+	row := q.db.QueryRow(ctx, updateStrain,
+		arg.ID,
+		arg.Name,
+		arg.Comment,
+		arg.Notes,
+		arg.Type,
+		arg.Price,
+		arg.ThcPercent,
+		arg.CbdPercent,
+		arg.Parentage,
+		arg.Aroma,
+		arg.Taste,
+		arg.Tags,
+		arg.CreatedAt,
+	)
+	var i Strain
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Comment,
+		&i.Notes,
+		&i.Type,
+		&i.Price,
+		&i.ThcPercent,
+		&i.CbdPercent,
+		&i.Parentage,
+		&i.Aroma,
+		&i.Taste,
+		&i.Tags,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

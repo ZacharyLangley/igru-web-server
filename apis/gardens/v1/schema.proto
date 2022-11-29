@@ -37,3 +37,20 @@ message Plant {
     google.protobuf.Timestamp created_at = 16;
     google.protobuf.Timestamp updated_at = 17;
 }
+
+message Strain {
+    string id = 1;
+    string name = 2;
+    string comment = 3;
+    string notes = 4;
+    string type = 5;
+    double price = 6;
+    double thc_percent = 7;
+    double cbd_percent = 8;
+    string parentage = 9;
+    string aroma = 10;
+    string taste = 11;
+    string tags = 12;
+    google.protobuf.Timestamp created_at = 13;
+    google.protobuf.Timestamp updated_at = 14;
+}
