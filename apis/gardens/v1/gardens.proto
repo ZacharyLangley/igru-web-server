@@ -3,7 +3,6 @@ syntax = "proto3";
 package gardens.v1;
 
 import "gardens/v1/schema.proto";
-import "google/protobuf/timestamp.proto";
 
 service GardensService {
     rpc CreateGarden (CreateGardenRequest) returns (CreateGardenResponse) {}

@@ -35,3 +35,22 @@ CREATE TABLE IF NOT EXISTS plants (
     PRIMARY KEY(id)
 );
 CREATE UNIQUE INDEX ON plants(id);
+
+CREATE TABLE IF NOT EXISTS strains (
+	id UUID DEFAULT gen_random_uuid(),
+	name TEXT NOT NULL,
+	comment TEXT NOT NULL,
+	notes TEXT NOT NULL,
+    type TEXT NOT NULL,
+	price FLOAT NOT NULL,
+	thc_percent FLOAT NOT NULL,
+    cbd_percent FLOAT NOT NULL,
+	parentage UUID NOT NULL,
+	aroma TEXT NOT NULL,
+    taste TEXT NOT NULL,
+    tags TEXT NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP,
+    PRIMARY KEY(id)
+);
+CREATE UNIQUE INDEX ON strains(id);

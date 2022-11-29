@@ -47,3 +47,28 @@ RETURNING *;
 -- name: DeletePlant :exec
 DELETE FROM plants
 WHERE id = $1;
+
+-- name: GetStrains :many
+SELECT * FROM strains;
+
+-- name: GetStrain :one
+SELECT * FROM strains
+WHERE id = $1 LIMIT 1;
+
+-- name: CreateStrain :one
+INSERT INTO strains (
+  name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at
+) VALUES (
+  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+)
+RETURNING *;
+
+-- name: UpdateStrain :one
+UPDATE strains
+SET name = $2, comment = $3, notes = $4, type = $5, price = $6, thc_percent = $7, cbd_percent = $8, parentage = $9, aroma = $10, taste = $11, tags = $12, created_at = $13, updated_at=CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING *;
+
+-- name: DeleteStrain :exec
+DELETE FROM strains
+WHERE id = $1;
