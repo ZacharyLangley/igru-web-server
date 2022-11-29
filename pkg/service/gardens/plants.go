@@ -23,6 +23,8 @@ func (s *Service) CreatePlant(baseCtx gocontext.Context, req *connect_go.Request
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}
+	parentageID, err := uuid.Parse(req.Msg.Parentage)
+
 	var plant models.Plant
 	if err = s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
@@ -32,7 +34,7 @@ func (s *Service) CreatePlant(baseCtx gocontext.Context, req *connect_go.Request
 			Comment:         req.Msg.Comment,
 			Notes:           req.Msg.Notes,
 			GrowCycleLength: req.Msg.GrowCycleLength,
-			Parentage:       req.Msg.Parentage,
+			Parentage:       parentageID,
 			Origin:          req.Msg.Origin,
 			Gender:          req.Msg.Gender,
 			DaysFlowering:   req.Msg.DaysFlowering,
@@ -56,7 +58,7 @@ func (s *Service) CreatePlant(baseCtx gocontext.Context, req *connect_go.Request
 		Comment:         plant.Comment,
 		Notes:           plant.Notes,
 		GrowCycleLength: plant.GrowCycleLength,
-		Parentage:       plant.Parentage,
+		Parentage:       plant.Parentage.String(),
 		Origin:          plant.Origin,
 		Gender:          plant.Gender,
 		DaysFlowering:   plant.DaysFlowering,
@@ -100,6 +102,8 @@ func (s *Service) UpdatePlant(baseCtx gocontext.Context, req *connect_go.Request
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid user id format: %w", err))
 	}
+	parentageID, err := uuid.Parse(req.Msg.Parentage)
+
 	var plant models.Plant
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
@@ -111,7 +115,7 @@ func (s *Service) UpdatePlant(baseCtx gocontext.Context, req *connect_go.Request
 			Comment:         req.Msg.Comment,
 			Notes:           req.Msg.Notes,
 			GrowCycleLength: req.Msg.GrowCycleLength,
-			Parentage:       req.Msg.Parentage,
+			Parentage:       parentageID,
 			Origin:          req.Msg.Origin,
 			Gender:          req.Msg.Gender,
 			DaysFlowering:   req.Msg.DaysFlowering,
@@ -133,7 +137,7 @@ func (s *Service) UpdatePlant(baseCtx gocontext.Context, req *connect_go.Request
 		Comment:         plant.Comment,
 		Notes:           plant.Notes,
 		GrowCycleLength: plant.GrowCycleLength,
-		Parentage:       plant.Parentage,
+		Parentage:       plant.Parentage.String(),
 		Origin:          plant.Origin,
 		Gender:          plant.Gender,
 		DaysFlowering:   plant.DaysFlowering,
@@ -175,7 +179,7 @@ func (s *Service) GetPlants(baseCtx gocontext.Context, req *connect_go.Request[v
 			Comment:         plant.Comment,
 			Notes:           plant.Notes,
 			GrowCycleLength: plant.GrowCycleLength,
-			Parentage:       plant.Parentage,
+			Parentage:       plant.Parentage.String(),
 			Origin:          plant.Origin,
 			Gender:          plant.Gender,
 			DaysFlowering:   plant.DaysFlowering,
@@ -220,7 +224,7 @@ func (s *Service) GetPlant(baseCtx gocontext.Context, req *connect_go.Request[v1
 		Comment:         plant.Comment,
 		Notes:           plant.Notes,
 		GrowCycleLength: plant.GrowCycleLength,
-		Parentage:       plant.Parentage,
+		Parentage:       plant.Parentage.String(),
 		Origin:          plant.Origin,
 		Gender:          plant.Gender,
 		DaysFlowering:   plant.DaysFlowering,

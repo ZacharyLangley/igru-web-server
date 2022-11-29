@@ -76,7 +76,7 @@ type CreatePlantParams struct {
 	Comment         string
 	Notes           string
 	GrowCycleLength string
-	Parentage       string
+	Parentage       uuid.UUID
 	Origin          string
 	Gender          string
 	DaysFlowering   float64
@@ -480,7 +480,7 @@ type UpdatePlantParams struct {
 	Comment         string
 	Notes           string
 	GrowCycleLength string
-	Parentage       string
+	Parentage       uuid.UUID
 	Origin          string
 	Gender          string
 	DaysFlowering   float64

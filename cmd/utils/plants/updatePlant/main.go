@@ -17,12 +17,12 @@ func main() {
 		"http://localhost:8082/",
 	)
 	req := connect.NewRequest(&gardensv1.UpdatePlantRequest{
-		Id:              "d646e8c0-e547-42a5-9070-038014911840",
+		Id:              "INSERT-NEW-PLANT-UUID",
 		Name:            "Plant A_2",
 		Comment:         "Plant Mock Updated Comment",
 		Notes:           "Plant Mock Updated Note",
 		GrowCycleLength: "{\"value\":\"28\",\"metric\":\"days\"}",
-		Parentage:       "Mock Parent Strain",
+		Parentage:       "UPDATED-INSERT-PARENTAGE-PLANT-ID",
 		Origin:          "Clone",
 		Gender:          "Feminized",
 		DaysFlowering:   22.4,
