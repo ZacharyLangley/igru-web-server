@@ -45,6 +45,19 @@ type Plant struct {
 	UpdatedAt       sql.NullTime
 }
 
+type Recipe struct {
+	ID           uuid.UUID
+	Name         string
+	Comment      string
+	Ingredients  string
+	Instructions string
+	Ph           float64
+	MixTime      float64
+	Tags         string
+	CreatedAt    time.Time
+	UpdatedAt    sql.NullTime
+}
+
 type Strain struct {
 	ID         uuid.UUID
 	Name       string

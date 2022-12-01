@@ -72,3 +72,29 @@ RETURNING *;
 -- name: DeleteStrain :exec
 DELETE FROM strains
 WHERE id = $1;
+
+
+-- name: GetRecipes :many
+SELECT * FROM recipes;
+
+-- name: GetRecipe :one
+SELECT * FROM recipes
+WHERE id = $1 LIMIT 1;
+
+-- name: CreateRecipe :one
+INSERT INTO recipes (
+  name, comment, ingredients, instructions, ph, mix_time, tags, created_at
+) VALUES (
+  $1, $2, $3, $4, $5, $6, $7, $8
+)
+RETURNING *;
+
+-- name: UpdateRecipe :one
+UPDATE recipes
+SET name = $2, comment = $3, ingredients = $4, instructions = $5, ph = $6, mix_time = $7, tags = $8, created_at = $9, updated_at=CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING *;
+
+-- name: DeleteRecipe :exec
+DELETE FROM recipes
+WHERE id = $1;
