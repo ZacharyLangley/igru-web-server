@@ -9,12 +9,49 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}/cmd/auth",
+            "program": "${workspaceFolder}",
             "args":[
-                "-config", "${workspaceFolder}/build/authentication/default.yml"
+                "authentication", "serve",
+                "--level", "debug",
+                "--config", "${workspaceFolder}/build/authentication/default.yml"
             ],
             "env": {
                 "DATABASE.MIGRATIONPATH": "${workspaceFolder}/build/authentication/migrations",
+                "DATABASE.HOST": "127.0.0.1",
+                "DATABASE.USERNAME": "root",
+                "DATABASE.PORT": "26257"
+            }
+        },
+        {
+            "name": "Garden",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}",
+            "args":[
+                "garden", "serve",
+                "--level", "debug",
+                "--config", "${workspaceFolder}/build/gardens/default.yml"
+            ],
+            "env": {
+                "DATABASE.MIGRATIONPATH": "${workspaceFolder}/build/gardens/migrations",
+                "DATABASE.HOST": "127.0.0.1",
+                "DATABASE.USERNAME": "root",
+                "DATABASE.PORT": "26257"
+            }
+        },
+        {
+            "name": "Broker",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}",
+            "args":[
+                "broker", "serve",
+                "--level", "debug",
+                "--config", "${workspaceFolder}/build/broker/default.yml"
+            ],
+            "env": {
                 "DATABASE.HOST": "127.0.0.1",
                 "DATABASE.USERNAME": "root",
                 "DATABASE.PORT": "26257"
