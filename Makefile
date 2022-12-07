@@ -15,4 +15,4 @@ build-garden:
 build-broker:
 	docker build -f build/broker-service.dockerfile -t broker:latest .
 
-build: build-authentication build-garden build-broker build_plant
+build: build-authentication build-garden build-broker

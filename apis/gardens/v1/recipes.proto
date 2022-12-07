@@ -1,0 +1,61 @@
+
+syntax = "proto3";
+
+package gardens.v1;
+
+import "gardens/v1/schema.proto";
+
+service RecipesService {
+    rpc CreateRecipe (CreateRecipeRequest) returns (CreateRecipeResponse) {}
+    rpc DeleteRecipe (DeleteRecipeRequest) returns (DeleteRecipeResponse) {}
+    rpc UpdateRecipe(UpdateRecipeRequest) returns (UpdateRecipeResponse) {}
+    rpc GetRecipes (GetRecipesRequest) returns (GetRecipesResponse) {}
+    rpc GetRecipe (GetRecipeRequest) returns (GetRecipeResponse) {}
+}
+
+message CreateRecipeRequest {
+    string name = 1;
+    string comment = 2;
+    string ingredients = 3;
+    string instructions = 4;
+    double ph = 5;
+    double mix_time_milliseconds = 6;
+    string tags = 7;
+}
+message CreateRecipeResponse {
+    gardens.v1.Recipe recipe = 1;
+}
+
+message DeleteRecipeRequest {
+    string id = 1;
+}
+message DeleteRecipeResponse {
+    gardens.v1.Recipe recipe = 1;
+}
+
+message UpdateRecipeRequest {
+    string id = 1;
+    string name = 2;
+    string comment = 3;
+    string ingredients = 4;
+    string instructions = 5;
+    double ph = 6;
+    double mix_time_milliseconds = 7;
+    string tags = 8;
+}
+message UpdateRecipeResponse {
+    gardens.v1.Recipe recipe = 1;
+}
+
+message GetRecipesRequest {}
+message GetRecipesResponse {
+    repeated gardens.v1.Recipe recipes = 1;
+}
+
+message GetRecipeRequest {
+    string id = 1;
+
+}
+message GetRecipeResponse {
+    gardens.v1.Recipe recipe = 1;
+}

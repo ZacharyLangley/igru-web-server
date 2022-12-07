@@ -23,15 +23,15 @@
     Plant --> Gender : gender
     Plant --> Measurement : harvested_weight, bud_density
 
-    PlantEntry --> NutrientRecipe : uses a
+    PlantEntry --> Recipe : uses a
     PlantEntry --> GrowState : grow_state
     PlantEntry --> Measurement : soil_saturation, height, cola_size, average_bud_size, stalk_diameter
 
     Strain --> StrainType : type
     Strain --> Measurement : price
 
-    NutrientRecipe --> Ingredient : ingredient
-    NutrientRecipe --> Instruction : instructions
+    Recipe --> Ingredient : ingredient
+    Recipe --> Instruction : instructions
     Ingredient --> Measurement : amount
 
     class Measurement {
@@ -194,7 +194,7 @@
     class PlantEntry {
         <<class>>
         + UUID id
-        + UUID nutrient_recipe_id
+        + UUID recipe_id
         + String name
         + String comment
         + Measurement soil_saturation
@@ -260,10 +260,10 @@
       <<dataType>>
       + String name
       + String comment
-      + Float estimated_time_in_millis
+      + Float estimated_time_millis
     }
 
-    class NutrientRecipe {
+    class Recipe {
         <<class>>
         + UUID id
         + String name
@@ -271,15 +271,15 @@
         + Ingredient[] ingredients
         + Instruction[] instructions
         + Float ph
-        + Float mix_time_in_millis
+        + Float mix_time_milliseconds
         + String[] tags
         + String created_at
         + String updated_at
 
-        + createNutrientRecipe(NutrientRecipe data) NutrientRecipe
-        + updateNutrientRecipe(NutrientRecipe data) NutrientRecipe
-        + deleteNutrientRecipe(UUID ) NutrientRecipe
-        + getNutrientRecipe(UUID id) NutrientRecipe
-        + getNutrientRecipies() List~NutrientRecipe~
+        + createRecipe(Recipe data) Recipe
+        + updateRecipe(Recipe data) Recipe
+        + deleteRecipe(UUID ) Recipe
+        + getRecipe(UUID id) Recipe
+        + getNutrientRecipies() List~Recipe~
     }
 ```

@@ -1,4 +1,4 @@
-package garden
+package plant
 
 import (
 	"fmt"
@@ -13,45 +13,37 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	getGardenID string
-)
-
 func init() {
-	getCmd.Flags().StringVar(&getGardenID, "id", "", "id of an existing garden")
-	getCmd.MarkFlagRequired("id")
-	RootCmd.AddCommand(getCmd)
+	RootCmd.AddCommand(listCmd)
 }
 
-var getCmd = &cobra.Command{
-	Use: "get",
+var listCmd = &cobra.Command{
+	Use: "list",
 	Aliases: []string{
-		"g",
+		"l",
 	},
-	Short:   "Get an existing garden",
+	Short:   "Get all existing plants",
 	PreRunE: config.SetupCobraLogger,
-	RunE:    getGroup,
+	RunE:    getPlants,
 }
 
-func getGroup(cmd *cobra.Command, args []string) error {
+func getPlants(cmd *cobra.Command, args []string) error {
 	var cfg Config
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	gardenClient := gardensv1connect.NewGardensServiceClient(
+	plantClient := gardensv1connect.NewPlantsServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
 	ctx := context.New(cmd.Context())
-	req := connect.NewRequest(&gardensv1.GetGardenRequest{
-		Id: getGardenID,
-	})
-	resp, err := gardenClient.GetGarden(ctx, req)
+	req := connect.NewRequest(&gardensv1.GetPlantsRequest{})
+	resp, err := plantClient.GetPlants(ctx, req)
 	if err != nil {
-		return fmt.Errorf("failed to get garden: %w", err)
+		return fmt.Errorf("failed to get plants: %w", err)
 	}
-	if resp.Msg.Garden != nil {
-		zap.L().Info("Found garden", zap.Any("garden", resp.Msg.Garden))
+	if resp.Msg.Plants != nil {
+		zap.L().Info("Found plants", zap.Any("plants", resp.Msg.Plants))
 	}
 	return nil
 }
