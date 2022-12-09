@@ -30,15 +30,15 @@ var deleteCmd = &cobra.Command{
 	},
 	Short:   "Delete an existing plant",
 	PreRunE: config.SetupCobraLogger,
-	RunE:    deleteGarden,
+	RunE:    deletePlant,
 }
 
-func deleteGarden(cmd *cobra.Command, args []string) error {
+func deletePlant(cmd *cobra.Command, args []string) error {
 	var cfg Config
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	userClient := gardensv1connect.NewPlantsServiceClient(
+	plantClient := gardensv1connect.NewPlantsServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
@@ -46,7 +46,7 @@ func deleteGarden(cmd *cobra.Command, args []string) error {
 	req := connect.NewRequest(&gardensv1.DeletePlantRequest{
 		Id: deletePlantID,
 	})
-	_, err := userClient.DeletePlant(ctx, req)
+	_, err := plantClient.DeletePlant(ctx, req)
 	if err != nil {
 		return fmt.Errorf("failed to delete plant: %w", err)
 	}

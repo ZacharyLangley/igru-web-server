@@ -10,6 +10,7 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1/gardensv1connect"
 	"github.com/bufbuild/connect-go"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -36,14 +37,15 @@ func init() {
 	updateCmd.Flags().StringVar(&updateName, "name", "", "Name of an existing plant")
 	updateCmd.Flags().StringVar(&updateComment, "comment", "", "Comment of an existing plant")
 	updateCmd.Flags().StringVar(&updateNotes, "notes", "", "Notes of an existing plant")
-	updateCmd.Flags().StringVar(&updateGrowCycleLength, "growCycleLength", "", "Notes of an existing plant")
-	updateCmd.Flags().StringVar(&updateParentage, "parentage", "", "Notes of an existing plant")
-	updateCmd.Flags().StringVar(&updateOrigin, "origin", "", "Notes of an existing plant")
-	updateCmd.Flags().Float64Var(&updateDaysFlowering, "daysFlowering", 0, "Grow type of an existing plant")
+	updateCmd.Flags().StringVar(&updateGrowCycleLength, "growCycleLength", "", "Grow cycle length of an existing plant")
+	updateCmd.Flags().StringVar(&updateParentage, "parentage", "", "Parentage of an existing plant")
+	updateCmd.Flags().StringVar(&updateOrigin, "origin", "", "Origin of an existing plant")
+	updateCmd.Flags().StringVar(&updateGender, "gender", "", "Gender of an existing plant")
+	updateCmd.Flags().Float64Var(&updateDaysFlowering, "daysFlowering", 0, "Days flowering of an existing plant")
 	updateCmd.Flags().Float64Var(&updateDaysCured, "daysCured", 0, "Grow size of an existing plant")
-	updateCmd.Flags().StringVar(&updateHarvestWeight, "harvestWeight", "", "ContainerSize of an existing plant")
-	updateCmd.Flags().Float64Var(&updateBudDensity, "budDensity", 0, "ContainerSize of an existing plant")
-	updateCmd.Flags().BoolVar(&updateBudPistils, "budPistils", false, "ContainerSize of an existing plant")
+	updateCmd.Flags().StringVar(&updateHarvestWeight, "harvestWeight", "", "Harvested weight of an existing plant")
+	updateCmd.Flags().Float64Var(&updateBudDensity, "budDensity", 0, "Bud density of an existing plant")
+	updateCmd.Flags().BoolVar(&updateBudPistils, "budPistils", false, "Bud Pistils of an existing plant")
 	updateCmd.Flags().StringVar(&updateTags, "tags", "", "Tags of an existing plant")
 	updateCmd.Flags().BoolVar(&updateSetAcquiredAt, "setAcquiredAt", false, "Set acquired at time of an existing plant to now")
 	updateCmd.MarkFlagRequired("name")
@@ -62,7 +64,7 @@ func updatePlant(cmd *cobra.Command, args []string) error {
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	userClient := gardensv1connect.NewPlantsServiceClient(
+	plantClient := gardensv1connect.NewPlantsServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
@@ -86,9 +88,12 @@ func updatePlant(cmd *cobra.Command, args []string) error {
 	if updateSetAcquiredAt {
 		req.Msg.AcquiredAt = timestamppb.Now()
 	}
-	_, err := userClient.UpdatePlant(ctx, req)
+	resp, err := plantClient.UpdatePlant(ctx, req)
 	if err != nil {
-		return fmt.Errorf("Failed to update plant: %w", err)
+		return fmt.Errorf("failed to update plant: %w", err)
+	}
+	if resp.Msg.Plant != nil {
+		zap.L().Info("updated plant", zap.Any("plant", resp.Msg.Plant))
 	}
 	return nil
 }

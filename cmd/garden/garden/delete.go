@@ -13,11 +13,11 @@ import (
 )
 
 var (
-	deleteGroupID string
+	deleteGardenID string
 )
 
 func init() {
-	deleteCmd.Flags().StringVar(&deleteGroupID, "id", "", "ID of an existing garden")
+	deleteCmd.Flags().StringVar(&deleteGardenID, "id", "", "ID of an existing garden")
 	deleteCmd.MarkFlagRequired("id")
 	RootCmd.AddCommand(deleteCmd)
 }
@@ -38,15 +38,15 @@ func deleteGarden(cmd *cobra.Command, args []string) error {
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	userClient := gardensv1connect.NewGardensServiceClient(
+	gardenClient := gardensv1connect.NewGardensServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
 	ctx := context.New(cmd.Context())
 	req := connect.NewRequest(&gardensv1.DeleteGardenRequest{
-		Id: deleteGroupID,
+		Id: deleteGardenID,
 	})
-	_, err := userClient.DeleteGarden(ctx, req)
+	_, err := gardenClient.DeleteGarden(ctx, req)
 	if err != nil {
 		return fmt.Errorf("failed to delete garden: %w", err)
 	}

@@ -13,16 +13,22 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	getPlantID string
+)
+
 func init() {
+	getCmd.Flags().StringVar(&getPlantID, "id", "", "id of an existing plant")
+	getCmd.MarkFlagRequired("id")
 	RootCmd.AddCommand(getCmd)
 }
 
 var getCmd = &cobra.Command{
 	Use: "get",
 	Aliases: []string{
-		"list",
+		"g",
 	},
-	Short:   "Get all existing plants",
+	Short:   "Get an existing plant",
 	PreRunE: config.SetupCobraLogger,
 	RunE:    getPlant,
 }
@@ -32,18 +38,20 @@ func getPlant(cmd *cobra.Command, args []string) error {
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	userClient := gardensv1connect.NewPlantsServiceClient(
+	plantClient := gardensv1connect.NewPlantsServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
 	ctx := context.New(cmd.Context())
-	req := connect.NewRequest(&gardensv1.GetPlantsRequest{})
-	resp, err := userClient.GetPlants(ctx, req)
+	req := connect.NewRequest(&gardensv1.GetPlantRequest{
+		Id: getPlantID,
+	})
+	resp, err := plantClient.GetPlant(ctx, req)
 	if err != nil {
 		return fmt.Errorf("failed to get plants: %w", err)
 	}
-	for _, group := range resp.Msg.Plants {
-		zap.L().Info("Found plant", zap.Any("plant", group))
+	if resp.Msg.Plant != nil {
+		zap.L().Info("Found plant", zap.Any("plant", resp.Msg.Plant))
 	}
 	return nil
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1/gardensv1connect"
 	"github.com/bufbuild/connect-go"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 )
 
 var (
@@ -18,6 +19,7 @@ var (
 	updateComment       string
 	updateLocation      string
 	updateGrowType      string
+	updateGrowStyle     string
 	updateGrowSize      string
 	updateContainerSize string
 	updateTags          string
@@ -29,6 +31,7 @@ func init() {
 	updateCmd.Flags().StringVar(&updateComment, "comment", "", "Comment of an existing garden")
 	updateCmd.Flags().StringVar(&updateLocation, "location", "", "Location of an existing garden")
 	updateCmd.Flags().StringVar(&updateGrowType, "growType", "", "Grow type of an existing garden")
+	updateCmd.Flags().StringVar(&updateGrowStyle, "growStyle", "", "Grow style of an existing garden")
 	updateCmd.Flags().StringVar(&updateGrowSize, "growSize", "", "Grow size of an existing garden")
 	updateCmd.Flags().StringVar(&updateContainerSize, "containerSize", "", "ContainerSize of an existing garden")
 	updateCmd.Flags().StringVar(&updateTags, "tags", "", "Tags of an existing garden")
@@ -48,7 +51,7 @@ func updateGarden(cmd *cobra.Command, args []string) error {
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	userClient := gardensv1connect.NewGardensServiceClient(
+	gardenClient := gardensv1connect.NewGardensServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
@@ -59,13 +62,17 @@ func updateGarden(cmd *cobra.Command, args []string) error {
 		Comment:       updateComment,
 		Location:      updateLocation,
 		GrowType:      updateGrowType,
+		GrowStyle:     updateGrowStyle,
 		GrowSize:      updateGrowSize,
 		ContainerSize: updateContainerSize,
 		Tags:          updateTags,
 	})
-	_, err := userClient.UpdateGarden(ctx, req)
+	resp, err := gardenClient.UpdateGarden(ctx, req)
 	if err != nil {
-		return fmt.Errorf("Failed to update garden: %w", err)
+		return fmt.Errorf("failed to update garden: %w", err)
+	}
+	if resp.Msg.Garden != nil {
+		zap.L().Info("updated garden", zap.Any("garden", resp.Msg.Garden))
 	}
 	return nil
 }

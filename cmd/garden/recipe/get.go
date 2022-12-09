@@ -1,4 +1,4 @@
-package garden
+package recipe
 
 import (
 	"fmt"
@@ -14,11 +14,11 @@ import (
 )
 
 var (
-	getGardenID string
+	getRecipeID string
 )
 
 func init() {
-	getCmd.Flags().StringVar(&getGardenID, "id", "", "id of an existing garden")
+	getCmd.Flags().StringVar(&getRecipeID, "id", "", "id of an existing recipe")
 	getCmd.MarkFlagRequired("id")
 	RootCmd.AddCommand(getCmd)
 }
@@ -28,30 +28,30 @@ var getCmd = &cobra.Command{
 	Aliases: []string{
 		"g",
 	},
-	Short:   "Get an existing garden",
+	Short:   "Get an existing recipe",
 	PreRunE: config.SetupCobraLogger,
-	RunE:    getGroup,
+	RunE:    getRecipe,
 }
 
-func getGroup(cmd *cobra.Command, args []string) error {
+func getRecipe(cmd *cobra.Command, args []string) error {
 	var cfg Config
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	gardenClient := gardensv1connect.NewGardensServiceClient(
+	recipeClient := gardensv1connect.NewRecipesServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
 	ctx := context.New(cmd.Context())
-	req := connect.NewRequest(&gardensv1.GetGardenRequest{
-		Id: getGardenID,
+	req := connect.NewRequest(&gardensv1.GetRecipeRequest{
+		Id: getRecipeID,
 	})
-	resp, err := gardenClient.GetGarden(ctx, req)
+	resp, err := recipeClient.GetRecipe(ctx, req)
 	if err != nil {
-		return fmt.Errorf("failed to get garden: %w", err)
+		return fmt.Errorf("failed to get recipe: %w", err)
 	}
-	if resp.Msg.Garden != nil {
-		zap.L().Info("Found garden", zap.Any("garden", resp.Msg.Garden))
+	if resp.Msg.Recipe != nil {
+		zap.L().Info("Found recipe", zap.Any("recipe", resp.Msg.Recipe))
 	}
 	return nil
 }

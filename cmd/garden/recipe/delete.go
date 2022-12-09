@@ -1,4 +1,4 @@
-package garden
+package recipe
 
 import (
 	"fmt"
@@ -10,48 +10,45 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1/gardensv1connect"
 	"github.com/bufbuild/connect-go"
 	"github.com/spf13/cobra"
-	"go.uber.org/zap"
 )
 
 var (
-	getGardenID string
+	deleteRecipeID string
 )
 
 func init() {
-	getCmd.Flags().StringVar(&getGardenID, "id", "", "id of an existing garden")
-	getCmd.MarkFlagRequired("id")
-	RootCmd.AddCommand(getCmd)
+	deleteCmd.Flags().StringVar(&deleteRecipeID, "id", "", "ID of an existing recipe")
+	deleteCmd.MarkFlagRequired("id")
+	RootCmd.AddCommand(deleteCmd)
 }
 
-var getCmd = &cobra.Command{
-	Use: "get",
+var deleteCmd = &cobra.Command{
+	Use: "delete",
 	Aliases: []string{
-		"g",
+		"rm",
+		"del",
 	},
-	Short:   "Get an existing garden",
+	Short:   "Delete an existing recipe",
 	PreRunE: config.SetupCobraLogger,
-	RunE:    getGroup,
+	RunE:    deleteRecipe,
 }
 
-func getGroup(cmd *cobra.Command, args []string) error {
+func deleteRecipe(cmd *cobra.Command, args []string) error {
 	var cfg Config
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	gardenClient := gardensv1connect.NewGardensServiceClient(
+	recipeClient := gardensv1connect.NewRecipesServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
 	ctx := context.New(cmd.Context())
-	req := connect.NewRequest(&gardensv1.GetGardenRequest{
-		Id: getGardenID,
+	req := connect.NewRequest(&gardensv1.DeleteRecipeRequest{
+		Id: deleteRecipeID,
 	})
-	resp, err := gardenClient.GetGarden(ctx, req)
+	_, err := recipeClient.DeleteRecipe(ctx, req)
 	if err != nil {
-		return fmt.Errorf("failed to get garden: %w", err)
-	}
-	if resp.Msg.Garden != nil {
-		zap.L().Info("Found garden", zap.Any("garden", resp.Msg.Garden))
+		return fmt.Errorf("failed to delete recipe: %w", err)
 	}
 	return nil
 }

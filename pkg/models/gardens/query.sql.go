@@ -130,6 +130,53 @@ func (q *Queries) CreatePlant(ctx context.Context, arg CreatePlantParams) (Plant
 	return i, err
 }
 
+const createRecipe = `-- name: CreateRecipe :one
+INSERT INTO recipes (
+  name, comment, ingredients, instructions, ph, mix_time_milliseconds, tags, created_at
+) VALUES (
+  $1, $2, $3, $4, $5, $6, $7, $8
+)
+RETURNING id, name, comment, ingredients, instructions, ph, mix_time_milliseconds, tags, created_at, updated_at
+`
+
+type CreateRecipeParams struct {
+	Name                string
+	Comment             string
+	Ingredients         string
+	Instructions        string
+	Ph                  float64
+	MixTimeMilliseconds float64
+	Tags                string
+	CreatedAt           time.Time
+}
+
+func (q *Queries) CreateRecipe(ctx context.Context, arg CreateRecipeParams) (Recipe, error) {
+	row := q.db.QueryRow(ctx, createRecipe,
+		arg.Name,
+		arg.Comment,
+		arg.Ingredients,
+		arg.Instructions,
+		arg.Ph,
+		arg.MixTimeMilliseconds,
+		arg.Tags,
+		arg.CreatedAt,
+	)
+	var i Recipe
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Comment,
+		&i.Ingredients,
+		&i.Instructions,
+		&i.Ph,
+		&i.MixTimeMilliseconds,
+		&i.Tags,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createStrain = `-- name: CreateStrain :one
 INSERT INTO strains (
   name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at
@@ -206,6 +253,16 @@ WHERE id = $1
 
 func (q *Queries) DeletePlant(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deletePlant, id)
+	return err
+}
+
+const deleteRecipe = `-- name: DeleteRecipe :exec
+DELETE FROM recipes
+WHERE id = $1
+`
+
+func (q *Queries) DeleteRecipe(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteRecipe, id)
 	return err
 }
 
@@ -338,6 +395,64 @@ func (q *Queries) GetPlants(ctx context.Context) ([]Plant, error) {
 			&i.BudPistils,
 			&i.Tags,
 			&i.AcquiredAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRecipe = `-- name: GetRecipe :one
+SELECT id, name, comment, ingredients, instructions, ph, mix_time_milliseconds, tags, created_at, updated_at FROM recipes
+WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetRecipe(ctx context.Context, id uuid.UUID) (Recipe, error) {
+	row := q.db.QueryRow(ctx, getRecipe, id)
+	var i Recipe
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Comment,
+		&i.Ingredients,
+		&i.Instructions,
+		&i.Ph,
+		&i.MixTimeMilliseconds,
+		&i.Tags,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getRecipes = `-- name: GetRecipes :many
+SELECT id, name, comment, ingredients, instructions, ph, mix_time_milliseconds, tags, created_at, updated_at FROM recipes
+`
+
+func (q *Queries) GetRecipes(ctx context.Context) ([]Recipe, error) {
+	rows, err := q.db.Query(ctx, getRecipes)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Recipe
+	for rows.Next() {
+		var i Recipe
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Comment,
+			&i.Ingredients,
+			&i.Instructions,
+			&i.Ph,
+			&i.MixTimeMilliseconds,
+			&i.Tags,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -529,6 +644,53 @@ func (q *Queries) UpdatePlant(ctx context.Context, arg UpdatePlantParams) (Plant
 		&i.BudPistils,
 		&i.Tags,
 		&i.AcquiredAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateRecipe = `-- name: UpdateRecipe :one
+UPDATE recipes
+SET name = $2, comment = $3, ingredients = $4, instructions = $5, ph = $6, mix_time_milliseconds = $7, tags = $8, created_at = $9, updated_at=CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING id, name, comment, ingredients, instructions, ph, mix_time_milliseconds, tags, created_at, updated_at
+`
+
+type UpdateRecipeParams struct {
+	ID                  uuid.UUID
+	Name                string
+	Comment             string
+	Ingredients         string
+	Instructions        string
+	Ph                  float64
+	MixTimeMilliseconds float64
+	Tags                string
+	CreatedAt           time.Time
+}
+
+func (q *Queries) UpdateRecipe(ctx context.Context, arg UpdateRecipeParams) (Recipe, error) {
+	row := q.db.QueryRow(ctx, updateRecipe,
+		arg.ID,
+		arg.Name,
+		arg.Comment,
+		arg.Ingredients,
+		arg.Instructions,
+		arg.Ph,
+		arg.MixTimeMilliseconds,
+		arg.Tags,
+		arg.CreatedAt,
+	)
+	var i Recipe
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Comment,
+		&i.Ingredients,
+		&i.Instructions,
+		&i.Ph,
+		&i.MixTimeMilliseconds,
+		&i.Tags,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
