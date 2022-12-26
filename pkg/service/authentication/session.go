@@ -5,19 +5,22 @@ import (
 	"errors"
 	"time"
 
+	"github.com/ZacharyLangley/igru-web-server/pkg/auth"
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/authentication"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
+	commonv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/common/v1"
 	"github.com/bufbuild/connect-go"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (s *Service) GetToken(baseCtx gocontext.Context, req *connect.Request[v1.GetTokenRequest]) (*connect.Response[v1.GetTokenResponse], error) {
+func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[v1.CreateSessionRequest]) (*connect.Response[v1.CreateSessionResponse], error) {
 	ctx := context.New(baseCtx)
-	res := connect.NewResponse(&v1.GetTokenResponse{})
-	if err := validateGetTokenRequest(req.Msg); err != nil {
+	res := connect.NewResponse(&v1.CreateSessionResponse{})
+	if err := validateCreateSessionRequest(req.Msg); err != nil {
 		return nil, err
 	}
 	var sess models.Session
@@ -43,7 +46,7 @@ func (s *Service) GetToken(baseCtx gocontext.Context, req *connect.Request[v1.Ge
 	}); err != nil {
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid email/password"))
 	}
-	token, err := s.authServer.CreateSessionJWT(sess)
+	token, err := auth.CreateSession(sess)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -58,35 +61,79 @@ func (s *Service) GetSessions(baseCtx gocontext.Context, req *connect.Request[v1
 	if err != nil {
 		return nil, err
 	}
-	sess, err := s.authServer.VerifySessionJWT(token)
+	pageInfo := GetPage(req.Msg)
+	sess, err := auth.VerifySessionJWT(token)
 	if err != nil {
-		ctx.L().Error("Failed to verify session JTW", zap.Error(err))
+		ctx.L().Error("Failed to verify session", zap.Error(err))
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("missing token"))
 	}
 	var sessions []models.Session
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		sessions, err = queries.GetSessions(ctx, models.GetSessionsParams{
-			Limit:  req.Msg.Pagination.Length,
-			Offset: req.Msg.Pagination.Cursor,
+			Limit:  pageInfo.Length,
+			Offset: pageInfo.Cursor,
 			UserID: sess.UserID,
+		})
+		req.Msg.GetPagination()
+		if err != nil {
+			return err
+		}
+		return err
+	}); err != nil {
+		ctx.L().Error("Failed to run transaction", zap.Error(err))
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	res.Msg.Sessions = make([]*v1.Session, 0, len(sessions))
+	for _, sess := range sessions {
+		var newSession v1.Session
+		newSession.Id = sess.ID.String()
+		newSession.CreatedAt = timestamppb.New(sess.CreatedAt)
+		newSession.ExpiredAt = timestamppb.New(sess.ExpiredAt)
+		res.Msg.Sessions = append(res.Msg.Sessions, &newSession)
+	}
+	return res, nil
+}
+
+func GetPage(req interface {
+	GetPagination() *commonv1.PaginationRequest
+}) (output commonv1.PaginationRequest) {
+	output.Cursor = 0
+	output.Length = 10
+	if req != nil {
+		if page := req.GetPagination(); page != nil {
+			output.Cursor = page.Cursor
+			output.Length = page.Length
+		}
+	}
+	return
+}
+
+func (s *Service) DeleteSession(baseCtx gocontext.Context, req *connect.Request[v1.DeleteSessionRequest]) (*connect.Response[v1.DeleteSessionResponse], error) {
+	ctx := context.New(baseCtx)
+	res := connect.NewResponse(&v1.DeleteSessionResponse{})
+	token, err := ExtractSessionToken(req.Header())
+	if err != nil {
+		return nil, err
+	}
+	_, err = auth.VerifySessionJWT(token)
+	if err != nil {
+		ctx.L().Error("Failed to verify session", zap.Error(err))
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("missing token"))
+	}
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
+		queries := models.New(tx)
+		err = queries.DeleteSession(ctx, models.DeleteSessionParams{
+			ID:     uuid.MustParse(req.Msg.Id),
+			UserID: uuid.MustParse(req.Msg.UserId),
 		})
 		if err != nil {
 			return err
 		}
 		return err
 	}); err != nil {
+		ctx.L().Error("Failed to run transaction", zap.Error(err))
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	res.Msg.Sessions = make([]*v1.Session, len(sessions))
-	for i, sess := range sessions {
-		res.Msg.Sessions[i].Id = sess.ID.String()
-		res.Msg.Sessions[i].CreatedAt = timestamppb.New(sess.CreatedAt)
-		res.Msg.Sessions[i].ExpiredAt = timestamppb.New(sess.ExpiredAt)
-	}
 	return res, nil
-}
-
-func (s *Service) DeleteSession(gocontext.Context, *connect.Request[v1.DeleteSessionRequest]) (*connect.Response[v1.DeleteSessionResponse], error) {
-	return nil, nil
 }

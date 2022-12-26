@@ -22,9 +22,10 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthServiceClient interface {
-	GetToken(ctx context.Context, in *GetTokenRequest, opts ...grpc.CallOption) (*GetTokenResponse, error)
+	CreateSession(ctx context.Context, in *CreateSessionRequest, opts ...grpc.CallOption) (*CreateSessionResponse, error)
 	GetSessions(ctx context.Context, in *GetSessionsRequest, opts ...grpc.CallOption) (*GetSessionsResponse, error)
 	DeleteSession(ctx context.Context, in *DeleteSessionRequest, opts ...grpc.CallOption) (*DeleteSessionResponse, error)
+	CheckSessionPermissions(ctx context.Context, in *CheckSessionPermissionsRequest, opts ...grpc.CallOption) (*CheckSessionPermissionsResponse, error)
 }
 
 type authServiceClient struct {
@@ -35,9 +36,9 @@ func NewAuthServiceClient(cc grpc.ClientConnInterface) AuthServiceClient {
 	return &authServiceClient{cc}
 }
 
-func (c *authServiceClient) GetToken(ctx context.Context, in *GetTokenRequest, opts ...grpc.CallOption) (*GetTokenResponse, error) {
-	out := new(GetTokenResponse)
-	err := c.cc.Invoke(ctx, "/authentication.v1.AuthService/GetToken", in, out, opts...)
+func (c *authServiceClient) CreateSession(ctx context.Context, in *CreateSessionRequest, opts ...grpc.CallOption) (*CreateSessionResponse, error) {
+	out := new(CreateSessionResponse)
+	err := c.cc.Invoke(ctx, "/authentication.v1.AuthService/CreateSession", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -62,13 +63,23 @@ func (c *authServiceClient) DeleteSession(ctx context.Context, in *DeleteSession
 	return out, nil
 }
 
+func (c *authServiceClient) CheckSessionPermissions(ctx context.Context, in *CheckSessionPermissionsRequest, opts ...grpc.CallOption) (*CheckSessionPermissionsResponse, error) {
+	out := new(CheckSessionPermissionsResponse)
+	err := c.cc.Invoke(ctx, "/authentication.v1.AuthService/CheckSessionPermissions", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility
 type AuthServiceServer interface {
-	GetToken(context.Context, *GetTokenRequest) (*GetTokenResponse, error)
+	CreateSession(context.Context, *CreateSessionRequest) (*CreateSessionResponse, error)
 	GetSessions(context.Context, *GetSessionsRequest) (*GetSessionsResponse, error)
 	DeleteSession(context.Context, *DeleteSessionRequest) (*DeleteSessionResponse, error)
+	CheckSessionPermissions(context.Context, *CheckSessionPermissionsRequest) (*CheckSessionPermissionsResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -76,14 +87,17 @@ type AuthServiceServer interface {
 type UnimplementedAuthServiceServer struct {
 }
 
-func (UnimplementedAuthServiceServer) GetToken(context.Context, *GetTokenRequest) (*GetTokenResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetToken not implemented")
+func (UnimplementedAuthServiceServer) CreateSession(context.Context, *CreateSessionRequest) (*CreateSessionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateSession not implemented")
 }
 func (UnimplementedAuthServiceServer) GetSessions(context.Context, *GetSessionsRequest) (*GetSessionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSessions not implemented")
 }
 func (UnimplementedAuthServiceServer) DeleteSession(context.Context, *DeleteSessionRequest) (*DeleteSessionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteSession not implemented")
+}
+func (UnimplementedAuthServiceServer) CheckSessionPermissions(context.Context, *CheckSessionPermissionsRequest) (*CheckSessionPermissionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckSessionPermissions not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 
@@ -98,20 +112,20 @@ func RegisterAuthServiceServer(s grpc.ServiceRegistrar, srv AuthServiceServer) {
 	s.RegisterService(&AuthService_ServiceDesc, srv)
 }
 
-func _AuthService_GetToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTokenRequest)
+func _AuthService_CreateSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateSessionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServiceServer).GetToken(ctx, in)
+		return srv.(AuthServiceServer).CreateSession(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/authentication.v1.AuthService/GetToken",
+		FullMethod: "/authentication.v1.AuthService/CreateSession",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).GetToken(ctx, req.(*GetTokenRequest))
+		return srv.(AuthServiceServer).CreateSession(ctx, req.(*CreateSessionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -152,6 +166,24 @@ func _AuthService_DeleteSession_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_CheckSessionPermissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckSessionPermissionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).CheckSessionPermissions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/authentication.v1.AuthService/CheckSessionPermissions",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).CheckSessionPermissions(ctx, req.(*CheckSessionPermissionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -160,8 +192,8 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AuthServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetToken",
-			Handler:    _AuthService_GetToken_Handler,
+			MethodName: "CreateSession",
+			Handler:    _AuthService_CreateSession_Handler,
 		},
 		{
 			MethodName: "GetSessions",
@@ -170,6 +202,10 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteSession",
 			Handler:    _AuthService_DeleteSession_Handler,
+		},
+		{
+			MethodName: "CheckSessionPermissions",
+			Handler:    _AuthService_CheckSessionPermissions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

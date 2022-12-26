@@ -16,15 +16,15 @@ type Client struct {
 }
 
 func (c *Client) Get() (string, error) {
-	jwt := c.v.GetString("jwt")
-	if jwt == "" {
+	sessionToken := c.v.GetString("token")
+	if sessionToken == "" {
 		return "", fs.ErrNotExist
 	}
-	return jwt, nil
+	return sessionToken, nil
 }
 
-func (c *Client) Set(jwt string) error {
-	c.v.Set("jwt", jwt)
+func (c *Client) Set(sessionToken string) error {
+	c.v.Set("token", sessionToken)
 	c.v.Set("refreshed", time.Now())
 	return c.v.WriteConfig()
 }

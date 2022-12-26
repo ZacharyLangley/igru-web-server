@@ -159,7 +159,7 @@ func validatePaginationRequest(req paginationRequest) error {
 	return nil
 }
 
-func validateGetTokenRequest(req *v1.GetTokenRequest) error {
+func validateCreateSessionRequest(req *v1.CreateSessionRequest) error {
 	if req == nil {
 		return connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}

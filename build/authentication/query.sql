@@ -102,6 +102,10 @@ INSERT INTO sessions (
 )
 RETURNING *;
 
+-- name: DeleteSession :exec
+DELETE FROM sessions
+WHERE id = $1 AND user_id = $2;
+
 -- name: GetSession :one
 SELECT *
 FROM sessions

@@ -27,9 +27,10 @@ const (
 
 // AuthServiceClient is a client for the authentication.v1.AuthService service.
 type AuthServiceClient interface {
-	GetToken(context.Context, *connect_go.Request[v1.GetTokenRequest]) (*connect_go.Response[v1.GetTokenResponse], error)
+	CreateSession(context.Context, *connect_go.Request[v1.CreateSessionRequest]) (*connect_go.Response[v1.CreateSessionResponse], error)
 	GetSessions(context.Context, *connect_go.Request[v1.GetSessionsRequest]) (*connect_go.Response[v1.GetSessionsResponse], error)
 	DeleteSession(context.Context, *connect_go.Request[v1.DeleteSessionRequest]) (*connect_go.Response[v1.DeleteSessionResponse], error)
+	CheckSessionPermissions(context.Context, *connect_go.Request[v1.CheckSessionPermissionsRequest]) (*connect_go.Response[v1.CheckSessionPermissionsResponse], error)
 }
 
 // NewAuthServiceClient constructs a client for the authentication.v1.AuthService service. By
@@ -42,9 +43,9 @@ type AuthServiceClient interface {
 func NewAuthServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) AuthServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &authServiceClient{
-		getToken: connect_go.NewClient[v1.GetTokenRequest, v1.GetTokenResponse](
+		createSession: connect_go.NewClient[v1.CreateSessionRequest, v1.CreateSessionResponse](
 			httpClient,
-			baseURL+"/authentication.v1.AuthService/GetToken",
+			baseURL+"/authentication.v1.AuthService/CreateSession",
 			opts...,
 		),
 		getSessions: connect_go.NewClient[v1.GetSessionsRequest, v1.GetSessionsResponse](
@@ -57,19 +58,25 @@ func NewAuthServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts
 			baseURL+"/authentication.v1.AuthService/DeleteSession",
 			opts...,
 		),
+		checkSessionPermissions: connect_go.NewClient[v1.CheckSessionPermissionsRequest, v1.CheckSessionPermissionsResponse](
+			httpClient,
+			baseURL+"/authentication.v1.AuthService/CheckSessionPermissions",
+			opts...,
+		),
 	}
 }
 
 // authServiceClient implements AuthServiceClient.
 type authServiceClient struct {
-	getToken      *connect_go.Client[v1.GetTokenRequest, v1.GetTokenResponse]
-	getSessions   *connect_go.Client[v1.GetSessionsRequest, v1.GetSessionsResponse]
-	deleteSession *connect_go.Client[v1.DeleteSessionRequest, v1.DeleteSessionResponse]
+	createSession           *connect_go.Client[v1.CreateSessionRequest, v1.CreateSessionResponse]
+	getSessions             *connect_go.Client[v1.GetSessionsRequest, v1.GetSessionsResponse]
+	deleteSession           *connect_go.Client[v1.DeleteSessionRequest, v1.DeleteSessionResponse]
+	checkSessionPermissions *connect_go.Client[v1.CheckSessionPermissionsRequest, v1.CheckSessionPermissionsResponse]
 }
 
-// GetToken calls authentication.v1.AuthService.GetToken.
-func (c *authServiceClient) GetToken(ctx context.Context, req *connect_go.Request[v1.GetTokenRequest]) (*connect_go.Response[v1.GetTokenResponse], error) {
-	return c.getToken.CallUnary(ctx, req)
+// CreateSession calls authentication.v1.AuthService.CreateSession.
+func (c *authServiceClient) CreateSession(ctx context.Context, req *connect_go.Request[v1.CreateSessionRequest]) (*connect_go.Response[v1.CreateSessionResponse], error) {
+	return c.createSession.CallUnary(ctx, req)
 }
 
 // GetSessions calls authentication.v1.AuthService.GetSessions.
@@ -82,11 +89,17 @@ func (c *authServiceClient) DeleteSession(ctx context.Context, req *connect_go.R
 	return c.deleteSession.CallUnary(ctx, req)
 }
 
+// CheckSessionPermissions calls authentication.v1.AuthService.CheckSessionPermissions.
+func (c *authServiceClient) CheckSessionPermissions(ctx context.Context, req *connect_go.Request[v1.CheckSessionPermissionsRequest]) (*connect_go.Response[v1.CheckSessionPermissionsResponse], error) {
+	return c.checkSessionPermissions.CallUnary(ctx, req)
+}
+
 // AuthServiceHandler is an implementation of the authentication.v1.AuthService service.
 type AuthServiceHandler interface {
-	GetToken(context.Context, *connect_go.Request[v1.GetTokenRequest]) (*connect_go.Response[v1.GetTokenResponse], error)
+	CreateSession(context.Context, *connect_go.Request[v1.CreateSessionRequest]) (*connect_go.Response[v1.CreateSessionResponse], error)
 	GetSessions(context.Context, *connect_go.Request[v1.GetSessionsRequest]) (*connect_go.Response[v1.GetSessionsResponse], error)
 	DeleteSession(context.Context, *connect_go.Request[v1.DeleteSessionRequest]) (*connect_go.Response[v1.DeleteSessionResponse], error)
+	CheckSessionPermissions(context.Context, *connect_go.Request[v1.CheckSessionPermissionsRequest]) (*connect_go.Response[v1.CheckSessionPermissionsResponse], error)
 }
 
 // NewAuthServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -96,9 +109,9 @@ type AuthServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle("/authentication.v1.AuthService/GetToken", connect_go.NewUnaryHandler(
-		"/authentication.v1.AuthService/GetToken",
-		svc.GetToken,
+	mux.Handle("/authentication.v1.AuthService/CreateSession", connect_go.NewUnaryHandler(
+		"/authentication.v1.AuthService/CreateSession",
+		svc.CreateSession,
 		opts...,
 	))
 	mux.Handle("/authentication.v1.AuthService/GetSessions", connect_go.NewUnaryHandler(
@@ -111,14 +124,19 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect_go.HandlerOpt
 		svc.DeleteSession,
 		opts...,
 	))
+	mux.Handle("/authentication.v1.AuthService/CheckSessionPermissions", connect_go.NewUnaryHandler(
+		"/authentication.v1.AuthService/CheckSessionPermissions",
+		svc.CheckSessionPermissions,
+		opts...,
+	))
 	return "/authentication.v1.AuthService/", mux
 }
 
 // UnimplementedAuthServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedAuthServiceHandler struct{}
 
-func (UnimplementedAuthServiceHandler) GetToken(context.Context, *connect_go.Request[v1.GetTokenRequest]) (*connect_go.Response[v1.GetTokenResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.AuthService.GetToken is not implemented"))
+func (UnimplementedAuthServiceHandler) CreateSession(context.Context, *connect_go.Request[v1.CreateSessionRequest]) (*connect_go.Response[v1.CreateSessionResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.AuthService.CreateSession is not implemented"))
 }
 
 func (UnimplementedAuthServiceHandler) GetSessions(context.Context, *connect_go.Request[v1.GetSessionsRequest]) (*connect_go.Response[v1.GetSessionsResponse], error) {
@@ -127,4 +145,8 @@ func (UnimplementedAuthServiceHandler) GetSessions(context.Context, *connect_go.
 
 func (UnimplementedAuthServiceHandler) DeleteSession(context.Context, *connect_go.Request[v1.DeleteSessionRequest]) (*connect_go.Response[v1.DeleteSessionResponse], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.AuthService.DeleteSession is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) CheckSessionPermissions(context.Context, *connect_go.Request[v1.CheckSessionPermissionsRequest]) (*connect_go.Response[v1.CheckSessionPermissionsResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.AuthService.CheckSessionPermissions is not implemented"))
 }

@@ -155,6 +155,21 @@ func (q *Queries) DeleteGroupMember(ctx context.Context, arg DeleteGroupMemberPa
 	return err
 }
 
+const deleteSession = `-- name: DeleteSession :exec
+DELETE FROM sessions
+WHERE id = $1 AND user_id = $2
+`
+
+type DeleteSessionParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) DeleteSession(ctx context.Context, arg DeleteSessionParams) error {
+	_, err := q.db.Exec(ctx, deleteSession, arg.ID, arg.UserID)
+	return err
+}
+
 const deleteUser = `-- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1

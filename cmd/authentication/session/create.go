@@ -51,11 +51,11 @@ func create(cmd *cobra.Command, args []string) error {
 		cfg.GRPC.Address,
 	)
 	ctx := context.New(cmd.Context())
-	req := connect.NewRequest(&authenticationv1.GetTokenRequest{
+	req := connect.NewRequest(&authenticationv1.CreateSessionRequest{
 		Email:    getTokenEmail,
 		Password: getTokenPassword,
 	})
-	resp, err := userClient.GetToken(ctx, req)
+	resp, err := userClient.CreateSession(ctx, req)
 	if err != nil {
 		return fmt.Errorf("failed to get token: %w", err)
 	}

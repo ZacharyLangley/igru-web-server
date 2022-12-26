@@ -18,25 +18,25 @@ var getTokenEmail string
 var getTokenPassword string
 
 func init() {
-	getTokenCmd.Flags().StringVar(&getTokenEmail, "email", "", "Email of a new user")
-	getTokenCmd.Flags().StringVar(&getTokenPassword, "password", "", "Password of a new user")
-	getTokenCmd.MarkFlagRequired("email")
-	getTokenCmd.MarkFlagRequired("password")
-	getTokenCmd.MarkFlagRequired("config")
-	RootCmd.AddCommand(getTokenCmd)
+	loginCmd.Flags().StringVar(&getTokenEmail, "email", "", "Email of a new user")
+	loginCmd.Flags().StringVar(&getTokenPassword, "password", "", "Password of a new user")
+	loginCmd.MarkFlagRequired("email")
+	loginCmd.MarkFlagRequired("password")
+	loginCmd.MarkFlagRequired("config")
+	RootCmd.AddCommand(loginCmd)
 }
 
-var getTokenCmd = &cobra.Command{
-	Use: "get-token",
+var loginCmd = &cobra.Command{
+	Use: "login",
 	Aliases: []string{
-		"login",
+		"create-token",
 	},
-	Short:   "Get JTW token for user",
+	Short:   "Get Session token for user",
 	PreRunE: config.SetupCobraLogger,
-	RunE:    getToken,
+	RunE:    login,
 }
 
-func getToken(cmd *cobra.Command, args []string) error {
+func login(cmd *cobra.Command, args []string) error {
 	var cfg Config
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
@@ -50,11 +50,11 @@ func getToken(cmd *cobra.Command, args []string) error {
 		cfg.GRPC.Address,
 	)
 	ctx := context.New(cmd.Context())
-	req := connect.NewRequest(&authenticationv1.GetTokenRequest{
+	req := connect.NewRequest(&authenticationv1.CreateSessionRequest{
 		Email:    getTokenEmail,
 		Password: getTokenPassword,
 	})
-	resp, err := userClient.GetToken(ctx, req)
+	resp, err := userClient.CreateSession(ctx, req)
 	if err != nil {
 		return fmt.Errorf("failed to get token: %w", err)
 	}
