@@ -28,16 +28,17 @@ var (
 )
 
 func init() {
-	updateCmd.Flags().StringVar(&createName, "name", "", "Name of a strain")
-	updateCmd.Flags().StringVar(&createComment, "comment", "", "Comment of a strain")
-	updateCmd.Flags().StringVar(&createNotes, "notes", "", "Notes of a strain")
-	updateCmd.Flags().StringVar(&createType, "type", "", "Type of a strain")
-	updateCmd.Flags().Float64Var(&createPrice, "price", 0, "Price of a strain")
-	updateCmd.Flags().Float64Var(&createTHCPercent, "thcPercent", 0, "THC percent of a strain")
-	updateCmd.Flags().Float64Var(&createCBDPercent, "cbdPercent", 0, "CBD percent of a strain")
-	updateCmd.Flags().StringVar(&createAroma, "aroma", "", "Aroma of a strain")
-	updateCmd.Flags().StringVar(&createTaste, "taste", "", "Taste of a strain")
+	createCmd.Flags().StringVar(&createName, "name", "", "Name of a strain")
+	createCmd.Flags().StringVar(&createComment, "comment", "", "Comment of a strain")
+	createCmd.Flags().StringVar(&createNotes, "notes", "", "Notes of a strain")
+	createCmd.Flags().StringVar(&createType, "type", "", "Type of a strain")
+	createCmd.Flags().Float64Var(&createPrice, "price", 0, "Price of a strain")
+	createCmd.Flags().Float64Var(&createTHCPercent, "thcPercent", 0, "THC percent of a strain")
+	createCmd.Flags().Float64Var(&createCBDPercent, "cbdPercent", 0, "CBD percent of a strain")
+	createCmd.Flags().StringVar(&createAroma, "aroma", "", "Aroma of a strain")
+	createCmd.Flags().StringVar(&createTaste, "taste", "", "Taste of a strain")
 	createCmd.MarkFlagRequired("name")
+	createCmd.MarkFlagRequired("config")
 	RootCmd.AddCommand(createCmd)
 }
 

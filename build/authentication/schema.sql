@@ -40,3 +40,14 @@ CREATE TABLE IF NOT EXISTS group_members (
 );
 CREATE UNIQUE INDEX ON group_members(user_id);
 CREATE UNIQUE INDEX ON group_members(group_id);
+CREATE TABLE IF NOT EXISTS sessions (
+	id UUID NOT NULL DEFAULT gen_random_uuid(),
+	user_id uuid NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	expired_at TIMESTAMP NOT NULL,
+	PRIMARY KEY(id),
+	CONSTRAINT fk_session
+		FOREIGN KEY(user_id) 
+		REFERENCES users(id)
+		ON DELETE CASCADE
+);

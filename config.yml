@@ -1,5 +1,5 @@
 grpc:
-  address: :80
+  address: http://localhost:8081
 database:
   host: localhost
   port: 26257
@@ -10,11 +10,10 @@ database:
   timezone: UTC
   connect_timeout: 5
   maxRetries: 5
-  migrationPath: "/migrations"
 logger:
   development: false
-  level: info
+  level: debug
 metrics:
   jaegerAddress: "localhost:14268"
 authServer:
-  privateKey: "/keys/id_ed25519"
+  privateKey: ".build/keys/id_ed25519"

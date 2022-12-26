@@ -66,6 +66,33 @@ func (q *Queries) CreateGroup(ctx context.Context, name string) (Group, error) {
 	return i, err
 }
 
+const createSession = `-- name: CreateSession :one
+INSERT INTO sessions (
+  user_id, created_at, expired_at
+) VALUES (
+  $1, $2, $3
+)
+RETURNING id, user_id, created_at, expired_at
+`
+
+type CreateSessionParams struct {
+	UserID    uuid.UUID
+	CreatedAt time.Time
+	ExpiredAt time.Time
+}
+
+func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {
+	row := q.db.QueryRow(ctx, createSession, arg.UserID, arg.CreatedAt, arg.ExpiredAt)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.ExpiredAt,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
   email, full_name, salt, hash
@@ -228,6 +255,64 @@ func (q *Queries) GetGroups(ctx context.Context, arg GetGroupsParams) ([]Group, 
 			&i.Name,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSession = `-- name: GetSession :one
+SELECT id, user_id, created_at, expired_at
+FROM sessions
+WHERE "id" = $1
+LIMIT 1
+`
+
+func (q *Queries) GetSession(ctx context.Context, id uuid.UUID) (Session, error) {
+	row := q.db.QueryRow(ctx, getSession, id)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.ExpiredAt,
+	)
+	return i, err
+}
+
+const getSessions = `-- name: GetSessions :many
+SELECT id, user_id, created_at, expired_at
+FROM sessions
+WHERE user_id = $3
+LIMIT $1
+OFFSET $2
+`
+
+type GetSessionsParams struct {
+	Limit  int32
+	Offset int32
+	UserID uuid.UUID
+}
+
+func (q *Queries) GetSessions(ctx context.Context, arg GetSessionsParams) ([]Session, error) {
+	rows, err := q.db.Query(ctx, getSessions, arg.Limit, arg.Offset, arg.UserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Session
+	for rows.Next() {
+		var i Session
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.CreatedAt,
+			&i.ExpiredAt,
 		); err != nil {
 			return nil, err
 		}

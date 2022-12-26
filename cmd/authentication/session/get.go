@@ -1,4 +1,4 @@
-package group
+package session
 
 import (
 	"fmt"
@@ -8,6 +8,7 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	authenticationv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1/authenticationv1connect"
+	"github.com/ZacharyLangley/igru-web-server/pkg/service/authentication"
 	"github.com/bufbuild/connect-go"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -23,28 +24,37 @@ var getCmd = &cobra.Command{
 	Aliases: []string{
 		"list",
 	},
-	Short:   "Get all existing user group",
+	Short:   "Get existing sessions",
 	PreRunE: config.SetupCobraLogger,
-	RunE:    getGroup,
+	RunE:    getSessions,
 }
 
-func getGroup(cmd *cobra.Command, args []string) error {
+func getSessions(cmd *cobra.Command, args []string) error {
 	var cfg Config
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	userClient := authenticationv1connect.NewGroupServiceClient(
+	clientConfig, err := config.NewClient()
+	if err != nil {
+		return fmt.Errorf("failed to open new client config: %w", err)
+	}
+	userClient := authenticationv1connect.NewAuthServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
 	ctx := context.New(cmd.Context())
-	req := connect.NewRequest(&authenticationv1.GetGroupsRequest{})
-	resp, err := userClient.GetGroups(ctx, req)
+	req := connect.NewRequest(&authenticationv1.GetSessionsRequest{})
+	token, err := clientConfig.Get()
 	if err != nil {
-		return fmt.Errorf("failed to get groups: %w", err)
+		return fmt.Errorf("failed to get token: %w", err)
 	}
-	for _, group := range resp.Msg.Groups {
-		zap.L().Info("Found group", zap.Any("group", group))
+	authentication.AddSessionToken(req.Header(), token)
+	resp, err := userClient.GetSessions(ctx, req)
+	if err != nil {
+		return fmt.Errorf("failed to get sessions: %w", err)
+	}
+	for _, session := range resp.Msg.Sessions {
+		zap.L().Info("Found session", zap.Any("session", session))
 	}
 	return nil
 }

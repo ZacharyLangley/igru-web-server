@@ -19,6 +19,7 @@ var (
 func init() {
 	deleteCmd.Flags().StringVar(&deletePlantID, "id", "", "ID of an existing plant")
 	deleteCmd.MarkFlagRequired("id")
+	deleteCmd.MarkFlagRequired("config")
 	RootCmd.AddCommand(deleteCmd)
 }
 

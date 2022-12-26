@@ -47,6 +47,7 @@ func init() {
 	createCmd.Flags().StringVar(&createTags, "tags", "", "Tags of a new plant")
 	createCmd.Flags().BoolVar(&createSetAcquiredAt, "setAcquiredAt", false, "Set acquired at time of an existing plant to now")
 	createCmd.MarkFlagRequired("name")
+	createCmd.MarkFlagRequired("config")
 	RootCmd.AddCommand(createCmd)
 }
 

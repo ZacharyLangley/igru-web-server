@@ -39,6 +39,7 @@ func init() {
 	updateCmd.Flags().StringVar(&updateAroma, "aroma", "", "Aroma of an existing strain")
 	updateCmd.Flags().StringVar(&updateTaste, "taste", "", "Taste of an existing strain")
 	updateCmd.MarkFlagRequired("id")
+	updateCmd.MarkFlagRequired("config")
 	RootCmd.AddCommand(updateCmd)
 }
 

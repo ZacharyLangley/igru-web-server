@@ -1,4 +1,4 @@
-package user
+package session
 
 import (
 	"fmt"
@@ -36,7 +36,7 @@ var deleteCmd = &cobra.Command{
 	},
 	Short:   "Delete an existing user",
 	PreRunE: config.SetupCobraLogger,
-	RunE:    createUser,
+	RunE:    deleteSession,
 	Args: func(cmd *cobra.Command, args []string) error {
 		// Optionally run one of the validators provided by cobra
 		if err := cobra.MinimumNArgs(1)(cmd, args); err != nil {
@@ -52,7 +52,7 @@ var deleteCmd = &cobra.Command{
 	},
 }
 
-func deleteUser(cmd *cobra.Command, args []string) error {
+func deleteSession(cmd *cobra.Command, args []string) error {
 	var cfg Config
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)

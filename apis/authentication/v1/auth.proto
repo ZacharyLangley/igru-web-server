@@ -22,7 +22,7 @@ message GetSessionsRequest {
   common.v1.PaginationRequest pagination = 1;
 }
 message GetSessionsResponse {
-  authentication.v1.Session sessions = 1;
+  repeated authentication.v1.Session sessions = 1;
 }
 
 message DeleteSessionRequest {

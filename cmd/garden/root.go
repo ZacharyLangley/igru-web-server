@@ -14,6 +14,7 @@ var RootCmd = &cobra.Command{
 }
 
 func init() {
+	serveCmd.MarkFlagRequired("config")
 	RootCmd.AddCommand(serveCmd)
 	RootCmd.AddCommand(garden.RootCmd)
 	RootCmd.AddCommand(plant.RootCmd)

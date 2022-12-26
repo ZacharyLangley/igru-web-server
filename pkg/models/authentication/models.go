@@ -26,6 +26,13 @@ type GroupMember struct {
 	UpdatedAt sql.NullTime
 }
 
+type Session struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	CreatedAt time.Time
+	ExpiredAt time.Time
+}
+
 type User struct {
 	ID        uuid.UUID
 	Email     string

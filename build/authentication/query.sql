@@ -93,3 +93,24 @@ OFFSET $2;
 SELECT COUNT(*)
 FROM "group_members"
 WHERE group_id = $1;
+
+-- name: CreateSession :one
+INSERT INTO sessions (
+  user_id, created_at, expired_at
+) VALUES (
+  $1, $2, $3
+)
+RETURNING *;
+
+-- name: GetSession :one
+SELECT *
+FROM sessions
+WHERE "id" = $1
+LIMIT 1;
+
+-- name: GetSessions :many
+SELECT *
+FROM sessions
+WHERE user_id = $3
+LIMIT $1
+OFFSET $2;

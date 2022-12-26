@@ -20,6 +20,7 @@ var (
 func init() {
 	createCmd.Flags().StringVar(&createName, "name", "", "Name of a new group")
 	createCmd.MarkFlagRequired("name")
+	createCmd.MarkFlagRequired("config")
 	RootCmd.AddCommand(createCmd)
 }
 

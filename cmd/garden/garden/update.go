@@ -33,6 +33,7 @@ func init() {
 	updateCmd.Flags().StringVar(&updateContainerSize, "containerSize", "", "ContainerSize of an existing garden")
 	updateCmd.Flags().StringVar(&updateTags, "tags", "", "Tags of an existing garden")
 	updateCmd.MarkFlagRequired("name")
+	updateCmd.MarkFlagRequired("config")
 	RootCmd.AddCommand(updateCmd)
 }
 
