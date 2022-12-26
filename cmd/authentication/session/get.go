@@ -38,7 +38,7 @@ func getSessions(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open new client config: %w", err)
 	}
-	userClient := authenticationv1connect.NewAuthServiceClient(
+	userClient := authenticationv1connect.NewSessionServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)

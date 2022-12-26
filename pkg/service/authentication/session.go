@@ -46,7 +46,7 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 	}); err != nil {
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid email/password"))
 	}
-	token, err := auth.CreateSession(sess)
+	token, err := auth.EncodeToken(sess)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -62,7 +62,7 @@ func (s *Service) GetSessions(baseCtx gocontext.Context, req *connect.Request[v1
 		return nil, err
 	}
 	pageInfo := GetPage(req.Msg)
-	sess, err := auth.VerifySessionJWT(token)
+	sess, err := auth.DecodeToken(token)
 	if err != nil {
 		ctx.L().Error("Failed to verify session", zap.Error(err))
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("missing token"))
@@ -116,10 +116,13 @@ func (s *Service) DeleteSession(baseCtx gocontext.Context, req *connect.Request[
 	if err != nil {
 		return nil, err
 	}
-	_, err = auth.VerifySessionJWT(token)
+	sess, err := auth.DecodeToken(token)
 	if err != nil {
 		ctx.L().Error("Failed to verify session", zap.Error(err))
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("missing token"))
+	}
+	if sess.UserID != uuid.MustParse(req.Msg.UserId) {
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("permission denied"))
 	}
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)

@@ -5,7 +5,7 @@ package authentication.v1;
 import "authentication/v1/schema.proto";
 import "common/v1/pagination.proto";
 
-service AuthService {
+service SessionService {
   rpc CreateSession(CreateSessionRequest) returns (CreateSessionResponse) {}
 
   rpc GetSessions(GetSessionsRequest) returns (GetSessionsResponse) {}

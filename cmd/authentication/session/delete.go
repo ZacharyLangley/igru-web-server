@@ -57,7 +57,7 @@ func deleteSession(cmd *cobra.Command, args []string) error {
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	cli := authenticationv1connect.NewAuthServiceClient(
+	cli := authenticationv1connect.NewSessionServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)

@@ -21,7 +21,7 @@ type Service struct {
 	pool            *database.Pool
 	authenticationv1connect.UnimplementedUserServiceHandler
 	authenticationv1connect.UnimplementedGroupServiceHandler
-	authenticationv1connect.UnimplementedAuthServiceHandler
+	authenticationv1connect.UnimplementedSessionServiceHandler
 }
 
 func (s *Service) Register(mux *http.ServeMux) {
@@ -30,6 +30,6 @@ func (s *Service) Register(mux *http.ServeMux) {
 		connect.WithInterceptors(interceptors...)))
 	mux.Handle(authenticationv1connect.NewGroupServiceHandler(s,
 		connect.WithInterceptors(interceptors...)))
-	mux.Handle(authenticationv1connect.NewAuthServiceHandler(s,
+	mux.Handle(authenticationv1connect.NewSessionServiceHandler(s,
 		connect.WithInterceptors(interceptors...)))
 }
