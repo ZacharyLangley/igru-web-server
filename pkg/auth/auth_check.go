@@ -59,6 +59,52 @@ func (c Checker) AssertAll(ctx context.Context, req interface {
 	}
 	return true, nil
 }
+func (c Checker) AssertRead(ctx context.Context, req interface {
+	Header() http.Header
+}, groupID string) (bool, error) {
+	request := connect.NewRequest(&authenticationv1.CheckSessionPermissionsRequest{})
+	request.Msg.Requests = []*authenticationv1.PermissionRequest{
+		{
+			GroupId: groupID,
+			Role:    authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
+		},
+		{
+			GroupId: groupID,
+			Role:    authenticationv1.GroupRole_GROUP_ROLE_READ_ONLY,
+		},
+	}
+	res, err := c.SessionServiceClient.CheckSessionPermissions(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	for _, response := range res.Msg.Responses {
+		if !response.Allowed {
+			return false, nil
+		}
+	}
+	return true, nil
+}
+func (c Checker) AssertWrite(ctx context.Context, req interface {
+	Header() http.Header
+}, groupID string) (bool, error) {
+	request := connect.NewRequest(&authenticationv1.CheckSessionPermissionsRequest{})
+	request.Msg.Requests = []*authenticationv1.PermissionRequest{
+		{
+			GroupId: groupID,
+			Role:    authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
+		},
+	}
+	res, err := c.SessionServiceClient.CheckSessionPermissions(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	for _, response := range res.Msg.Responses {
+		if !response.Allowed {
+			return false, nil
+		}
+	}
+	return true, nil
+}
 func (c Checker) AssertAny(ctx context.Context, req interface {
 	Header() http.Header
 }, groupID string, roles ...authenticationv1.GroupRole) (bool, error) {

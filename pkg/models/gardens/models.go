@@ -13,6 +13,7 @@ import (
 
 type Garden struct {
 	ID            uuid.UUID
+	GroupID       uuid.UUID
 	Name          string
 	Comment       string
 	Location      string
@@ -27,6 +28,7 @@ type Garden struct {
 
 type Plant struct {
 	ID              uuid.UUID
+	GroupID         uuid.UUID
 	Name            string
 	Comment         string
 	Notes           string
@@ -47,6 +49,7 @@ type Plant struct {
 
 type Strain struct {
 	ID         uuid.UUID
+	GroupID    uuid.UUID
 	Name       string
 	Comment    string
 	Notes      string

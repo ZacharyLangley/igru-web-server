@@ -15,19 +15,20 @@ service PlantsService {
 
 message CreatePlantRequest {
     string name = 1;
-    string comment = 2;
-    string notes = 3;
-    string grow_cycle_length = 4;
-    string parentage = 5;
-    string origin = 6;
-    string gender = 7;
-    double days_flowering = 8;
-    double days_cured = 9;
-    string harvested_weight = 10;
-    double bud_density = 11;
-    bool bud_pistils = 12;
-    string tags = 13;
-    google.protobuf.Timestamp acquired_at = 14;
+    string group_id = 2;
+    string comment = 3;
+    string notes = 4;
+    string grow_cycle_length = 5;
+    string parentage = 6;
+    string origin = 7;
+    string gender = 8;
+    double days_flowering = 9;
+    double days_cured = 10;
+    string harvested_weight = 11;
+    double bud_density = 12;
+    bool bud_pistils = 13;
+    string tags = 14;
+    google.protobuf.Timestamp acquired_at = 15;
 }
 message CreatePlantResponse {
     gardens.v1.Plant plant = 1;
@@ -61,7 +62,9 @@ message UpdatePlantResponse {
     gardens.v1.Plant plant = 1;
 }
 
-message GetPlantsRequest {}
+message GetPlantsRequest {
+    string group_id = 1;
+}
 message GetPlantsResponse {
     repeated gardens.v1.Plant plants = 1;
 }

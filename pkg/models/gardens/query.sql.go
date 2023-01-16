@@ -14,15 +14,16 @@ import (
 
 const createGarden = `-- name: CreateGarden :one
 INSERT INTO gardens (
-  name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at
+  name, group_id, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7, $8, $9
+  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
 )
-RETURNING id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at
+RETURNING id, group_id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at
 `
 
 type CreateGardenParams struct {
 	Name          string
+	GroupID       uuid.UUID
 	Comment       string
 	Location      string
 	GrowType      string
@@ -36,6 +37,7 @@ type CreateGardenParams struct {
 func (q *Queries) CreateGarden(ctx context.Context, arg CreateGardenParams) (Garden, error) {
 	row := q.db.QueryRow(ctx, createGarden,
 		arg.Name,
+		arg.GroupID,
 		arg.Comment,
 		arg.Location,
 		arg.GrowType,
@@ -48,6 +50,7 @@ func (q *Queries) CreateGarden(ctx context.Context, arg CreateGardenParams) (Gar
 	var i Garden
 	err := row.Scan(
 		&i.ID,
+		&i.GroupID,
 		&i.Name,
 		&i.Comment,
 		&i.Location,
@@ -64,15 +67,16 @@ func (q *Queries) CreateGarden(ctx context.Context, arg CreateGardenParams) (Gar
 
 const createPlant = `-- name: CreatePlant :one
 INSERT INTO plants (
-  name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at
+  name, group_id, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
 )
-RETURNING id, name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at, updated_at
+RETURNING id, group_id, name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at, updated_at
 `
 
 type CreatePlantParams struct {
 	Name            string
+	GroupID         uuid.UUID
 	Comment         string
 	Notes           string
 	GrowCycleLength string
@@ -92,6 +96,7 @@ type CreatePlantParams struct {
 func (q *Queries) CreatePlant(ctx context.Context, arg CreatePlantParams) (Plant, error) {
 	row := q.db.QueryRow(ctx, createPlant,
 		arg.Name,
+		arg.GroupID,
 		arg.Comment,
 		arg.Notes,
 		arg.GrowCycleLength,
@@ -110,6 +115,7 @@ func (q *Queries) CreatePlant(ctx context.Context, arg CreatePlantParams) (Plant
 	var i Plant
 	err := row.Scan(
 		&i.ID,
+		&i.GroupID,
 		&i.Name,
 		&i.Comment,
 		&i.Notes,
@@ -132,15 +138,16 @@ func (q *Queries) CreatePlant(ctx context.Context, arg CreatePlantParams) (Plant
 
 const createStrain = `-- name: CreateStrain :one
 INSERT INTO strains (
-  name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at
+  name, group_id, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
 )
-RETURNING id, name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at, updated_at
+RETURNING id, group_id, name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at, updated_at
 `
 
 type CreateStrainParams struct {
 	Name       string
+	GroupID    uuid.UUID
 	Comment    string
 	Notes      string
 	Type       string
@@ -157,6 +164,7 @@ type CreateStrainParams struct {
 func (q *Queries) CreateStrain(ctx context.Context, arg CreateStrainParams) (Strain, error) {
 	row := q.db.QueryRow(ctx, createStrain,
 		arg.Name,
+		arg.GroupID,
 		arg.Comment,
 		arg.Notes,
 		arg.Type,
@@ -172,6 +180,7 @@ func (q *Queries) CreateStrain(ctx context.Context, arg CreateStrainParams) (Str
 	var i Strain
 	err := row.Scan(
 		&i.ID,
+		&i.GroupID,
 		&i.Name,
 		&i.Comment,
 		&i.Notes,
@@ -220,7 +229,7 @@ func (q *Queries) DeleteStrain(ctx context.Context, id uuid.UUID) error {
 }
 
 const getGarden = `-- name: GetGarden :one
-SELECT id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at FROM gardens
+SELECT id, group_id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at FROM gardens
 WHERE id = $1 LIMIT 1
 `
 
@@ -229,6 +238,7 @@ func (q *Queries) GetGarden(ctx context.Context, id uuid.UUID) (Garden, error) {
 	var i Garden
 	err := row.Scan(
 		&i.ID,
+		&i.GroupID,
 		&i.Name,
 		&i.Comment,
 		&i.Location,
@@ -244,7 +254,7 @@ func (q *Queries) GetGarden(ctx context.Context, id uuid.UUID) (Garden, error) {
 }
 
 const getGardens = `-- name: GetGardens :many
-SELECT id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at FROM gardens
+SELECT id, group_id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at FROM gardens
 `
 
 func (q *Queries) GetGardens(ctx context.Context) ([]Garden, error) {
@@ -258,6 +268,7 @@ func (q *Queries) GetGardens(ctx context.Context) ([]Garden, error) {
 		var i Garden
 		if err := rows.Scan(
 			&i.ID,
+			&i.GroupID,
 			&i.Name,
 			&i.Comment,
 			&i.Location,
@@ -280,7 +291,7 @@ func (q *Queries) GetGardens(ctx context.Context) ([]Garden, error) {
 }
 
 const getPlant = `-- name: GetPlant :one
-SELECT id, name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at, updated_at FROM plants
+SELECT id, group_id, name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at, updated_at FROM plants
 WHERE id = $1 LIMIT 1
 `
 
@@ -289,6 +300,7 @@ func (q *Queries) GetPlant(ctx context.Context, id uuid.UUID) (Plant, error) {
 	var i Plant
 	err := row.Scan(
 		&i.ID,
+		&i.GroupID,
 		&i.Name,
 		&i.Comment,
 		&i.Notes,
@@ -310,7 +322,7 @@ func (q *Queries) GetPlant(ctx context.Context, id uuid.UUID) (Plant, error) {
 }
 
 const getPlants = `-- name: GetPlants :many
-SELECT id, name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at, updated_at FROM plants
+SELECT id, group_id, name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at, updated_at FROM plants
 `
 
 func (q *Queries) GetPlants(ctx context.Context) ([]Plant, error) {
@@ -324,6 +336,7 @@ func (q *Queries) GetPlants(ctx context.Context) ([]Plant, error) {
 		var i Plant
 		if err := rows.Scan(
 			&i.ID,
+			&i.GroupID,
 			&i.Name,
 			&i.Comment,
 			&i.Notes,
@@ -352,7 +365,7 @@ func (q *Queries) GetPlants(ctx context.Context) ([]Plant, error) {
 }
 
 const getStrain = `-- name: GetStrain :one
-SELECT id, name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at, updated_at FROM strains
+SELECT id, group_id, name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at, updated_at FROM strains
 WHERE id = $1 LIMIT 1
 `
 
@@ -361,6 +374,7 @@ func (q *Queries) GetStrain(ctx context.Context, id uuid.UUID) (Strain, error) {
 	var i Strain
 	err := row.Scan(
 		&i.ID,
+		&i.GroupID,
 		&i.Name,
 		&i.Comment,
 		&i.Notes,
@@ -379,7 +393,7 @@ func (q *Queries) GetStrain(ctx context.Context, id uuid.UUID) (Strain, error) {
 }
 
 const getStrains = `-- name: GetStrains :many
-SELECT id, name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at, updated_at FROM strains
+SELECT id, group_id, name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at, updated_at FROM strains
 `
 
 func (q *Queries) GetStrains(ctx context.Context) ([]Strain, error) {
@@ -393,6 +407,7 @@ func (q *Queries) GetStrains(ctx context.Context) ([]Strain, error) {
 		var i Strain
 		if err := rows.Scan(
 			&i.ID,
+			&i.GroupID,
 			&i.Name,
 			&i.Comment,
 			&i.Notes,
@@ -421,7 +436,7 @@ const updateGarden = `-- name: UpdateGarden :one
 UPDATE gardens
 SET name = $2, comment= $3, location = $4, grow_type = $5, grow_size = $6, grow_style = $7, container_size = $8, tags = $9, created_at = $10, updated_at=CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at
+RETURNING id, group_id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at
 `
 
 type UpdateGardenParams struct {
@@ -453,6 +468,7 @@ func (q *Queries) UpdateGarden(ctx context.Context, arg UpdateGardenParams) (Gar
 	var i Garden
 	err := row.Scan(
 		&i.ID,
+		&i.GroupID,
 		&i.Name,
 		&i.Comment,
 		&i.Location,
@@ -471,7 +487,7 @@ const updatePlant = `-- name: UpdatePlant :one
 UPDATE plants
 SET name = $2, comment = $3, notes = $4, grow_cycle_length = $5, parentage = $6, origin = $7, gender = $8, days_flowering = $9, days_cured = $10, harvested_weight = $11, bud_density = $12, bud_pistils = $13, tags = $14, acquired_at=$15, created_at = $16, updated_at=CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at, updated_at
+RETURNING id, group_id, name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at, updated_at
 `
 
 type UpdatePlantParams struct {
@@ -515,6 +531,7 @@ func (q *Queries) UpdatePlant(ctx context.Context, arg UpdatePlantParams) (Plant
 	var i Plant
 	err := row.Scan(
 		&i.ID,
+		&i.GroupID,
 		&i.Name,
 		&i.Comment,
 		&i.Notes,
@@ -539,7 +556,7 @@ const updateStrain = `-- name: UpdateStrain :one
 UPDATE strains
 SET name = $2, comment = $3, notes = $4, type = $5, price = $6, thc_percent = $7, cbd_percent = $8, parentage = $9, aroma = $10, taste = $11, tags = $12, created_at = $13, updated_at=CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at, updated_at
+RETURNING id, group_id, name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at, updated_at
 `
 
 type UpdateStrainParams struct {
@@ -577,6 +594,7 @@ func (q *Queries) UpdateStrain(ctx context.Context, arg UpdateStrainParams) (Str
 	var i Strain
 	err := row.Scan(
 		&i.ID,
+		&i.GroupID,
 		&i.Name,
 		&i.Comment,
 		&i.Notes,

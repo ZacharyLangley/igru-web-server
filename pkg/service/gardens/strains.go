@@ -24,7 +24,14 @@ func (s *Service) CreateStrain(baseCtx gocontext.Context, req *connect_go.Reques
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}
 	parentageID, err := uuid.Parse(req.Msg.Parentage)
-
+	// Check write access
+	allowed, err := s.checker.AssertWrite(ctx, req, req.Msg.GroupId)
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
+	}
 	var strain models.Strain
 	if err = s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
@@ -76,6 +83,18 @@ func (s *Service) DeleteStrain(baseCtx gocontext.Context, req *connect_go.Reques
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid strain id format: %w", err))
 	}
+	// Check write access
+	groupID, err := s.resolveStrainGroupID(ctx, strainID)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid group id: %w", err))
+	}
+	allowed, err := s.checker.AssertWrite(ctx, req, groupID.String())
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
+	}
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		return queries.DeleteStrain(ctx, strainID)
@@ -96,6 +115,17 @@ func (s *Service) UpdateStrain(baseCtx gocontext.Context, req *connect_go.Reques
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid user id format: %w", err))
 	}
 	parentageID, err := uuid.Parse(req.Msg.Parentage)
+	groupID, err := s.resolveStrainGroupID(ctx, strainID)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid strain id: %w", err))
+	}
+	allowed, err := s.checker.AssertWrite(ctx, req, groupID.String())
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
+	}
 	var strain models.Strain
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
@@ -144,6 +174,13 @@ func (s *Service) GetStrains(baseCtx gocontext.Context, req *connect_go.Request[
 	res := connect.NewResponse(&v1.GetStrainsResponse{})
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	}
+	allowed, err := s.checker.AssertRead(ctx, req, req.Msg.GroupId)
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
 	}
 	// TODO: ZL | Pagination Functionality
 	var strains []models.Strain
@@ -201,6 +238,15 @@ func (s *Service) GetStrain(baseCtx gocontext.Context, req *connect_go.Request[v
 		return nil, err
 	}
 
+	// Check permissions
+	allowed, err := s.checker.AssertRead(ctx, req, strain.GroupID.String())
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
+	}
+
 	res.Msg.Strain = &v1.Strain{
 		Id:         strain.ID.String(),
 		Name:       strain.Name,
@@ -220,4 +266,20 @@ func (s *Service) GetStrain(baseCtx gocontext.Context, req *connect_go.Request[v
 		res.Msg.Strain.UpdatedAt = timestamppb.New(strain.UpdatedAt.Time)
 	}
 	return res, nil
+}
+
+func (s *Service) resolveStrainGroupID(ctx context.Context, strainID uuid.UUID) (uuid.UUID, error) {
+	var groupID uuid.UUID
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
+		queries := models.New(tx)
+		strain, err := queries.GetStrain(ctx, strainID)
+		if err != nil {
+			return err
+		}
+		groupID = strain.GroupID
+		return nil
+	}); err != nil {
+		return uuid.UUID{}, err
+	}
+	return groupID, nil
 }

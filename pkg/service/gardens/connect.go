@@ -3,6 +3,7 @@ package gardens
 import (
 	"net/http"
 
+	"github.com/ZacharyLangley/igru-web-server/pkg/auth"
 	"github.com/ZacharyLangley/igru-web-server/pkg/database"
 	"github.com/ZacharyLangley/igru-web-server/pkg/middleware"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1/gardensv1connect"
@@ -16,7 +17,8 @@ func New(pool *database.Pool) *Service {
 }
 
 type Service struct {
-	pool *database.Pool
+	pool    *database.Pool
+	checker *auth.Checker
 	gardensv1connect.UnimplementedGardensServiceHandler
 	gardensv1connect.UnimplementedPlantsServiceHandler
 }

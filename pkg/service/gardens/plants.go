@@ -23,8 +23,14 @@ func (s *Service) CreatePlant(baseCtx gocontext.Context, req *connect_go.Request
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}
+	allowed, err := s.checker.AssertWrite(ctx, req, req.Msg.GroupId)
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
+	}
 	parentageID, err := uuid.Parse(req.Msg.Parentage)
-
 	var plant models.Plant
 	if err = s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
@@ -83,6 +89,17 @@ func (s *Service) DeletePlant(baseCtx gocontext.Context, req *connect_go.Request
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid plant id format: %w", err))
 	}
+	groupID, err := s.resolvePlantGroupID(ctx, plantID)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid plant id: %w", err))
+	}
+	allowed, err := s.checker.AssertWrite(ctx, req, groupID.String())
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
+	}
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		return queries.DeletePlant(ctx, plantID)
@@ -103,7 +120,17 @@ func (s *Service) UpdatePlant(baseCtx gocontext.Context, req *connect_go.Request
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid user id format: %w", err))
 	}
 	parentageID, err := uuid.Parse(req.Msg.Parentage)
-
+	groupID, err := s.resolvePlantGroupID(ctx, plantID)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid group id: %w", err))
+	}
+	allowed, err := s.checker.AssertWrite(ctx, req, groupID.String())
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
+	}
 	var plant models.Plant
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
@@ -159,6 +186,13 @@ func (s *Service) GetPlants(baseCtx gocontext.Context, req *connect_go.Request[v
 	res := connect.NewResponse(&v1.GetPlantsResponse{})
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	}
+	allowed, err := s.checker.AssertRead(ctx, req, req.Msg.GroupId)
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
 	}
 	// TODO: ZL | Pagination Functionality
 	var plants []models.Plant
@@ -217,6 +251,13 @@ func (s *Service) GetPlant(baseCtx gocontext.Context, req *connect_go.Request[v1
 	}); err != nil {
 		return nil, err
 	}
+	allowed, err := s.checker.AssertWrite(ctx, req, plant.GroupID.String())
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
+	}
 	// TODO: ZL | ADD AcquiredAt Data Point for when it was obtained vs when the data is made.
 	res.Msg.Plant = &v1.Plant{
 		Id:              plant.ID.String(),
@@ -240,4 +281,20 @@ func (s *Service) GetPlant(baseCtx gocontext.Context, req *connect_go.Request[v1
 		res.Msg.Plant.UpdatedAt = timestamppb.New(plant.UpdatedAt.Time)
 	}
 	return res, nil
+}
+
+func (s *Service) resolvePlantGroupID(ctx context.Context, plantID uuid.UUID) (uuid.UUID, error) {
+	var groupID uuid.UUID
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
+		queries := models.New(tx)
+		plant, err := queries.GetPlant(ctx, plantID)
+		if err != nil {
+			return err
+		}
+		groupID = plant.GroupID
+		return nil
+	}); err != nil {
+		return uuid.UUID{}, err
+	}
+	return groupID, nil
 }
