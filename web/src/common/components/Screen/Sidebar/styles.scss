@@ -1,0 +1,26 @@
+@import '../../../theme/globals.scss';
+
+.sidebar-container {
+  .sidebar-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  }
+  .sidebar-body {
+    padding: 0px 0px;
+    .sidebar-list-container {
+      .sidebar-list-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        color: $grey;
+        padding: 1rem 1rem;
+        cursor: pointer;
+        &:hover {
+          color: $green-shade;
+        }
+        .sidebar-list-item-label {
+          margin-left: 16px;
+        }
+      }
+    }
+  }
+}
