@@ -13,38 +13,46 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	getStrainID string
+)
+
 func init() {
 	getCmd.MarkFlagRequired("config")
+	getCmd.Flags().StringVar(&getStrainID, "id", "", "id of an existing strain")
+	getCmd.MarkFlagRequired("id")
 	RootCmd.AddCommand(getCmd)
 }
 
 var getCmd = &cobra.Command{
 	Use: "get",
 	Aliases: []string{
-		"list",
+		"g",
 	},
-	Short:   "Get all existing strains",
+	Short:   "Get an existing strain",
 	PreRunE: config.SetupCobraLogger,
-	RunE:    getStrains,
+	RunE:    getStrain,
 }
 
-func getStrains(cmd *cobra.Command, args []string) error {
+func getStrain(cmd *cobra.Command, args []string) error {
 	var cfg Config
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	userClient := gardensv1connect.NewStrainsServiceClient(
+	recipeClient := gardensv1connect.NewStrainsServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
 	ctx := context.New(cmd.Context())
-	req := connect.NewRequest(&gardensv1.GetStrainsRequest{})
-	resp, err := userClient.GetStrains(ctx, req)
+	req := connect.NewRequest(&gardensv1.GetStrainRequest{
+		Id: getStrainID,
+	})
+	resp, err := recipeClient.GetStrain(ctx, req)
 	if err != nil {
 		return fmt.Errorf("failed to get strains: %w", err)
 	}
-	for _, strain := range resp.Msg.Strains {
-		zap.L().Info("Found strain", zap.Any("strain", strain))
+	if resp.Msg.Strain != nil {
+		zap.L().Info("Found strain", zap.Any("strain", resp.Msg.Strain))
 	}
 	return nil
 }

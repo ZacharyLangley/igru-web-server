@@ -10,6 +10,7 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1/gardensv1connect"
 	"github.com/bufbuild/connect-go"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 )
 
 var (
@@ -38,6 +39,7 @@ func init() {
 	updateCmd.Flags().Float64Var(&updateCBDPercent, "cbdPercent", 0, "CBD percent of an existing strain")
 	updateCmd.Flags().StringVar(&updateAroma, "aroma", "", "Aroma of an existing strain")
 	updateCmd.Flags().StringVar(&updateTaste, "taste", "", "Taste of an existing strain")
+	updateCmd.Flags().StringVar(&updateTags, "tags", "", "Tags of an existing strain")
 	updateCmd.MarkFlagRequired("id")
 	updateCmd.MarkFlagRequired("config")
 	RootCmd.AddCommand(updateCmd)
@@ -55,7 +57,7 @@ func updateStrain(cmd *cobra.Command, args []string) error {
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	userClient := gardensv1connect.NewStrainsServiceClient(
+	recipeClient := gardensv1connect.NewStrainsServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
@@ -74,9 +76,12 @@ func updateStrain(cmd *cobra.Command, args []string) error {
 		Taste:      updateTaste,
 		Tags:       updateTags,
 	})
-	_, err := userClient.UpdateStrain(ctx, req)
+	resp, err := recipeClient.UpdateStrain(ctx, req)
 	if err != nil {
-		return fmt.Errorf("Failed to update strain: %w", err)
+		return fmt.Errorf("failed to update strain: %w", err)
+	}
+	if resp.Msg.Strain != nil {
+		zap.L().Info("updated strain", zap.Any("strian", resp.Msg.Strain))
 	}
 	return nil
 }

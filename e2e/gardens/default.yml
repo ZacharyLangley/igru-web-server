@@ -1,0 +1,17 @@
+grpc:
+  address: :80
+database:
+  host: localhost
+  port: 26257
+  username: root
+  database: garden
+  password: ""
+  sslmode: disable
+  timezone: UTC
+  connect_timeout: 5
+  maxRetries: 5
+  migrationPath: "./build/gardens/migrations"
+logger:
+  development: false
+  level: info
+gcPeriod: 5s

@@ -1,0 +1,48 @@
+version: "3"
+
+services:
+  init-test-db:
+    image: cockroachdb/cockroach:v22.1.11
+    command:
+      - "sql"
+      - "--insecure"
+      - "--host"
+      - "test-db"
+      - "-e"
+      - "CREATE DATABASE IF NOT EXISTS authentication;"
+      - "-e"
+      - "CREATE DATABASE IF NOT EXISTS garden;"
+    depends_on:
+      - test-db
+    deploy:
+      restart_policy:
+          condition: on-failure
+  
+  test-db:
+    image: cockroachdb/cockroach:v22.1.11
+    ports:
+      - "8888:8080" # Dashboard
+      - "26257:26257"
+    command:
+      - "start-single-node"
+      - "--insecure"
+    deploy:
+      mode: replicated
+      replicas: 1
+    volumes:
+      - ./db-data/cockroach/://cockroach/cockroach-data
+
+  garden-service:
+    build:
+      context: ./..
+      dockerfile: build/garden-service.dockerfile
+    restart: always
+    ports:
+      - "80:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      DATABASE.HOST: test-db
+    depends_on:
+      - init-test-db

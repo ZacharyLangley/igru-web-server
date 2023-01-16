@@ -39,7 +39,7 @@ func deleteStrain(cmd *cobra.Command, args []string) error {
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	userClient := gardensv1connect.NewStrainsServiceClient(
+	recipeClient := gardensv1connect.NewStrainsServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
@@ -47,7 +47,7 @@ func deleteStrain(cmd *cobra.Command, args []string) error {
 	req := connect.NewRequest(&gardensv1.DeleteStrainRequest{
 		Id: deleteStrainID,
 	})
-	_, err := userClient.DeleteStrain(ctx, req)
+	_, err := recipeClient.DeleteStrain(ctx, req)
 	if err != nil {
 		return fmt.Errorf("failed to delete strain: %w", err)
 	}

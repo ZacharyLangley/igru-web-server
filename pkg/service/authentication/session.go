@@ -142,7 +142,7 @@ func (s *Service) DeleteSession(baseCtx gocontext.Context, req *connect.Request[
 	return res, nil
 }
 
-func (s *Service) CheckSessionPermissions(baseCtx context.Context, req *connect.Request[v1.CheckSessionPermissionsRequest]) (*connect.Response[v1.CheckSessionPermissionsResponse], error) {
+func (s *Service) CheckSessionPermissions(baseCtx gocontext.Context, req *connect.Request[v1.CheckSessionPermissionsRequest]) (*connect.Response[v1.CheckSessionPermissionsResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.CheckSessionPermissionsResponse{})
 	token, err := ExtractSessionToken(req.Header())

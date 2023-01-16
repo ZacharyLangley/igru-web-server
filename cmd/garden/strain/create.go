@@ -49,15 +49,15 @@ var createCmd = &cobra.Command{
 	},
 	Short:   "Create a new strain",
 	PreRunE: config.SetupCobraLogger,
-	RunE:    createGarden,
+	RunE:    createStrain,
 }
 
-func createGarden(cmd *cobra.Command, args []string) error {
+func createStrain(cmd *cobra.Command, args []string) error {
 	var cfg Config
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	userClient := gardensv1connect.NewStrainsServiceClient(
+	recipeClient := gardensv1connect.NewStrainsServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
@@ -75,9 +75,9 @@ func createGarden(cmd *cobra.Command, args []string) error {
 		Taste:      createTaste,
 		Tags:       createTags,
 	})
-	resp, err := userClient.CreateStrain(ctx, req)
+	resp, err := recipeClient.CreateStrain(ctx, req)
 	if err != nil {
-		return fmt.Errorf("Failed to add strain: %w", err)
+		return fmt.Errorf("failed to add strain: %w", err)
 	}
 	zap.L().Info("Created strain", zap.Any("strain", resp.Msg.Strain))
 	return nil

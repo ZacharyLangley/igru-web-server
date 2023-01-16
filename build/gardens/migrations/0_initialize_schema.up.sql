@@ -57,3 +57,18 @@ CREATE TABLE IF NOT EXISTS strains (
     PRIMARY KEY(id)
 );
 CREATE UNIQUE INDEX ON strains(id);
+
+CREATE TABLE IF NOT EXISTS recipes (
+	id UUID DEFAULT gen_random_uuid(),
+	name TEXT NOT NULL,
+	comment TEXT NOT NULL,
+	ingredients TEXT NOT NULL,
+	instructions TEXT NOT NULL,
+	ph FLOAT NOT NULL,
+	mix_time_milliseconds FLOAT NOT NULL,
+    tags TEXT NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP,
+    PRIMARY KEY(id)
+);
+CREATE UNIQUE INDEX ON recipes(id);

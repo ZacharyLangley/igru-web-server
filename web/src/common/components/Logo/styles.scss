@@ -1,0 +1,23 @@
+@import '../../theme/globals.scss';
+
+.logo-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  .logo-img-container {
+    margin-right: 8px;
+    .logo-img {
+    }
+  }
+  .logo-text {
+    font-family: 'Arial', 'Open-sans', 'sans-serif';
+    color: $green-shade;
+    font-weight: 900;
+    text-align: center;
+    line-height: 1;
+  }
+  &:hover {
+    cursor: pointer;
+  }
+}

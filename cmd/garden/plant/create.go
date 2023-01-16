@@ -35,7 +35,7 @@ func init() {
 	createCmd.Flags().StringVar(&createName, "name", "", "Name of a new plant")
 	createCmd.Flags().StringVar(&createComment, "comment", "", "Comment of a new plant")
 	createCmd.Flags().StringVar(&createNotes, "notes", "", "Notes of a new plant")
-	createCmd.Flags().StringVar(&createGrowCycleLength, "growCyleLength", "", "Grow cycle length of a new plant")
+	createCmd.Flags().StringVar(&createGrowCycleLength, "growCycleLength", "", "Grow cycle length of a new plant")
 	createCmd.Flags().StringVar(&createParentage, "parentage", "", "Parentage of a new plant")
 	createCmd.Flags().StringVar(&createOrigin, "origin", "", "Origin of a new plant")
 	createCmd.Flags().StringVar(&createGender, "gender", "", "Gender of a new plant")
@@ -58,15 +58,15 @@ var createCmd = &cobra.Command{
 	},
 	Short:   "Create a new plant",
 	PreRunE: config.SetupCobraLogger,
-	RunE:    createGarden,
+	RunE:    createPlant,
 }
 
-func createGarden(cmd *cobra.Command, args []string) error {
+func createPlant(cmd *cobra.Command, args []string) error {
 	var cfg Config
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	userClient := gardensv1connect.NewPlantsServiceClient(
+	plantClient := gardensv1connect.NewPlantsServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
@@ -89,9 +89,9 @@ func createGarden(cmd *cobra.Command, args []string) error {
 	if createSetAcquiredAt {
 		req.Msg.AcquiredAt = timestamppb.Now()
 	}
-	resp, err := userClient.CreatePlant(ctx, req)
+	resp, err := plantClient.CreatePlant(ctx, req)
 	if err != nil {
-		return fmt.Errorf("Failed to add plant: %w", err)
+		return fmt.Errorf("failed to add plant: %w", err)
 	}
 	zap.L().Info("Created plant", zap.Any("plant", resp.Msg.Plant))
 	return nil
