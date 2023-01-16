@@ -1,0 +1,16 @@
+@import '../../../theme/globals.scss';
+
+.body-container {
+  display: flex;
+  flex: 1;
+  background-color: $green;
+  padding: 40px 40px 20px 40px;
+  overflow: scroll;
+  background: linear-gradient(
+    to bottom,
+    $green 0%,
+    $green 30%,
+    $white 30%,
+    $white 100%
+  );
+}

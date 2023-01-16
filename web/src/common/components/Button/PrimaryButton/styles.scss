@@ -1,0 +1,11 @@
+@import '../../../theme/globals.scss';
+
+.btn-primary {
+  background-color: $green !important;
+  border-color: $green !important;
+
+  &:hover {
+    background-color: $green-shade !important;
+    border-color: $green-shade !important;
+  }
+}

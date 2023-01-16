@@ -1,0 +1,19 @@
+.footer-container {
+  font-size: 12px;
+  display: flex;
+  flex-direction: row;
+  .footer-link-container {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    .footer-title {
+      margin-right: 4px;
+    }
+    .footer-link {
+      text-decoration: none;
+    }
+  }
+  .footer-button-container {
+    flex: 1;
+  }
+}
