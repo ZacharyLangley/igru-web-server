@@ -19,6 +19,7 @@ var (
 func init() {
 	deleteCmd.Flags().StringVar(&deleteGroupID, "id", "", "ID of an existing group")
 	deleteCmd.MarkFlagRequired("id")
+	deleteCmd.MarkFlagRequired("config")
 	RootCmd.AddCommand(deleteCmd)
 }
 

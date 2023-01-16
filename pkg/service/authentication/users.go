@@ -27,16 +27,28 @@ func (s *Service) CreateUser(baseCtx gocontext.Context, req *connect.Request[v1.
 	var user models.User
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
+		group, err := queries.CreateUserGroup(ctx, req.Msg.Email)
+		if err != nil {
+			return err
+		}
 		params := models.CreateUserParams{
-			Email: req.Msg.Email,
-			Salt:  salt,
-			Hash:  hash,
+			GroupID: group.ID,
+			Email:   req.Msg.Email,
+			Salt:    salt,
+			Hash:    hash,
 		}
 		if req.Msg.FullName != "" {
 			params.FullName = sql.NullString{Valid: true, String: req.Msg.FullName}
 		}
 		user, err = queries.CreateUser(ctx, params)
-		return err
+		if err != nil {
+			return err
+		}
+		return queries.AddGroupMember(ctx, models.AddGroupMemberParams{
+			UserID:  user.ID,
+			GroupID: group.ID,
+			Role:    int32(v1.GroupRole_GROUP_ROLE_ADMIN),
+		})
 	}); err != nil {
 		return nil, err
 	}

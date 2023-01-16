@@ -14,16 +14,17 @@ service StrainsService {
 
 message CreateStrainRequest {
     string name = 1;
-    string comment = 2;
-    string notes = 3;
-    string type = 4;
-    double price = 5;
-    double thc_percent = 6;
-    double cbd_percent = 7;
-    string parentage = 8;
-    string aroma = 9;
-    string taste = 10;
-    string tags = 11;
+    string group_id = 2;
+    string comment = 3;
+    string notes = 4;
+    string type = 5;
+    double price = 6;
+    double thc_percent = 7;
+    double cbd_percent = 8;
+    string parentage = 9;
+    string aroma = 10;
+    string taste = 11;
+    string tags = 12;
 }
 message CreateStrainResponse {
     gardens.v1.Strain strain = 1;
@@ -54,7 +55,9 @@ message UpdateStrainResponse {
     gardens.v1.Strain strain = 1;
 }
 
-message GetStrainsRequest {}
+message GetStrainsRequest {
+    string group_id = 1;
+}
 message GetStrainsResponse {
     repeated gardens.v1.Strain strains = 1;
 }

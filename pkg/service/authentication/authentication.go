@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/database"
 	"github.com/ZacharyLangley/igru-web-server/pkg/middleware"
@@ -16,9 +17,11 @@ func New(pool *database.Pool) *Service {
 }
 
 type Service struct {
-	pool *database.Pool
+	SessionDuration time.Duration
+	pool            *database.Pool
 	authenticationv1connect.UnimplementedUserServiceHandler
 	authenticationv1connect.UnimplementedGroupServiceHandler
+	authenticationv1connect.UnimplementedSessionServiceHandler
 }
 
 func (s *Service) Register(mux *http.ServeMux) {
@@ -26,5 +29,7 @@ func (s *Service) Register(mux *http.ServeMux) {
 	mux.Handle(authenticationv1connect.NewUserServiceHandler(s,
 		connect.WithInterceptors(interceptors...)))
 	mux.Handle(authenticationv1connect.NewGroupServiceHandler(s,
+		connect.WithInterceptors(interceptors...)))
+	mux.Handle(authenticationv1connect.NewSessionServiceHandler(s,
 		connect.WithInterceptors(interceptors...)))
 }

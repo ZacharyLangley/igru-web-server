@@ -16,10 +16,11 @@
                 "--config", "${workspaceFolder}/build/authentication/default.yml"
             ],
             "env": {
+                "GRPC.ADDRESS": "0.0.0.0:8081",
                 "DATABASE.MIGRATIONPATH": "${workspaceFolder}/build/authentication/migrations",
                 "DATABASE.HOST": "127.0.0.1",
                 "DATABASE.USERNAME": "root",
-                "DATABASE.PORT": "26257"
+                "DATABASE.PORT": "26257",
             }
         },
         {

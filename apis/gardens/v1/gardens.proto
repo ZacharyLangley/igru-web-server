@@ -14,13 +14,14 @@ service GardensService {
 
 message CreateGardenRequest {
     string name = 1;
-    string comment = 2;
-    string location = 3;
-    string grow_type = 4;
-    string grow_size = 5;
-    string grow_style = 6;
-    string container_size = 7;
-    string tags = 8;
+    string group_id = 2;
+    string comment = 3;
+    string location = 4;
+    string grow_type = 5;
+    string grow_size = 6;
+    string grow_style = 7;
+    string container_size = 8;
+    string tags = 9;
 }
 message CreateGardenResponse {
     gardens.v1.Garden garden = 1;
@@ -48,7 +49,9 @@ message UpdateGardenResponse {
     gardens.v1.Garden garden = 1;
 }
 
-message GetGardensRequest {}
+message GetGardensRequest {
+    string group_id = 1;
+}
 message GetGardensResponse {
     repeated gardens.v1.Garden gardens = 1;
 }

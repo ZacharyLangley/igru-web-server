@@ -16,4 +16,3 @@ logger:
   level: info
 metrics:
   jaegerAddress: "localhost:14268"
-gcPeriod: 5s

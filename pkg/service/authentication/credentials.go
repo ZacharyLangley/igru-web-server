@@ -9,7 +9,6 @@ import (
 	"time"
 
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/authentication"
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -50,17 +49,32 @@ func checkHash(user models.User, password string) bool {
 }
 
 func AddSessionToken(h http.Header, token string) {
-	h.Add("Authentication", "Bearer: "+token)
+	h.Add("SESSION", token)
 }
 
-func ExtractSessionToken(h http.Header) (uuid.UUID, error) {
-	authHeader := h.Get("Authentication")
+func ExtractSessionToken(h http.Header) (string, error) {
+	authHeader := h.Get("SESSION")
 	if authHeader == "" {
-		return uuid.Nil, errUnauthorizedUser
+		return "", errUnauthorizedUser
 	}
-	authParts := strings.Split(authHeader, " ")
-	if len(authParts) != 2 {
-		return uuid.Nil, errUnauthorizedUser
+	return authHeader, nil
+}
+
+const (
+	letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&!?"
+	letterMax   = len(letterBytes)
+)
+
+func randCryptoString(n int) string {
+	sb := strings.Builder{}
+	sb.Grow(n)
+	buffer := make([]byte, n)
+	_, err := rand.Read(buffer)
+	if err != nil {
+		panic(err)
 	}
-	return uuid.Parse(authParts[1])
+	for i := 0; i < n; i++ {
+		sb.WriteByte(letterBytes[buffer[i]%byte(letterMax)])
+	}
+	return sb.String()
 }

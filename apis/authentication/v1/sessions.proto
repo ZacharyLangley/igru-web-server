@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package authentication.v1;
+
+import "authentication/v1/schema.proto";
+import "common/v1/pagination.proto";
+
+service SessionService {
+  rpc CreateSession(CreateSessionRequest) returns (CreateSessionResponse) {}
+  rpc GetSessions(GetSessionsRequest) returns (GetSessionsResponse) {}
+  rpc DeleteSession(DeleteSessionRequest) returns (DeleteSessionResponse) {}
+  rpc CheckSessionPermissions(CheckSessionPermissionsRequest) returns (CheckSessionPermissionsResponse) {}
+}
+
+message CreateSessionRequest {
+  string email = 1;
+  string password = 2;
+}
+message CreateSessionResponse {}
+
+message GetSessionsRequest {
+  common.v1.PaginationRequest pagination = 1;
+}
+message GetSessionsResponse {
+  repeated authentication.v1.Session sessions = 1;
+}
+
+message DeleteSessionRequest {
+  string id = 1;
+  string user_id = 2;
+}
+message DeleteSessionResponse {}
+
+message CheckSessionPermissionsRequest {
+  repeated authentication.v1.PermissionRequest requests = 1;
+}
+
+message CheckSessionPermissionsResponse {
+  repeated authentication.v1.PermissionResponse responses = 2;
+}

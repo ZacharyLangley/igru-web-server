@@ -158,3 +158,16 @@ func validatePaginationRequest(req paginationRequest) error {
 	}
 	return nil
 }
+
+func validateCreateSessionRequest(req *v1.CreateSessionRequest) error {
+	if req == nil {
+		return connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	}
+	if _, err := mail.ParseAddress(req.Email); err != nil {
+		return connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid email address: %w", err))
+	}
+	if err := validatePassword(req.Password); err != nil {
+		return connect.NewError(connect.CodeInvalidArgument, err)
+	}
+	return nil
+}

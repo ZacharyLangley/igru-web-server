@@ -18,6 +18,7 @@ var (
 )
 
 func init() {
+	getCmd.MarkFlagRequired("config")
 	getCmd.Flags().StringVar(&getStrainID, "id", "", "id of an existing strain")
 	getCmd.MarkFlagRequired("id")
 	RootCmd.AddCommand(getCmd)

@@ -19,6 +19,7 @@ var (
 func init() {
 	deleteCmd.Flags().StringVar(&deleteStrainID, "id", "", "ID of an existing strain")
 	deleteCmd.MarkFlagRequired("id")
+	deleteCmd.MarkFlagRequired("config")
 	RootCmd.AddCommand(deleteCmd)
 }
 

@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS gardens (
 	id UUID DEFAULT gen_random_uuid(),
+	group_id UUID NOT NULL,
 	name TEXT NOT NULL,
 	comment TEXT NOT NULL,
 	location TEXT NOT NULL,
@@ -16,6 +17,7 @@ CREATE UNIQUE INDEX ON gardens(id);
 
 CREATE TABLE IF NOT EXISTS plants (
 	id UUID DEFAULT gen_random_uuid(),
+	group_id UUID NOT NULL,
 	name TEXT NOT NULL,
 	comment TEXT NOT NULL,
 	notes TEXT NOT NULL,
@@ -38,6 +40,7 @@ CREATE UNIQUE INDEX ON plants(id);
 
 CREATE TABLE IF NOT EXISTS strains (
 	id UUID DEFAULT gen_random_uuid(),
+	group_id UUID NOT NULL,
 	name TEXT NOT NULL,
 	comment TEXT NOT NULL,
 	notes TEXT NOT NULL,

@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/ZacharyLangley/igru-web-server/cmd/authentication"
-	"github.com/ZacharyLangley/igru-web-server/cmd/broker"
 	"github.com/ZacharyLangley/igru-web-server/cmd/garden"
+	"github.com/ZacharyLangley/igru-web-server/cmd/ingress"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -34,10 +34,9 @@ func init() {
 	rootCmd.PersistentFlags().Bool("dev-logs", false, "Development formatted logs")
 	rootCmd.PersistentFlags().String("level", "info", "Level of verbosity to log")
 	rootCmd.PersistentFlags().String("config", "", "config file")
-	rootCmd.MarkPersistentFlagRequired("config")
 	viper.BindPFlags(rootCmd.PersistentFlags())
 
 	rootCmd.AddCommand(authentication.RootCmd)
 	rootCmd.AddCommand(garden.RootCmd)
-	rootCmd.AddCommand(broker.RootCmd)
+	rootCmd.AddCommand(ingress.RootCmd)
 }

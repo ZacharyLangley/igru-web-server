@@ -7,9 +7,9 @@ WHERE id = $1 LIMIT 1;
 
 -- name: CreateGarden :one
 INSERT INTO gardens (
-  name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at
+  name, group_id, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7, $8, $9
+  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
 )
 RETURNING *;
 
@@ -32,9 +32,9 @@ WHERE id = $1 LIMIT 1;
 
 -- name: CreatePlant :one
 INSERT INTO plants (
-  name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at
+  name, group_id, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
 )
 RETURNING *;
 
@@ -57,9 +57,9 @@ WHERE id = $1 LIMIT 1;
 
 -- name: CreateStrain :one
 INSERT INTO strains (
-  name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at
+  name, group_id, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
 )
 RETURNING *;
 

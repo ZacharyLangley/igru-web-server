@@ -7,52 +7,55 @@ import "google/protobuf/timestamp.proto";
 message Garden {
     string id = 1;
     string name = 2;
-    string comment = 3;
-    string location = 4;
-    string grow_type = 5;
-    string grow_size = 6;
-    string grow_style = 7;
-    string container_size = 8;
-    string tags = 9;
-    google.protobuf.Timestamp created_at = 10;
-    google.protobuf.Timestamp updated_at = 11;
+    string group_id = 3;
+    string comment = 4;
+    string location = 5;
+    string grow_type = 6;
+    string grow_size = 7;
+    string grow_style = 8;
+    string container_size = 9;
+    string tags = 10;
+    google.protobuf.Timestamp created_at = 11;
+    google.protobuf.Timestamp updated_at = 12;
 }
 
 message Plant {
     string id = 1;
     string name = 2;
-    string comment = 3;
-    string notes = 4;
-    string grow_cycle_length = 5;
-    string parentage = 6;
-    string origin = 7;
-    string gender = 8;
-    double days_flowering = 9;
-    double days_cured = 10;
-    string harvested_weight = 11;
-    double bud_density = 12;
-    bool bud_pistils = 13;
-    string tags = 14;
-    google.protobuf.Timestamp acquired_at = 15;
-    google.protobuf.Timestamp created_at = 16;
-    google.protobuf.Timestamp updated_at = 17;
+    string group_id = 3;
+    string comment = 4;
+    string notes = 5;
+    string grow_cycle_length = 6;
+    string parentage = 7;
+    string origin = 8;
+    string gender = 9;
+    double days_flowering = 10;
+    double days_cured = 11;
+    string harvested_weight = 12;
+    double bud_density = 13;
+    bool bud_pistils = 14;
+    string tags = 15;
+    google.protobuf.Timestamp acquired_at = 16;
+    google.protobuf.Timestamp created_at = 17;
+    google.protobuf.Timestamp updated_at = 18;
 }
 
 message Strain {
     string id = 1;
     string name = 2;
-    string comment = 3;
-    string notes = 4;
-    string type = 5;
-    double price = 6;
-    double thc_percent = 7;
-    double cbd_percent = 8;
-    string parentage = 9;
-    string aroma = 10;
-    string taste = 11;
-    string tags = 12;
-    google.protobuf.Timestamp created_at = 13;
-    google.protobuf.Timestamp updated_at = 14;
+    string group_id = 3;
+    string comment = 4;
+    string notes = 5;
+    string type = 6;
+    double price = 7;
+    double thc_percent = 8;
+    double cbd_percent = 9;
+    string parentage = 10;
+    string aroma = 11;
+    string taste = 12;
+    string tags = 13;
+    google.protobuf.Timestamp created_at = 14;
+    google.protobuf.Timestamp updated_at = 15;
 }
 
 message Recipe {

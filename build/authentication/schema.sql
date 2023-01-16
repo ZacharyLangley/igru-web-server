@@ -2,13 +2,18 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS users (
 	id uuid DEFAULT uuid_generate_v4 (),
 	email TEXT NOT NULL,
+	group_id UUID NOT NULL,
 	full_name TEXT,
 	active BOOLEAN DEFAULT TRUE,
 	salt TEXT NOT NULL,
 	hash TEXT NOT NULL,
 	created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP WITH TIME ZONE,
-    PRIMARY KEY(id)
+    PRIMARY KEY(id),
+	CONSTRAINT fk_user_group
+      FOREIGN KEY(group_id) 
+	  REFERENCES groups(id)
+	  ON DELETE CASCADE
 );
 CREATE UNIQUE INDEX ON users(id);
 CREATE UNIQUE INDEX ON users(email);
@@ -16,6 +21,7 @@ CREATE UNIQUE INDEX ON users(email);
 CREATE TABLE IF NOT EXISTS groups (
 	id uuid NOT NULL DEFAULT uuid_generate_v4 (),
 	name TEXT NOT NULL,
+	user_group BOOLEAN NOT NULL,
 	created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP WITH TIME ZONE,
     PRIMARY KEY(id)
@@ -40,3 +46,14 @@ CREATE TABLE IF NOT EXISTS group_members (
 );
 CREATE UNIQUE INDEX ON group_members(user_id);
 CREATE UNIQUE INDEX ON group_members(group_id);
+CREATE TABLE IF NOT EXISTS sessions (
+	id UUID NOT NULL DEFAULT gen_random_uuid(),
+	user_id uuid NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	expired_at TIMESTAMP NOT NULL,
+	PRIMARY KEY(id),
+	CONSTRAINT fk_session
+		FOREIGN KEY(user_id) 
+		REFERENCES users(id)
+		ON DELETE CASCADE
+);

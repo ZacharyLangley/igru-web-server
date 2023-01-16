@@ -11,9 +11,9 @@ SELECT * FROM users LIMIT $1 OFFSET $2;
 
 -- name: CreateUser :one
 INSERT INTO users (
-  email, full_name, salt, hash
+  email, group_id, full_name, salt, hash
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3, $4, $5
 )
 RETURNING *;
 
@@ -41,6 +41,16 @@ INSERT INTO groups (
   name
 ) VALUES (
   $1
+)
+RETURNING *;
+
+-- name: CreateUserGroup :one
+INSERT INTO groups (
+  name,
+  user_group
+) VALUES (
+  $1,
+  TRUE
 )
 RETURNING *;
 
@@ -78,7 +88,7 @@ WHERE user_id = $1 AND group_id = $2;
 -- name: GetGroupMembers :many
 SELECT user_id, full_name, role, group_members.created_at AS added_at, group_members.updated_at
 FROM "group_members" JOIN "users" ON user_id=users.id
-WHERE group_id = $3
+WHERE group_members.group_id = $3
 LIMIT $1
 OFFSET $2;
 
@@ -93,3 +103,33 @@ OFFSET $2;
 SELECT COUNT(*)
 FROM "group_members"
 WHERE group_id = $1;
+
+-- name: CreateSession :one
+INSERT INTO sessions (
+  user_id, created_at, expired_at
+) VALUES (
+  $1, $2, $3
+)
+RETURNING *;
+
+-- name: DeleteSession :exec
+DELETE FROM sessions
+WHERE id = $1 AND user_id = $2;
+
+-- name: GetSession :one
+SELECT *
+FROM sessions
+WHERE "id" = $1
+LIMIT 1;
+
+-- name: GetSessions :many
+SELECT *
+FROM sessions
+WHERE user_id = $3
+LIMIT $1
+OFFSET $2;
+
+-- name: GetUserGroupRoles :many
+SELECT group_id, role
+FROM "group_members"
+WHERE user_id = $1;

@@ -1,4 +1,4 @@
-package user
+package session
 
 import (
 	"fmt"
@@ -19,11 +19,11 @@ func init() {
 }
 
 var (
-	deleteUserID string
+	deleteSessionID string
 )
 
 func init() {
-	deleteCmd.Flags().StringVar(&deleteUserID, "id", "", "ID of an existing user")
+	deleteCmd.Flags().StringVar(&deleteSessionID, "id", "", "ID of an existing session")
 	deleteCmd.MarkFlagRequired("id")
 	RootCmd.AddCommand(deleteCmd)
 }
@@ -34,9 +34,9 @@ var deleteCmd = &cobra.Command{
 		"rm",
 		"del",
 	},
-	Short:   "Delete an existing user",
+	Short:   "Delete an existing session",
 	PreRunE: config.SetupCobraLogger,
-	RunE:    createUser,
+	RunE:    deleteSession,
 	Args: func(cmd *cobra.Command, args []string) error {
 		// Optionally run one of the validators provided by cobra
 		if err := cobra.MinimumNArgs(1)(cmd, args); err != nil {
@@ -52,22 +52,22 @@ var deleteCmd = &cobra.Command{
 	},
 }
 
-func deleteUser(cmd *cobra.Command, args []string) error {
+func deleteSession(cmd *cobra.Command, args []string) error {
 	var cfg Config
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	userClient := authenticationv1connect.NewUserServiceClient(
+	cli := authenticationv1connect.NewSessionServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
 	ctx := context.New(cmd.Context())
-	req := connect.NewRequest(&authenticationv1.DeleteUserRequest{
-		UserId: deleteUserID,
+	req := connect.NewRequest(&authenticationv1.DeleteSessionRequest{
+		Id: deleteSessionID,
 	})
-	_, err := userClient.DeleteUser(ctx, req)
+	_, err := cli.DeleteSession(ctx, req)
 	if err != nil {
-		return fmt.Errorf("failed to delete user: %w", err)
+		return fmt.Errorf("failed to delete session: %w", err)
 	}
 	return nil
 }

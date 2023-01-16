@@ -23,11 +23,19 @@ func (s *Service) CreateGarden(baseCtx gocontext.Context, req *connect_go.Reques
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}
+	allowed, err := s.checker.AssertWrite(ctx, req, req.Msg.GroupId)
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
+	}
 	var garden models.Garden
 	if err = s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		params := models.CreateGardenParams{
 			Name:          req.Msg.Name,
+			GroupID:       uuid.MustParse(req.Msg.GroupId),
 			Comment:       req.Msg.Comment,
 			Location:      req.Msg.Location,
 			GrowType:      req.Msg.GrowType,
@@ -44,6 +52,7 @@ func (s *Service) CreateGarden(baseCtx gocontext.Context, req *connect_go.Reques
 	}
 	res.Msg.Garden = &v1.Garden{
 		Id:            garden.ID.String(),
+		GroupId:       garden.GroupID.String(),
 		Name:          garden.Name,
 		Comment:       garden.Comment,
 		Location:      garden.Location,
@@ -67,6 +76,18 @@ func (s *Service) DeleteGarden(baseCtx gocontext.Context, req *connect_go.Reques
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid garden id format: %w", err))
 	}
+	// Check write access
+	groupID, err := s.resolveGardenGroupID(ctx, gardenID)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid group id: %w", err))
+	}
+	allowed, err := s.checker.AssertWrite(ctx, req, groupID.String())
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
+	}
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		return queries.DeleteGarden(ctx, gardenID)
@@ -84,7 +105,19 @@ func (s *Service) UpdateGarden(baseCtx gocontext.Context, req *connect_go.Reques
 	}
 	gardenID, err := uuid.Parse(req.Msg.Id)
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid user id format: %w", err))
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid group id format: %w", err))
+	}
+	// Check write access
+	groupID, err := s.resolveGardenGroupID(ctx, gardenID)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid group id: %w", err))
+	}
+	allowed, err := s.checker.AssertWrite(ctx, req, groupID.String())
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
 	}
 	var garden models.Garden
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
@@ -129,6 +162,13 @@ func (s *Service) GetGardens(baseCtx gocontext.Context, req *connect_go.Request[
 	res := connect.NewResponse(&v1.GetGardensResponse{})
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	}
+	allowed, err := s.checker.AssertRead(ctx, req, req.Msg.GroupId)
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
 	}
 	// TODO: ZL | Pagination Functionality
 	var gardens []models.Garden
@@ -181,7 +221,13 @@ func (s *Service) GetGarden(baseCtx gocontext.Context, req *connect_go.Request[v
 	}); err != nil {
 		return nil, err
 	}
-
+	allowed, err := s.checker.AssertRead(ctx, req, garden.GroupID.String())
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
+	}
 	res.Msg.Garden = &v1.Garden{
 		Id:            garden.ID.String(),
 		Name:          garden.Name,
@@ -198,4 +244,20 @@ func (s *Service) GetGarden(baseCtx gocontext.Context, req *connect_go.Request[v
 		res.Msg.Garden.UpdatedAt = timestamppb.New(garden.UpdatedAt.Time)
 	}
 	return res, nil
+}
+
+func (s *Service) resolveGardenGroupID(ctx context.Context, gardenID uuid.UUID) (uuid.UUID, error) {
+	var groupID uuid.UUID
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
+		queries := models.New(tx)
+		garden, err := queries.GetGarden(ctx, gardenID)
+		if err != nil {
+			return err
+		}
+		groupID = garden.GroupID
+		return nil
+	}); err != nil {
+		return uuid.UUID{}, err
+	}
+	return groupID, nil
 }
