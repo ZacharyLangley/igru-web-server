@@ -21,49 +21,7 @@
                 "DATABASE.HOST": "127.0.0.1",
                 "DATABASE.USERNAME": "root",
                 "DATABASE.PORT": "26257",
-                "AUTHSERVER.PRIVATEKEY": "${workspaceFolder}/build/authentication/keys/id_ed25519"
             }
-        },
-        {
-            "name": "Login",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}",
-            "args":[
-                "authentication", "user", "login",
-                "--level", "debug",
-                "--config", "${workspaceFolder}/config.yml",
-                "--email", "bobcob7@hotmail.com",
-                "--password", "Password1"
-            ]
-        },
-        {
-            "name": "Create User",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}",
-            "args":[
-                "authentication", "user", "create",
-                "--level", "debug",
-                "--config", "${workspaceFolder}/config.yml",
-                "--email", "bobcob7@hotmail.com",
-                "--password", "Password1",
-                "--full-name", "Eric Suedmeier"
-            ]
-        },
-        {
-            "name": "Get Sessions",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}",
-            "args":[
-                "authentication", "sessions", "list",
-                "--level", "debug",
-                "--config", "${workspaceFolder}/config.yml"
-            ]
         },
         {
             "name": "Garden",

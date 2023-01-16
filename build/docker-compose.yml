@@ -45,8 +45,6 @@ services:
       METRICS.JAEGERADDRESS: jaeger:14268
     depends_on:
       - init-db
-    volumes:
-      - ./authentication/keys/://keys
 
   db:
     image: cockroachdb/cockroach:v22.1.11

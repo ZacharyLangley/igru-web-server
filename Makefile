@@ -6,10 +6,6 @@ generate:
 	sqlc generate
 	buf generate
 
-keys:
-	mkdir -p .build/keys
-	go run . auth create-key --file build/authentication/keys/id_ed25519
-
 build-authentication:
 	docker build -f build/authentication-service.dockerfile -t authentication:latest .
 
