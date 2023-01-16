@@ -49,19 +49,15 @@ func checkHash(user models.User, password string) bool {
 }
 
 func AddSessionToken(h http.Header, token string) {
-	h.Add("Authentication", "Bearer: "+token)
+	h.Add("SESSION", token)
 }
 
 func ExtractSessionToken(h http.Header) (string, error) {
-	authHeader := h.Get("Authentication")
+	authHeader := h.Get("SESSION")
 	if authHeader == "" {
 		return "", errUnauthorizedUser
 	}
-	authParts := strings.Split(authHeader, " ")
-	if len(authParts) != 2 {
-		return "", errUnauthorizedUser
-	}
-	return authParts[1], nil
+	return authHeader, nil
 }
 
 const (

@@ -121,6 +121,7 @@ func (s *Service) DeleteSession(baseCtx gocontext.Context, req *connect.Request[
 		ctx.L().Error("Failed to verify session", zap.Error(err))
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("missing token"))
 	}
+	// Only the target user ID can delete their own sessions
 	if sess.UserID != uuid.MustParse(req.Msg.UserId) {
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("permission denied"))
 	}
