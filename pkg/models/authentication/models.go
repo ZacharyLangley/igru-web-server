@@ -14,6 +14,7 @@ import (
 type Group struct {
 	ID        uuid.UUID
 	Name      string
+	UserGroup bool
 	CreatedAt time.Time
 	UpdatedAt sql.NullTime
 }
@@ -36,6 +37,7 @@ type Session struct {
 type User struct {
 	ID        uuid.UUID
 	Email     string
+	GroupID   uuid.UUID
 	FullName  sql.NullString
 	Active    sql.NullBool
 	Salt      string

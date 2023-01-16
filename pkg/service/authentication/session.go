@@ -141,3 +141,42 @@ func (s *Service) DeleteSession(baseCtx gocontext.Context, req *connect.Request[
 	}
 	return res, nil
 }
+
+func (s *Service) CheckSessionPermissions(baseCtx context.Context, req *connect.Request[v1.CheckSessionPermissionsRequest]) (*connect.Response[v1.CheckSessionPermissionsResponse], error) {
+	ctx := context.New(baseCtx)
+	res := connect.NewResponse(&v1.CheckSessionPermissionsResponse{})
+	token, err := ExtractSessionToken(req.Header())
+	if err != nil {
+		return nil, err
+	}
+	sess, err := auth.DecodeToken(token)
+	if err != nil {
+		ctx.L().Error("Failed to verify session", zap.Error(err))
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("missing token"))
+	}
+	res.Msg.Responses = make([]*v1.PermissionResponse, len(req.Msg.Requests))
+
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
+		queries := models.New(tx)
+		rawRoles, err := queries.GetUserGroupRoles(ctx, sess.UserID)
+		if err != nil {
+			return err
+		}
+		roles := make(map[string]v1.GroupRole)
+		for _, role := range rawRoles {
+			roles[role.GroupID.String()] = v1.GroupRole(role.Role)
+		}
+		for i, permissionRequest := range req.Msg.Requests {
+			grantedRole, ok := roles[permissionRequest.GroupId]
+			res.Msg.Responses[i] = &v1.PermissionResponse{
+				Request: permissionRequest,
+				Allowed: ok && grantedRole == permissionRequest.Role,
+			}
+		}
+		return err
+	}); err != nil {
+		ctx.L().Error("Failed to run transaction", zap.Error(err))
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	return res, nil
+}

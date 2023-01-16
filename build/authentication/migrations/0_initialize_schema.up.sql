@@ -1,13 +1,18 @@
 CREATE TABLE IF NOT EXISTS users (
 	id UUID DEFAULT gen_random_uuid(),
 	email TEXT NOT NULL,
+	group_id UUID NOT NULL,
 	full_name TEXT,
 	active BOOL DEFAULT TRUE,
 	salt TEXT NOT NULL,
 	hash TEXT NOT NULL,
 	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP,
-    PRIMARY KEY(id)
+    PRIMARY KEY(id),
+	CONSTRAINT fk_user_group
+      FOREIGN KEY(group_id) 
+	  REFERENCES groups(id)
+	  ON DELETE CASCADE
 );
 CREATE UNIQUE INDEX ON users(id);
 CREATE UNIQUE INDEX ON users(email);
@@ -15,6 +20,7 @@ CREATE UNIQUE INDEX ON users(email);
 CREATE TABLE IF NOT EXISTS groups (
 	id UUID NOT NULL DEFAULT gen_random_uuid(),
 	name TEXT NOT NULL,
+	user_group BOOLEAN NOT NULL,
 	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP,
     PRIMARY KEY(id)

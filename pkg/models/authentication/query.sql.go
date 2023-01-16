@@ -51,7 +51,7 @@ INSERT INTO groups (
 ) VALUES (
   $1
 )
-RETURNING id, name, created_at, updated_at
+RETURNING id, name, user_group, created_at, updated_at
 `
 
 func (q *Queries) CreateGroup(ctx context.Context, name string) (Group, error) {
@@ -60,6 +60,7 @@ func (q *Queries) CreateGroup(ctx context.Context, name string) (Group, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.UserGroup,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -95,15 +96,16 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (S
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  email, full_name, salt, hash
+  email, group_id, full_name, salt, hash
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3, $4, $5
 )
-RETURNING id, email, full_name, active, salt, hash, created_at, updated_at
+RETURNING id, email, group_id, full_name, active, salt, hash, created_at, updated_at
 `
 
 type CreateUserParams struct {
 	Email    string
+	GroupID  uuid.UUID
 	FullName sql.NullString
 	Salt     string
 	Hash     string
@@ -112,6 +114,7 @@ type CreateUserParams struct {
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, createUser,
 		arg.Email,
+		arg.GroupID,
 		arg.FullName,
 		arg.Salt,
 		arg.Hash,
@@ -120,10 +123,35 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.GroupID,
 		&i.FullName,
 		&i.Active,
 		&i.Salt,
 		&i.Hash,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createUserGroup = `-- name: CreateUserGroup :one
+INSERT INTO groups (
+  name,
+  user_group
+) VALUES (
+  $1,
+  TRUE
+)
+RETURNING id, name, user_group, created_at, updated_at
+`
+
+func (q *Queries) CreateUserGroup(ctx context.Context, name string) (Group, error) {
+	row := q.db.QueryRow(ctx, createUserGroup, name)
+	var i Group
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.UserGroup,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -181,7 +209,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 }
 
 const getGroup = `-- name: GetGroup :one
-SELECT id, name, created_at, updated_at FROM groups
+SELECT id, name, user_group, created_at, updated_at FROM groups
 WHERE id = $1 LIMIT 1
 `
 
@@ -191,6 +219,7 @@ func (q *Queries) GetGroup(ctx context.Context, id uuid.UUID) (Group, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.UserGroup,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -200,7 +229,7 @@ func (q *Queries) GetGroup(ctx context.Context, id uuid.UUID) (Group, error) {
 const getGroupMembers = `-- name: GetGroupMembers :many
 SELECT user_id, full_name, role, group_members.created_at AS added_at, group_members.updated_at
 FROM "group_members" JOIN "users" ON user_id=users.id
-WHERE group_id = $3
+WHERE group_members.group_id = $3
 LIMIT $1
 OFFSET $2
 `
@@ -246,7 +275,7 @@ func (q *Queries) GetGroupMembers(ctx context.Context, arg GetGroupMembersParams
 }
 
 const getGroups = `-- name: GetGroups :many
-SELECT id, name, created_at, updated_at FROM groups
+SELECT id, name, user_group, created_at, updated_at FROM groups
 LIMIT $1
 OFFSET $2
 `
@@ -268,6 +297,7 @@ func (q *Queries) GetGroups(ctx context.Context, arg GetGroupsParams) ([]Group, 
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
+			&i.UserGroup,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -340,7 +370,7 @@ func (q *Queries) GetSessions(ctx context.Context, arg GetSessionsParams) ([]Ses
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, email, full_name, active, salt, hash, created_at, updated_at FROM users
+SELECT id, email, group_id, full_name, active, salt, hash, created_at, updated_at FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -350,6 +380,7 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.GroupID,
 		&i.FullName,
 		&i.Active,
 		&i.Salt,
@@ -361,7 +392,7 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, full_name, active, salt, hash, created_at, updated_at FROM users
+SELECT id, email, group_id, full_name, active, salt, hash, created_at, updated_at FROM users
 WHERE email = $1 LIMIT 1
 `
 
@@ -371,6 +402,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.GroupID,
 		&i.FullName,
 		&i.Active,
 		&i.Salt,
@@ -381,8 +413,39 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	return i, err
 }
 
+const getUserGroupRoles = `-- name: GetUserGroupRoles :many
+SELECT group_id, role
+FROM "group_members"
+WHERE user_id = $1
+`
+
+type GetUserGroupRolesRow struct {
+	GroupID uuid.UUID
+	Role    int32
+}
+
+func (q *Queries) GetUserGroupRoles(ctx context.Context, userID uuid.UUID) ([]GetUserGroupRolesRow, error) {
+	rows, err := q.db.Query(ctx, getUserGroupRoles, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUserGroupRolesRow
+	for rows.Next() {
+		var i GetUserGroupRolesRow
+		if err := rows.Scan(&i.GroupID, &i.Role); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserGroups = `-- name: GetUserGroups :many
-SELECT groups.id, groups.name, groups.created_at, groups.updated_at
+SELECT groups.id, groups.name, groups.user_group, groups.created_at, groups.updated_at
 FROM "group_members" JOIN "groups" ON group_id=groups.id
 WHERE user_id = $3
 LIMIT $1
@@ -407,6 +470,7 @@ func (q *Queries) GetUserGroups(ctx context.Context, arg GetUserGroupsParams) ([
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
+			&i.UserGroup,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -421,7 +485,7 @@ func (q *Queries) GetUserGroups(ctx context.Context, arg GetUserGroupsParams) ([
 }
 
 const getUsers = `-- name: GetUsers :many
-SELECT id, email, full_name, active, salt, hash, created_at, updated_at FROM users LIMIT $1 OFFSET $2
+SELECT id, email, group_id, full_name, active, salt, hash, created_at, updated_at FROM users LIMIT $1 OFFSET $2
 `
 
 type GetUsersParams struct {
@@ -441,6 +505,7 @@ func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]User, err
 		if err := rows.Scan(
 			&i.ID,
 			&i.Email,
+			&i.GroupID,
 			&i.FullName,
 			&i.Active,
 			&i.Salt,
@@ -462,7 +527,7 @@ const updateGroup = `-- name: UpdateGroup :one
 UPDATE groups
 SET name = $2, updated_at=CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, name, created_at, updated_at
+RETURNING id, name, user_group, created_at, updated_at
 `
 
 type UpdateGroupParams struct {
@@ -476,6 +541,7 @@ func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) (Group
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.UserGroup,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -503,7 +569,7 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET full_name=$2, updated_at=CURRENT_TIMESTAMP
 WHERE id=$1
-RETURNING id, email, full_name, active, salt, hash, created_at, updated_at
+RETURNING id, email, group_id, full_name, active, salt, hash, created_at, updated_at
 `
 
 type UpdateUserParams struct {
@@ -517,6 +583,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.GroupID,
 		&i.FullName,
 		&i.Active,
 		&i.Salt,

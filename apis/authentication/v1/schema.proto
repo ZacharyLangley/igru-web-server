@@ -49,6 +49,5 @@ message PermissionResponse {
 
 message PermissionRequest {
   string group_id = 1;
-  string resource = 2;
-  string role = 3;
+  GroupRole role = 2;
 }
