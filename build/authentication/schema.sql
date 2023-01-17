@@ -1,6 +1,14 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE TABLE IF NOT EXISTS groups (
+	id UUID NOT NULL DEFAULT uuid_generate_v4 (),
+	name TEXT NOT NULL,
+	user_group BOOLEAN NOT NULL,
+	created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP WITH TIME ZONE,
+    PRIMARY KEY(id)
+);
+CREATE UNIQUE INDEX ON groups(id);
 CREATE TABLE IF NOT EXISTS users (
-	id uuid DEFAULT uuid_generate_v4 (),
+	id UUID DEFAULT uuid_generate_v4 (),
 	email TEXT NOT NULL,
 	group_id UUID NOT NULL,
 	full_name TEXT,
@@ -18,19 +26,9 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE UNIQUE INDEX ON users(id);
 CREATE UNIQUE INDEX ON users(email);
 
-CREATE TABLE IF NOT EXISTS groups (
-	id uuid NOT NULL DEFAULT uuid_generate_v4 (),
-	name TEXT NOT NULL,
-	user_group BOOLEAN NOT NULL,
-	created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_at TIMESTAMP WITH TIME ZONE,
-    PRIMARY KEY(id)
-);
-CREATE UNIQUE INDEX ON groups(id);
-
 CREATE TABLE IF NOT EXISTS group_members (
-	user_id uuid NOT NULL,
-	group_id uuid NOT NULL,
+	user_id UUID NOT NULL,
+	group_id UUID NOT NULL,
 	role INTEGER NOT NULL,
 	created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP WITH TIME ZONE,
@@ -48,7 +46,7 @@ CREATE UNIQUE INDEX ON group_members(user_id);
 CREATE UNIQUE INDEX ON group_members(group_id);
 CREATE TABLE IF NOT EXISTS sessions (
 	id UUID NOT NULL DEFAULT gen_random_uuid(),
-	user_id uuid NOT NULL,
+	user_id UUID NOT NULL,
 	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	expired_at TIMESTAMP NOT NULL,
 	PRIMARY KEY(id),

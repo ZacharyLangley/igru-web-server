@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package garden.v1;
+
+import "garden/v1/schema.proto";
+
+service GardenService {
+    rpc CreateGarden (CreateGardenRequest) returns (CreateGardenResponse) {}
+    rpc DeleteGarden (DeleteGardenRequest) returns (DeleteGardenResponse) {}
+    rpc UpdateGarden(UpdateGardenRequest) returns (UpdateGardenResponse) {}
+    rpc GetGardens (GetGardensRequest) returns (GetGardensResponse) {}
+    rpc GetGarden (GetGardenRequest) returns (GetGardenResponse) {}
+}
+
+message CreateGardenRequest {
+    string name = 1;
+    string group_id = 2;
+    string comment = 3;
+    string location = 4;
+    string grow_type = 5;
+    string grow_size = 6;
+    string grow_style = 7;
+    string container_size = 8;
+    string tags = 9;
+}
+message CreateGardenResponse {
+    garden.v1.Garden garden = 1;
+}
+
+message DeleteGardenRequest {
+    string id = 1;
+}
+message DeleteGardenResponse {
+    garden.v1.Garden garden = 1;
+}
+
+message UpdateGardenRequest {
+    string id = 1;
+    string name = 2;
+    string comment = 3;
+    string location = 4;
+    string grow_type = 5;
+    string grow_size = 6;
+    string grow_style = 7;
+    string container_size = 8;
+    string tags = 9;
+}
+message UpdateGardenResponse {
+    garden.v1.Garden garden = 1;
+}
+
+message GetGardensRequest {
+    string group_id = 1;
+}
+message GetGardensResponse {
+    repeated garden.v1.Garden gardens = 1;
+}
+
+message GetGardenRequest {
+    string id = 1;
+}
+message GetGardenResponse {
+    garden.v1.Garden garden = 1;
+}

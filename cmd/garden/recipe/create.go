@@ -6,8 +6,8 @@ import (
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/config"
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
-	gardensv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1"
-	"github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1/gardensv1connect"
+	gardenv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1"
+	"github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1/gardenv1connect"
 	"github.com/bufbuild/connect-go"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -50,12 +50,12 @@ func createRecipe(cmd *cobra.Command, args []string) error {
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	recipeClient := gardensv1connect.NewRecipesServiceClient(
+	recipeClient := gardenv1connect.NewRecipeServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
 	ctx := context.New(cmd.Context())
-	req := connect.NewRequest(&gardensv1.CreateRecipeRequest{
+	req := connect.NewRequest(&gardenv1.CreateRecipeRequest{
 		Name:                createName,
 		Comment:             createComment,
 		Ingredients:         createIngredients,

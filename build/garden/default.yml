@@ -1,0 +1,21 @@
+grpc:
+  address: :80
+authentication:
+  address: http://authentication
+database:
+  host: localhost
+  port: 26257
+  username: root
+  database: garden
+  password: ""
+  sslmode: disable
+  timezone: UTC
+  connect_timeout: 5
+  maxRetries: 5
+  migrationPath: "/migrations"
+logger:
+  development: false
+  level: info
+metrics:
+  jaegerAddress: "localhost:14268"
+gcPeriod: 5s

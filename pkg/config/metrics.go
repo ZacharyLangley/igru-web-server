@@ -14,7 +14,7 @@ type Metrics struct {
 	JaegerAddress string `mapstructure:"jaegerAddress"`
 }
 
-func tracerProvider(url string) (*tracesdk.TracerProvider, error) {
+func tracerProvider(serviceName, url string) (*tracesdk.TracerProvider, error) {
 	// Create the Jaeger exporter
 	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
 	if err != nil {
@@ -26,15 +26,15 @@ func tracerProvider(url string) (*tracesdk.TracerProvider, error) {
 		// Record information about this application in a Resource.
 		tracesdk.WithResource(resource.NewWithAttributes(
 			semconv.SchemaURL,
-			semconv.ServiceNameKey.String("authorization-service"),
+			semconv.ServiceNameKey.String(serviceName),
 		)),
 	)
 	return tp, nil
 }
 
-func (m Metrics) Setup() (err error) {
+func (m Metrics) Setup(serviceName string) (err error) {
 	if m.JaegerAddress != "" {
-		tp, err := tracerProvider(fmt.Sprintf("http://%s/api/traces", m.JaegerAddress))
+		tp, err := tracerProvider(serviceName, fmt.Sprintf("http://%s/api/traces", m.JaegerAddress))
 		if err != nil {
 			return err
 		}

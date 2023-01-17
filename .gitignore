@@ -3,3 +3,4 @@ build/db-data
 __debug_bin
 node_modules
 e2e/db-data
+cmd/ingress/public

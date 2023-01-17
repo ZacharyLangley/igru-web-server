@@ -1,0 +1,2 @@
+grpc:
+  address: http://localhost:80

@@ -5,21 +5,21 @@ import (
 	"net/http"
 	"testing"
 
-	gardensv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1"
-	"github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1/gardensv1connect"
+	gardenv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1"
+	"github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1/gardenv1connect"
 	"github.com/bufbuild/connect-go"
 )
 
-func initStrainsClient() gardensv1connect.StrainsServiceClient {
-	return gardensv1connect.NewStrainsServiceClient(
+func initStrainsClient() gardenv1connect.StrainServiceClient {
+	return gardenv1connect.NewStrainServiceClient(
 		http.DefaultClient,
 		"http://localhost:80/",
 	)
 }
 
-func CreateStrain() (*connect.Response[gardensv1.CreateStrainResponse], error) {
+func CreateStrain() (*connect.Response[gardenv1.CreateStrainResponse], error) {
 	client := initStrainsClient()
-	req := connect.NewRequest(&gardensv1.CreateStrainRequest{
+	req := connect.NewRequest(&gardenv1.CreateStrainRequest{
 		Name:       "Strain A_1",
 		Comment:    "Strain Mock Comment",
 		Notes:      "Strain Mock Note",
@@ -45,9 +45,9 @@ func TestCreateStrain(t *testing.T) {
 	log.Println(res.Msg)
 }
 
-func UpdateStrain(id string) (*connect.Response[gardensv1.UpdateStrainResponse], error) {
+func UpdateStrain(id string) (*connect.Response[gardenv1.UpdateStrainResponse], error) {
 	client := initStrainsClient()
-	req := connect.NewRequest(&gardensv1.UpdateStrainRequest{
+	req := connect.NewRequest(&gardenv1.UpdateStrainRequest{
 		Id:         id,
 		Name:       "Updated Strain A_1",
 		Comment:    "Updated Strain Mock Comment",
@@ -74,9 +74,9 @@ func TestUpdateStrain(t *testing.T) {
 	log.Println(res.Msg)
 }
 
-func GetStrain(id string) (*connect.Response[gardensv1.GetStrainResponse], error) {
+func GetStrain(id string) (*connect.Response[gardenv1.GetStrainResponse], error) {
 	client := initStrainsClient()
-	req := connect.NewRequest(&gardensv1.GetStrainRequest{
+	req := connect.NewRequest(&gardenv1.GetStrainRequest{
 		Id: id,
 	})
 	ctx, done := initContext()
@@ -92,9 +92,9 @@ func TestGetStrain(t *testing.T) {
 	log.Println(res.Msg)
 }
 
-func GetStrains() (*connect.Response[gardensv1.GetStrainsResponse], error) {
+func GetStrains() (*connect.Response[gardenv1.GetStrainsResponse], error) {
 	client := initStrainsClient()
-	req := connect.NewRequest(&gardensv1.GetStrainsRequest{})
+	req := connect.NewRequest(&gardenv1.GetStrainsRequest{})
 	ctx, done := initContext()
 	defer done()
 	return client.GetStrains(ctx, req)
@@ -108,9 +108,9 @@ func TestGetStrains(t *testing.T) {
 	log.Println(res.Msg)
 }
 
-func DeleteStrain(id string) (*connect.Response[gardensv1.DeleteStrainResponse], error) {
+func DeleteStrain(id string) (*connect.Response[gardenv1.DeleteStrainResponse], error) {
 	client := initStrainsClient()
-	req := connect.NewRequest(&gardensv1.DeleteStrainRequest{
+	req := connect.NewRequest(&gardenv1.DeleteStrainRequest{
 		Id: id,
 	})
 	ctx, done := initContext()

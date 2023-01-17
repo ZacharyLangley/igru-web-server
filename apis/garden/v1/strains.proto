@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package garden.v1;
+
+import "garden/v1/schema.proto";
+
+service StrainService {
+    rpc CreateStrain (CreateStrainRequest) returns (CreateStrainResponse) {}
+    rpc DeleteStrain (DeleteStrainRequest) returns (DeleteStrainResponse) {}
+    rpc UpdateStrain(UpdateStrainRequest) returns (UpdateStrainResponse) {}
+    rpc GetStrains (GetStrainsRequest) returns (GetStrainsResponse) {}
+    rpc GetStrain (GetStrainRequest) returns (GetStrainResponse) {}
+}
+
+message CreateStrainRequest {
+    string name = 1;
+    string group_id = 2;
+    string comment = 3;
+    string notes = 4;
+    string type = 5;
+    double price = 6;
+    double thc_percent = 7;
+    double cbd_percent = 8;
+    string parentage = 9;
+    string aroma = 10;
+    string taste = 11;
+    string tags = 12;
+}
+message CreateStrainResponse {
+    garden.v1.Strain strain = 1;
+}
+
+message DeleteStrainRequest {
+    string id = 1;
+}
+message DeleteStrainResponse {
+    garden.v1.Strain strain = 1;
+}
+
+message UpdateStrainRequest {
+    string id = 1;
+    string name = 2;
+    string comment = 3;
+    string notes = 4;
+    string type = 5;
+    double price = 6;
+    double thc_percent = 7;
+    double cbd_percent = 8;
+    string parentage = 9;
+    string aroma = 10;
+    string taste = 11;
+    string tags = 12;
+}
+message UpdateStrainResponse {
+    garden.v1.Strain strain = 1;
+}
+
+message GetStrainsRequest {
+    string group_id = 1;
+}
+message GetStrainsResponse {
+    repeated garden.v1.Strain strains = 1;
+}
+
+message GetStrainRequest {
+    string id = 1;
+
+}
+message GetStrainResponse {
+    garden.v1.Strain strain = 1;
+}
