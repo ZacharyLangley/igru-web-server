@@ -1,0 +1,4 @@
+buf.*
+Makefile
+*.md
+sqlc.yaml

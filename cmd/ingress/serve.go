@@ -1,18 +1,36 @@
 package ingress
 
 import (
+	"embed"
 	"fmt"
+	"io/fs"
+	"net"
+	"net/http"
+	"net/url"
+	"os"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/config"
-	"github.com/ZacharyLangley/igru-web-server/pkg/connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
-	"github.com/ZacharyLangley/igru-web-server/pkg/service/broker"
+	"github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1/authenticationv1connect"
+	"github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1/gardensv1connect"
+	"github.com/ZacharyLangley/igru-web-server/pkg/proxy"
+	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 )
 
+//go:embed public
+var content embed.FS
+var webContent fs.FS
+
 type Config struct {
-	GRPC    config.GRPC    `mapstructure:"grpc"`
 	Metrics config.Metrics `mapstructure:"metrics"`
+	Clients struct {
+		Authentication config.GRPC `mapstructure:"authentication"`
+		Gardens        config.GRPC `mapstructure:"gardens"`
+	} `mapstructure:"clients"`
+	WebProxyAddress string      `mapstructure:"webProxyAddress"`
+	GRPC            config.GRPC `mapstructure:"grpc"`
 }
 
 var serveCmd = &cobra.Command{
@@ -30,6 +48,83 @@ func runServer(cmd *cobra.Command, args []string) error {
 	ctx := context.New(cmd.Context())
 	// Setup tracing
 	cfg.Metrics.Setup()
-	// Start serving
-	return connect.ServeMux(ctx, cfg.GRPC, broker.New())
+	// Create and populate Mux
+	zap.L().Info("Setting up router")
+	r := mux.NewRouter()
+	r.MethodNotAllowedHandler = errorHandler("method not allowed")
+	r.NotFoundHandler = errorHandler("not found")
+	r.Use(loggingMiddleware)
+	// Attach services
+	if err := proxy.RegisterProxy(r, cfg.Clients.Authentication, authenticationv1connect.UserServiceName); err != nil {
+		return fmt.Errorf("failed to register authentication proxy")
+	}
+	if err := proxy.RegisterProxy(r, cfg.Clients.Authentication, authenticationv1connect.GroupServiceName); err != nil {
+		return fmt.Errorf("failed to register authentication proxy")
+	}
+	if err := proxy.RegisterProxy(r, cfg.Clients.Authentication, authenticationv1connect.SessionServiceName); err != nil {
+		return fmt.Errorf("failed to register authentication proxy")
+	}
+	if err := proxy.RegisterProxy(r, cfg.Clients.Gardens, gardensv1connect.GardensServiceName); err != nil {
+		return fmt.Errorf("failed to register gardens proxy")
+	}
+	if err := proxy.RegisterProxy(r, cfg.Clients.Gardens, gardensv1connect.PlantsServiceName); err != nil {
+		return fmt.Errorf("failed to register gardens proxy")
+	}
+	if err := proxy.RegisterProxy(r, cfg.Clients.Gardens, gardensv1connect.StrainsServiceName); err != nil {
+		return fmt.Errorf("failed to register gardens proxy")
+	}
+	if err := proxy.RegisterProxy(r, cfg.Clients.Gardens, gardensv1connect.RecipesServiceName); err != nil {
+		return fmt.Errorf("failed to register gardens proxy")
+	}
+
+	// Attach embedded frontend
+	webContent, err := fs.Sub(content, "public")
+	if err != nil {
+		return fmt.Errorf("failed to find web content")
+	}
+	if cfg.WebProxyAddress == "" {
+		zap.L().Info("Using FS server")
+		r.Methods("GET").Handler(http.FileServer(http.FS(webContent)))
+	} else {
+		// Proxy frontend if required
+		zap.L().Info("Using HTTP proxy")
+		proxyURL, err := url.Parse("http://" + cfg.WebProxyAddress)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "failed parse proxy url", err)
+			os.Exit(-1)
+		}
+		r.Methods("GET").Handler(proxy.HTTP{URL: proxyURL})
+	}
+	// Create TCP listener service
+	lc := net.ListenConfig{}
+	listener, err := lc.Listen(ctx, "tcp", cfg.GRPC.Address)
+	if err != nil {
+		return fmt.Errorf("failed to open listener to %q: %w", cfg.GRPC.Address, err)
+	}
+	ctx.L().Info("listening", zap.String("address", listener.Addr().String()))
+	// Start serving HTTP services
+	if err := http.Serve(listener, r); err != nil {
+		return fmt.Errorf("failed to serve: %w", err)
+	}
+	return nil
+}
+
+func errorHandler(message string) http.Handler {
+	logger := zap.L()
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Do stuff here
+		logger.Debug(message,
+			zap.String("requestURI", r.RequestURI))
+	})
+}
+
+func loggingMiddleware(next http.Handler) http.Handler {
+	logger := zap.L()
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Do stuff here
+		logger.Debug("processing request",
+			zap.String("requestURI", r.RequestURI))
+		// Call the next handler, which can be another middleware in the chain, or the final handler.
+		next.ServeHTTP(w, r)
+	})
 }

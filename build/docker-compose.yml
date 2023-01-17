@@ -1,16 +1,6 @@
 version: "3"
 
 services:
-  broker-service:
-    build:
-      context: ./..
-      dockerfile: build/broker-service.dockerfile
-    restart: always
-    ports:
-      - "8080:80"
-    deploy:
-      mode: replicated
-      replicas: 1
 
   init-db:
     image: cockroachdb/cockroach:v22.1.11
@@ -29,16 +19,17 @@ services:
       restart_policy:
           condition: on-failure
 
-  authentication-service:
+  authentication:
     build:
       context: ./..
-      dockerfile: build/authentication-service.dockerfile
+      dockerfile: build/Dockerfile
+    command: auth serve --config default.yml
+    volumes:
+      - ./authentication/default.yml://default.yml:ro
+      - ./authentication/migrations://migrations:ro
     restart: always
     ports:
       - "8081:80"
-    deploy:
-      mode: replicated
-      replicas: 1
     environment:
       DATABASE.HOST: db
       LOGGER.LEVEL: debug
@@ -54,42 +45,36 @@ services:
     command:
       - "start-single-node"
       - "--insecure"
-    deploy:
-      mode: replicated
-      replicas: 1
     volumes:
       - ./db-data/cockroach/://cockroach/cockroach-data
 
-  garden-service:
+  garden:
     build:
       context: ./..
-      dockerfile: build/garden-service.dockerfile
+      dockerfile: build/Dockerfile
+    command: garden serve --config default.yml
     restart: always
     ports:
       - "8082:80"
-    deploy:
-      mode: replicated
-      replicas: 1
     environment:
       DATABASE.HOST: db
       LOGGER.LEVEL: debug
       METRICS.JAEGERADDRESS: jaeger:14268
+    volumes:
+      - ./gardens/default.yml://default.yml:ro
+      - ./gardens/migrations://migrations:ro
     depends_on:
       - init-db
 
-  web:
+  ingress:
     build:
       context: ./..
-      dockerfile: build/web.dockerfile
-    command: "npm start"
+      dockerfile: build/Dockerfile
+    command: ingress serve --config default.yml
     volumes:
-      - ../web:/web:delegated
-      - /node_modules
+      - ./ingress/default.yml://default.yml:ro
     ports:
-      - "3000:3000"
-    environment:
-      - "CHOKIDAR_USEPOLLING=true"
-      - "WATCHPACK_POLLING=true"
+      - "80:80"
 
   jaeger:
     image: jaegertracing/all-in-one:1.6

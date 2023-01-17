@@ -15,6 +15,9 @@ build-garden:
 build-broker:
 	docker build -f build/broker-service.dockerfile -t broker:latest .
 
+build-web:
+	cd web;npm install;BUILD_PATH=../cmd/ingress/public npm run build
+
 build: build-authentication build-garden build-broker
 
 test-env:

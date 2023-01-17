@@ -1,3 +1,13 @@
+CREATE TABLE IF NOT EXISTS groups (
+	id UUID NOT NULL DEFAULT gen_random_uuid(),
+	name TEXT NOT NULL,
+	user_group BOOLEAN NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP,
+    PRIMARY KEY(id)
+);
+CREATE UNIQUE INDEX ON groups(id);
+
 CREATE TABLE IF NOT EXISTS users (
 	id UUID DEFAULT gen_random_uuid(),
 	email TEXT NOT NULL,
@@ -16,16 +26,6 @@ CREATE TABLE IF NOT EXISTS users (
 );
 CREATE UNIQUE INDEX ON users(id);
 CREATE UNIQUE INDEX ON users(email);
-
-CREATE TABLE IF NOT EXISTS groups (
-	id UUID NOT NULL DEFAULT gen_random_uuid(),
-	name TEXT NOT NULL,
-	user_group BOOLEAN NOT NULL,
-	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_at TIMESTAMP,
-    PRIMARY KEY(id)
-);
-CREATE UNIQUE INDEX ON groups(id);
 
 CREATE TABLE IF NOT EXISTS group_members (
 	user_id UUID NOT NULL,
@@ -47,7 +47,7 @@ CREATE INDEX ON group_members(user_id);
 CREATE INDEX ON group_members(group_id);
 CREATE TABLE IF NOT EXISTS sessions (
 	id UUID NOT NULL DEFAULT gen_random_uuid(),
-	user_id uuid NOT NULL,
+	user_id UUID NOT NULL,
 	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	expired_at TIMESTAMP NOT NULL,
 	PRIMARY KEY(id),
