@@ -5,22 +5,22 @@ import (
 	"net/http"
 	"testing"
 
-	gardensv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1"
-	"github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1/gardensv1connect"
+	gardenv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1"
+	"github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1/gardenv1connect"
 	"github.com/bufbuild/connect-go"
 )
 
-func initRecipesClient() gardensv1connect.RecipesServiceClient {
-	return gardensv1connect.NewRecipesServiceClient(
+func initRecipesClient() gardenv1connect.RecipeServiceClient {
+	return gardenv1connect.NewRecipeServiceClient(
 		http.DefaultClient,
 		"http://localhost:80/",
 	)
 }
 
-func CreateRecipe() (*connect.Response[gardensv1.CreateRecipeResponse], error) {
+func CreateRecipe() (*connect.Response[gardenv1.CreateRecipeResponse], error) {
 	var fifteenMinutes float64 = 900000
 	client := initRecipesClient()
-	req := connect.NewRequest(&gardensv1.CreateRecipeRequest{
+	req := connect.NewRequest(&gardenv1.CreateRecipeRequest{
 		Name:                "Recipe A_1",
 		Comment:             "Recipe Mock Comment",
 		Ingredients:         "[{name:\"Base Solvent\",comment:\"Reduces Tap Water to 5.8 ph\",amount:{value:2,metric:\"oz\"}},{name:\"Nutrient Blend\",comment:\"Provides Nutrients\",amount:{value:6,metric:\"oz\"}},{name:\"water\",comment:\"tapwater\",amount:{value:3,metric:\"l\"}}]",
@@ -42,10 +42,10 @@ func TestCreateRecipe(t *testing.T) {
 	log.Println(res.Msg)
 }
 
-func UpdateRecipe(id string) (*connect.Response[gardensv1.UpdateRecipeResponse], error) {
+func UpdateRecipe(id string) (*connect.Response[gardenv1.UpdateRecipeResponse], error) {
 	var twentyMinutes float64 = 1200000
 	client := initRecipesClient()
-	req := connect.NewRequest(&gardensv1.UpdateRecipeRequest{
+	req := connect.NewRequest(&gardenv1.UpdateRecipeRequest{
 		Id:                  id,
 		Name:                "Updated Recipe A_1",
 		Comment:             "Updated Recipe Mock Comment",
@@ -68,9 +68,9 @@ func TestUpdateRecipe(t *testing.T) {
 	log.Println(res.Msg)
 }
 
-func GetRecipe(id string) (*connect.Response[gardensv1.GetRecipeResponse], error) {
+func GetRecipe(id string) (*connect.Response[gardenv1.GetRecipeResponse], error) {
 	client := initRecipesClient()
-	req := connect.NewRequest(&gardensv1.GetRecipeRequest{
+	req := connect.NewRequest(&gardenv1.GetRecipeRequest{
 		Id: id,
 	})
 	ctx, done := initContext()
@@ -86,9 +86,9 @@ func TestGetRecipe(t *testing.T) {
 	log.Println(res.Msg)
 }
 
-func GetRecipes() (*connect.Response[gardensv1.GetRecipesResponse], error) {
+func GetRecipes() (*connect.Response[gardenv1.GetRecipesResponse], error) {
 	client := initRecipesClient()
-	req := connect.NewRequest(&gardensv1.GetRecipesRequest{})
+	req := connect.NewRequest(&gardenv1.GetRecipesRequest{})
 	ctx, done := initContext()
 	defer done()
 	return client.GetRecipes(ctx, req)
@@ -102,9 +102,9 @@ func TestGetRecipes(t *testing.T) {
 	log.Println(res.Msg)
 }
 
-func DeleteRecipe(id string) (*connect.Response[gardensv1.DeleteRecipeResponse], error) {
+func DeleteRecipe(id string) (*connect.Response[gardenv1.DeleteRecipeResponse], error) {
 	client := initRecipesClient()
-	req := connect.NewRequest(&gardensv1.DeleteRecipeRequest{
+	req := connect.NewRequest(&gardenv1.DeleteRecipeRequest{
 		Id: id,
 	})
 	ctx, done := initContext()

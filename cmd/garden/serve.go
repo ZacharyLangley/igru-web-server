@@ -8,7 +8,7 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/pkg/connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	"github.com/ZacharyLangley/igru-web-server/pkg/database"
-	"github.com/ZacharyLangley/igru-web-server/pkg/service/gardens"
+	"github.com/ZacharyLangley/igru-web-server/pkg/service/garden"
 	"github.com/spf13/cobra"
 )
 
@@ -41,5 +41,5 @@ func runServer(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 	// Start serving
-	return connect.ServeMux(ctx, cfg.GRPC, gardens.New(conn))
+	return connect.ServeMux(ctx, cfg.GRPC, garden.New(conn))
 }

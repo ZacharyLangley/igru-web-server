@@ -12,7 +12,7 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/pkg/config"
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1/authenticationv1connect"
-	"github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1/gardensv1connect"
+	"github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1/gardenv1connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proxy"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
@@ -64,16 +64,16 @@ func runServer(cmd *cobra.Command, args []string) error {
 	if err := proxy.RegisterProxy(r, cfg.Clients.Authentication, authenticationv1connect.SessionServiceName); err != nil {
 		return fmt.Errorf("failed to register authentication proxy")
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Gardens, gardensv1connect.GardensServiceName); err != nil {
+	if err := proxy.RegisterProxy(r, cfg.Clients.Gardens, gardenv1connect.GardenServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy")
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Gardens, gardensv1connect.PlantsServiceName); err != nil {
+	if err := proxy.RegisterProxy(r, cfg.Clients.Gardens, gardenv1connect.PlantServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy")
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Gardens, gardensv1connect.StrainsServiceName); err != nil {
+	if err := proxy.RegisterProxy(r, cfg.Clients.Gardens, gardenv1connect.StrainServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy")
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Gardens, gardensv1connect.RecipesServiceName); err != nil {
+	if err := proxy.RegisterProxy(r, cfg.Clients.Gardens, gardenv1connect.RecipeServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy")
 	}
 

@@ -6,8 +6,8 @@ import (
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/config"
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
-	gardensv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1"
-	"github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1/gardensv1connect"
+	gardenv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1"
+	"github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1/gardenv1connect"
 	"github.com/bufbuild/connect-go"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -32,12 +32,12 @@ func getPlants(cmd *cobra.Command, args []string) error {
 	if err := config.New(&cfg); err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
-	plantClient := gardensv1connect.NewPlantsServiceClient(
+	plantClient := gardenv1connect.NewPlantServiceClient(
 		http.DefaultClient,
 		cfg.GRPC.Address,
 	)
 	ctx := context.New(cmd.Context())
-	req := connect.NewRequest(&gardensv1.GetPlantsRequest{})
+	req := connect.NewRequest(&gardenv1.GetPlantsRequest{})
 	resp, err := plantClient.GetPlants(ctx, req)
 	if err != nil {
 		return fmt.Errorf("failed to get plants: %w", err)

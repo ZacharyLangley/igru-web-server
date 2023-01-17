@@ -5,21 +5,21 @@ import (
 	"net/http"
 	"testing"
 
-	gardensv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1"
-	"github.com/ZacharyLangley/igru-web-server/pkg/proto/gardens/v1/gardensv1connect"
+	gardenv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1"
+	"github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1/gardenv1connect"
 	"github.com/bufbuild/connect-go"
 )
 
-func initPlantsClient() gardensv1connect.PlantsServiceClient {
-	return gardensv1connect.NewPlantsServiceClient(
+func initPlantsClient() gardenv1connect.PlantServiceClient {
+	return gardenv1connect.NewPlantServiceClient(
 		http.DefaultClient,
 		"http://localhost:80/",
 	)
 }
 
-func CreatePlant() (*connect.Response[gardensv1.CreatePlantResponse], error) {
+func CreatePlant() (*connect.Response[gardenv1.CreatePlantResponse], error) {
 	client := initPlantsClient()
-	req := connect.NewRequest(&gardensv1.CreatePlantRequest{
+	req := connect.NewRequest(&gardenv1.CreatePlantRequest{
 		Name:            "Plant A_1",
 		Comment:         "Plant Mock Comment",
 		Notes:           "Plant Mock Note",
@@ -47,9 +47,9 @@ func TestCreatePlant(t *testing.T) {
 	log.Println(res.Msg)
 }
 
-func UpdatePlant(id string) (*connect.Response[gardensv1.UpdatePlantResponse], error) {
+func UpdatePlant(id string) (*connect.Response[gardenv1.UpdatePlantResponse], error) {
 	client := initPlantsClient()
-	req := connect.NewRequest(&gardensv1.UpdatePlantRequest{
+	req := connect.NewRequest(&gardenv1.UpdatePlantRequest{
 		Id:              id,
 		Name:            "Plant A_2",
 		Comment:         "Plant Mock Updated Comment",
@@ -78,9 +78,9 @@ func TestUpdatePlant(t *testing.T) {
 	log.Println(res.Msg)
 }
 
-func GetPlant(id string) (*connect.Response[gardensv1.GetPlantResponse], error) {
+func GetPlant(id string) (*connect.Response[gardenv1.GetPlantResponse], error) {
 	client := initPlantsClient()
-	req := connect.NewRequest(&gardensv1.GetPlantRequest{
+	req := connect.NewRequest(&gardenv1.GetPlantRequest{
 		Id: id,
 	})
 	ctx, done := initContext()
@@ -96,9 +96,9 @@ func TestGetPlant(t *testing.T) {
 	log.Println(res.Msg)
 }
 
-func GetPlants() (*connect.Response[gardensv1.GetPlantsResponse], error) {
+func GetPlants() (*connect.Response[gardenv1.GetPlantsResponse], error) {
 	client := initPlantsClient()
-	req := connect.NewRequest(&gardensv1.GetPlantsRequest{})
+	req := connect.NewRequest(&gardenv1.GetPlantsRequest{})
 	ctx, done := initContext()
 	defer done()
 	return client.GetPlants(ctx, req)
@@ -112,9 +112,9 @@ func TestGetPlants(t *testing.T) {
 	log.Println(res.Msg)
 }
 
-func DeletePlant(id string) (*connect.Response[gardensv1.DeletePlantResponse], error) {
+func DeletePlant(id string) (*connect.Response[gardenv1.DeletePlantResponse], error) {
 	client := initPlantsClient()
-	req := connect.NewRequest(&gardensv1.DeletePlantRequest{
+	req := connect.NewRequest(&gardenv1.DeletePlantRequest{
 		Id: "INSERT-NEW-UUID-HERE",
 	})
 	ctx, done := initContext()

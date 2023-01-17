@@ -8,11 +8,11 @@ sql:
       package: "authentication"
       out: "pkg/models/authentication"
       sql_package: pgx/v4
-- schema: "build/gardens/schema.sql"
-  queries: "build/gardens/query.sql"
+- schema: "build/garden/schema.sql"
+  queries: "build/garden/query.sql"
   engine: "postgresql"
   gen:
     go:
-      package: "gardens"
-      out: "pkg/models/gardens"
+      package: "garden"
+      out: "pkg/models/garden"
       sql_package: pgx/v4
