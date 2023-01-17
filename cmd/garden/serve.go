@@ -2,22 +2,24 @@ package garden
 
 import (
 	"fmt"
-	"time"
+	"net/http"
 
+	"github.com/ZacharyLangley/igru-web-server/pkg/auth"
 	"github.com/ZacharyLangley/igru-web-server/pkg/config"
 	"github.com/ZacharyLangley/igru-web-server/pkg/connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	"github.com/ZacharyLangley/igru-web-server/pkg/database"
+	"github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1/authenticationv1connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/service/garden"
 	"github.com/spf13/cobra"
 )
 
 type Config struct {
-	Database config.Database `mapstructure:"database"`
-	GRPC     config.GRPC     `mapstructure:"grpc"`
-	Logger   config.Logger   `mapstructure:"logger"`
-	Metrics  config.Metrics  `mapstructure:"metrics"`
-	GCPeriod time.Duration   `mapstructure:"gcPeriod"`
+	Database       config.Database `mapstructure:"database"`
+	GRPC           config.GRPC     `mapstructure:"grpc"`
+	Authentication config.GRPC     `mapstructure:"authentication"`
+	Logger         config.Logger   `mapstructure:"logger"`
+	Metrics        config.Metrics  `mapstructure:"metrics"`
 }
 
 var serveCmd = &cobra.Command{
@@ -34,12 +36,19 @@ func runServer(cmd *cobra.Command, args []string) error {
 	}
 	ctx := context.New(cmd.Context())
 	// Setup tracing
-	cfg.Metrics.Setup()
+	cfg.Metrics.Setup("garden")
 	// Connect to DB
 	conn, err := database.Open(ctx, cfg.Database)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
+	// Create auth client
+	checker := &auth.Checker{
+		SessionServiceClient: authenticationv1connect.NewSessionServiceClient(
+			http.DefaultClient,
+			cfg.Authentication.Address,
+		),
+	}
 	// Start serving
-	return connect.ServeMux(ctx, cfg.GRPC, garden.New(conn))
+	return connect.ServeMux(ctx, cfg.GRPC, garden.New(conn, checker))
 }

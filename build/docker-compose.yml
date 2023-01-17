@@ -23,7 +23,7 @@ services:
     build:
       context: ./..
       dockerfile: build/Dockerfile
-    command: auth serve --config default.yml
+    command: auth serve --config default.yml --level debug
     volumes:
       - ./authentication/default.yml://default.yml:ro
       - ./authentication/migrations://migrations:ro
@@ -52,7 +52,7 @@ services:
     build:
       context: ./..
       dockerfile: build/Dockerfile
-    command: garden serve --config default.yml
+    command: garden serve --config default.yml --level debug
     restart: always
     ports:
       - "8082:80"
@@ -61,8 +61,8 @@ services:
       LOGGER.LEVEL: debug
       METRICS.JAEGERADDRESS: jaeger:14268
     volumes:
-      - ./gardens/default.yml://default.yml:ro
-      - ./gardens/migrations://migrations:ro
+      - ./garden/default.yml://default.yml:ro
+      - ./garden/migrations://migrations:ro
     depends_on:
       - init-db
 
@@ -70,11 +70,13 @@ services:
     build:
       context: ./..
       dockerfile: build/Dockerfile
-    command: ingress serve --config default.yml
+    command: ingress serve --config default.yml --level debug
     volumes:
       - ./ingress/default.yml://default.yml:ro
     ports:
       - "80:80"
+    environment:
+      METRICS.JAEGERADDRESS: jaeger:14268
 
   jaeger:
     image: jaegertracing/all-in-one:1.6

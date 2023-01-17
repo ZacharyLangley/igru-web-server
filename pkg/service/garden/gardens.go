@@ -178,7 +178,7 @@ func (s *Service) GetGardens(baseCtx gocontext.Context, req *connect_go.Request[
 		gardens, err = queries.GetGardens(ctx)
 		return err
 	}); err != nil {
-		return nil, err
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
 	}
 	res.Msg.Gardens = make([]*v1.Garden, 0, len(gardens))
 	for _, garden := range gardens {

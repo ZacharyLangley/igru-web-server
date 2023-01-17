@@ -27,7 +27,7 @@ type Config struct {
 	Metrics config.Metrics `mapstructure:"metrics"`
 	Clients struct {
 		Authentication config.GRPC `mapstructure:"authentication"`
-		Gardens        config.GRPC `mapstructure:"gardens"`
+		Garden         config.GRPC `mapstructure:"garden"`
 	} `mapstructure:"clients"`
 	WebProxyAddress string      `mapstructure:"webProxyAddress"`
 	GRPC            config.GRPC `mapstructure:"grpc"`
@@ -47,7 +47,7 @@ func runServer(cmd *cobra.Command, args []string) error {
 	}
 	ctx := context.New(cmd.Context())
 	// Setup tracing
-	cfg.Metrics.Setup()
+	cfg.Metrics.Setup("ingress")
 	// Create and populate Mux
 	zap.L().Info("Setting up router")
 	r := mux.NewRouter()
@@ -64,16 +64,16 @@ func runServer(cmd *cobra.Command, args []string) error {
 	if err := proxy.RegisterProxy(r, cfg.Clients.Authentication, authenticationv1connect.SessionServiceName); err != nil {
 		return fmt.Errorf("failed to register authentication proxy")
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Gardens, gardenv1connect.GardenServiceName); err != nil {
+	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.GardenServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy")
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Gardens, gardenv1connect.PlantServiceName); err != nil {
+	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.PlantServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy")
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Gardens, gardenv1connect.StrainServiceName); err != nil {
+	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.StrainServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy")
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Gardens, gardenv1connect.RecipeServiceName); err != nil {
+	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.RecipeServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy")
 	}
 

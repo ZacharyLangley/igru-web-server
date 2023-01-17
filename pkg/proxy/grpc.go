@@ -31,6 +31,7 @@ type GRPC struct {
 }
 
 func (h GRPC) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	zap.L().Debug("proxying http", zap.String("host", h.URL.Host), zap.String("scheme", h.URL.Scheme))
 	if r.Method == http.MethodConnect {
 		h.handleTunneling(w, r)
 	} else {
@@ -39,23 +40,26 @@ func (h GRPC) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h GRPC) handleTunneling(w http.ResponseWriter, r *http.Request) {
-	dest_conn, err := net.DialTimeout("tcp", h.URL.Host, 10*time.Second)
+	destConn, err := net.DialTimeout("tcp", h.URL.Host, 10*time.Second)
 	if err != nil {
+		zap.L().Error("failed to dial upstream", zap.String("upstream", h.URL.Host))
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
 	hijacker, ok := w.(http.Hijacker)
 	if !ok {
+		zap.L().Warn("hijacking not supported", zap.String("upstream", h.URL.Host))
 		http.Error(w, "Hijacking not supported", http.StatusInternalServerError)
 		return
 	}
-	client_conn, _, err := hijacker.Hijack()
+	clientConn, _, err := hijacker.Hijack()
 	if err != nil {
+		zap.L().Error("hijacker failure", zap.String("upstream", h.URL.Host), zap.Error(err))
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
 	}
-	go transfer(dest_conn, client_conn)
-	go transfer(client_conn, dest_conn)
+	go transfer(destConn, clientConn)
+	go transfer(clientConn, destConn)
 }
 
 func (h GRPC) handleHTTP(w http.ResponseWriter, req *http.Request) {
@@ -63,6 +67,7 @@ func (h GRPC) handleHTTP(w http.ResponseWriter, req *http.Request) {
 	req.URL.Host = h.URL.Host
 	resp, err := http.DefaultTransport.RoundTrip(req)
 	if err != nil {
+		zap.L().Error("failed to dial upstream", zap.String("upstreamHost", h.URL.Host), zap.String("upstreamScheme", h.URL.Scheme), zap.String("requestScheme", req.URL.Scheme))
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
 		return
 	}

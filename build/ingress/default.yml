@@ -4,6 +4,6 @@ webProxyAddress: ""
 clients:
   authentication:
     address: http://authentication
-  gardens:
-    address: gardens:80
+  garden:
+    address: http://garden
 

@@ -18,7 +18,7 @@ func runServer(cmd *cobra.Command, args []string) error {
 	}
 	ctx := context.New(cmd.Context())
 	// Setup tracing
-	cfg.Metrics.Setup()
+	cfg.Metrics.Setup("authentication")
 	// Connect to DB
 	conn, err := database.Open(ctx, cfg.Database)
 	if err != nil {

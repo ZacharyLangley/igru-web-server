@@ -10,9 +10,10 @@ import (
 	"github.com/bufbuild/connect-go"
 )
 
-func New(pool *database.Pool) *Service {
+func New(pool *database.Pool, checker *auth.Checker) *Service {
 	return &Service{
-		pool: pool,
+		pool:    pool,
+		checker: checker,
 	}
 }
 

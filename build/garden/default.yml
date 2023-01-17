@@ -1,5 +1,7 @@
 grpc:
   address: :80
+authentication:
+  address: http://authentication
 database:
   host: localhost
   port: 26257

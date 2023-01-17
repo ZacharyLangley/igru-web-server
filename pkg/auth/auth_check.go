@@ -50,7 +50,7 @@ func (c Checker) AssertAll(ctx context.Context, req interface {
 	}
 	res, err := c.SessionServiceClient.CheckSessionPermissions(ctx, request)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("failed checking permissions: %w", err)
 	}
 	for _, response := range res.Msg.Responses {
 		if !response.Allowed {
@@ -75,7 +75,7 @@ func (c Checker) AssertRead(ctx context.Context, req interface {
 	}
 	res, err := c.SessionServiceClient.CheckSessionPermissions(ctx, request)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("failed checking permissions: %w", err)
 	}
 	for _, response := range res.Msg.Responses {
 		if !response.Allowed {
@@ -96,7 +96,7 @@ func (c Checker) AssertWrite(ctx context.Context, req interface {
 	}
 	res, err := c.SessionServiceClient.CheckSessionPermissions(ctx, request)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("failed checking permissions: %w", err)
 	}
 	for _, response := range res.Msg.Responses {
 		if !response.Allowed {
@@ -121,7 +121,7 @@ func (c Checker) AssertAny(ctx context.Context, req interface {
 	}
 	res, err := c.SessionServiceClient.CheckSessionPermissions(ctx, request)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("failed checking permissions: %w", err)
 	}
 	for _, response := range res.Msg.Responses {
 		if !response.Allowed {
