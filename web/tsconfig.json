@@ -6,6 +6,15 @@
       "dom.iterable",
       "esnext"
     ],
+    "baseUrl": ".",
+    "paths": {
+      "client/*": ["client/*"],
+      "domain/*": ["domain/*"],
+      "components/*": ["common/components/*"],
+      "assets/*": ["common/assets/*"],
+      "theme/*": ["common/theme/*"],
+      "types/*": ["common/types/*"],
+    },
     "allowUnreachableCode": false,
     "noImplicitAny": true,
     "allowJs": true,

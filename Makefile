@@ -2,9 +2,17 @@ vet: generate
 	buf lint
 	go vet ./...
 
-generate:
+generate-server:
 	sqlc generate
 	buf generate
+
+generate-client:
+	@echo "Copying ./apis to ./web/apis..."
+	sudo cp -R ./apis ./web
+	@echo "Generating Typescript Client from Protofiles..."
+	cd ./web && chmod u+x generate-client.sh && ./generate-client.sh
+
+generate: generate-server generate-client
 
 build-authentication:
 	docker build -f build/authentication-service.dockerfile -t authentication:latest .
