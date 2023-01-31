@@ -1,44 +1,70 @@
 import {UserActionTypes} from '../types/user';
 import {
-  DispatchSignInAction,
-  DispatchSignOutAction,
   DispatchSignUpAction,
+  SetSignUpAction,
+  DispatchDeleteUserAction,
+  SetDeleteUserAction,
+  DispatchUpdateUserAction,
+  SetUpdateUserAction,
+  DispatchGetUsersAction,
+  SetGetUsersAction,
   DispatchResetPasswordAction,
-  DispatchCreateSessionAction,
-  DispatchValidateSessionAction,
-  SetUserInformationAction,
+  SetResetPasswordAction
 } from '../interfaces/user';
+import { 
+  CreateUserRequest, CreateUserResponse,
+  DeleteUserRequest, DeleteUserResponse,
+  UpdateUserRequest, UpdateUserResponse,
+  GetUsersRequest, GetUsersResponse,
+  ResetUserPasswordRequest, ResetUserPasswordResponse
+ } from 'client/authentication/v1/user_pb';
 
-export const dispatchSignInAction = (): DispatchSignInAction => ({
-  type: UserActionTypes.DISPATCH_SIGN_IN_ACTION,
-});
-
-export const dispatchSignOutAction = (): DispatchSignOutAction => ({
-  type: UserActionTypes.DISPATCH_SIGN_OUT_ACTION,
-});
-
-export const dispatchSignUpAction = (): DispatchSignUpAction => ({
+export const dispatchSignUpAction = (payload: CreateUserRequest): DispatchSignUpAction => ({
   type: UserActionTypes.DISPATCH_SIGN_UP_ACTION,
+  payload
 });
 
-export const dispatchResetPasswordAction = (): DispatchResetPasswordAction => ({
+export const setSignUpAction = (payload: CreateUserResponse): SetSignUpAction => ({
+  type: UserActionTypes.SET_SIGN_UP_ACTION,
+  payload
+});
+
+export const dispatchDeleteUserAction = (payload: DeleteUserRequest): DispatchDeleteUserAction => ({
+  type: UserActionTypes.DISPATCH_DELETE_USER_ACTION,
+  payload
+});
+
+export const setDeleteUserAction = (payload: DeleteUserResponse): SetDeleteUserAction => ({
+  type: UserActionTypes.SET_DELETE_USER_ACTION,
+  payload
+});
+
+export const dispatchUpdateUserAction = (payload: UpdateUserRequest): DispatchUpdateUserAction => ({
+  type: UserActionTypes.DISPATCH_UPDATE_USER_ACTION,
+  payload
+});
+
+export const setUpdateUserAction = (payload: UpdateUserResponse): SetUpdateUserAction => ({
+  type: UserActionTypes.SET_UPDATE_USER_ACTION,
+  payload
+});
+
+export const dispatchGetUsersAction = (payload: GetUsersRequest): DispatchGetUsersAction => ({
+  type: UserActionTypes.DISPATCH_GET_USERS_ACTION,
+  payload
+});
+
+export const setGetUsersAction = (payload: GetUsersResponse): SetGetUsersAction => ({
+  type: UserActionTypes.SET_GET_USERS_ACTION,
+  payload
+});
+
+export const dispatchResetPasswordAction = (payload: ResetUserPasswordRequest): DispatchResetPasswordAction => ({
   type: UserActionTypes.DISPATCH_RESET_PASSWORD_ACTION,
+  payload
 });
 
-export const dispatchCreateSessionAction = (): DispatchCreateSessionAction => ({
-  type: UserActionTypes.DISPATCH_CREATE_SESSION_ACTION,
-});
-
-export const dispatchValidateSessionAction =
-  (): DispatchValidateSessionAction => ({
-    type: UserActionTypes.DISPATCH_VALIDATE_SESSION_ACTION,
-  });
-
-export const setUserInformationAction = (): SetUserInformationAction => ({
-  type: UserActionTypes.SET_USER_INFORMATION_ACTION,
-  payload: {
-    id: 'mock_user_id',
-    firstName: 'mock_first_name',
-    lastName: 'mock_last_name',
-  },
+export const setResetPasswordAction = (payload: ResetUserPasswordResponse): SetResetPasswordAction => ({
+  type: UserActionTypes.SET_RESET_PASSWORD_ACTION,
+  payload
 });
