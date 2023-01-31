@@ -1,10 +1,8 @@
-import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import React from 'react';
 import {Location, Outlet, useLocation, useNavigate} from 'react-router-dom';
 
-import { dispatchSignUpAction } from 'src/domain/actions/sessions';
-import { dispatchUpdateUserAction } from 'src/domain/actions/user';
 import Logo from '../../../common/components/Logo/Logo';
+import language from '../../../common/language';
 import {RoutePath} from '../../types/routes';
 
 import AuthDialog from './AuthDialog/AuthDialog';
@@ -16,17 +14,17 @@ interface AuthScreenProps {
 }
 
 const signInFooter: AuthFooterProps = {
-  title: 'Need an account?',
+  title: language('auth.sign_in.title'),
   linkUrl: RoutePath.SIGN_UP,
-  linkTitle: 'Click Here',
-  buttonTitle: 'LOGIN',
+  linkTitle: language("auth.sign_in.link_title"),
+  buttonTitle: language("auth.sign_in.button_title"),
 };
 
 const signUpFooter: AuthFooterProps = {
-  title: 'Already have an account?',
+  title: language("auth.sign_up.title"),
   linkUrl: RoutePath.HOME,
-  linkTitle: 'Click Here',
-  buttonTitle: 'SIGN UP',
+  linkTitle: language("auth.sign_up.link_title"),
+  buttonTitle: language("auth.sign_up.button_title")
 };
 
 const determineFooter = (location: Location) => {
@@ -37,7 +35,6 @@ const determineFooter = (location: Location) => {
 };
 
 const AuthScreen: React.FC<AuthScreenProps> = ({testID = 'auth-screen'}) => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const branding = (
@@ -46,10 +43,6 @@ const AuthScreen: React.FC<AuthScreenProps> = ({testID = 'auth-screen'}) => {
       <div className={'auth-screen-title'}>{'IGRU'}</div>
     </div>
   );
-
-  useEffect(() => {
-    console.log('Dispatching Actions for Sagas...')
-  }, [dispatch]);
 
   const onClick = () => {
     const {pathname} = location;

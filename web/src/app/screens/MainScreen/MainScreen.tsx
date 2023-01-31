@@ -16,43 +16,44 @@ import strainsIcon from '../../../common/assets/icons/nav/strains_icon.png';
 import recipesIcon from '../../../common/assets/icons/nav/recipes_icon.png';
 import settingsIcon from '../../../common/assets/icons/nav/settings_icon.png';
 
-import {RouteLabel, RoutePath} from '../../types/routes';
+import {RoutePath} from '../../types/routes';
+import language from '../../../common/language/index';
 
 interface MainScreenProps {}
 
 const sidebarOptions: SidebarOptions[] = [
   {
-    label: RouteLabel.HOME,
+    label: language("sidebar.option.home"),
     path: RoutePath.HOME,
     icon: allIcon,
   },
   {
-    label: RouteLabel.TASKS,
+    label: language("sidebar.option.tasks"),
     path: RoutePath.TASKS,
     icon: tasksIcon,
   },
   {
-    label: RouteLabel.GARDENS,
+    label: language("sidebar.option.gardens"),
     path: RoutePath.GARDENS,
     icon: gardensIcon,
   },
   {
-    label: RouteLabel.PLANTS,
+    label: language("sidebar.option.plants"),
     path: RoutePath.PLANTS,
     icon: plantsIcon,
   },
   {
-    label: RouteLabel.STRAINS,
+    label: language("sidebar.option.strains"),
     path: RoutePath.STRAINS,
     icon: strainsIcon,
   },
   {
-    label: RouteLabel.RECIPES,
+    label: language("sidebar.option.recipes"),
     path: RoutePath.RECIPES,
     icon: recipesIcon,
   },
   {
-    label: RouteLabel.SETTINGS,
+    label: language("sidebar.option.settings"),
     path: RoutePath.SETTINGS,
     icon: settingsIcon,
   },

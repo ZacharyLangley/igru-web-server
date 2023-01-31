@@ -9,11 +9,12 @@
     "baseUrl": ".",
     "paths": {
       "client/*": ["client/*"],
-      "domain/*": ["domain/*"],
-      "components/*": ["common/components/*"],
-      "assets/*": ["common/assets/*"],
-      "theme/*": ["common/theme/*"],
-      "types/*": ["common/types/*"],
+      "domain/*": ["src/domain/*"],
+      "components/*": ["src/common/components/*"],
+      "assets/*": ["src/common/assets/*"],
+      "theme/*": ["src/common/theme/*"],
+      "types/*": ["src/common/types/*"],
+      "language/*": ["src/common/language/*"]
     },
     "allowUnreachableCode": false,
     "noImplicitAny": true,

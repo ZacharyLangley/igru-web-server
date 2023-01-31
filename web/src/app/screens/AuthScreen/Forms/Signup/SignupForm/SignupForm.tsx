@@ -1,5 +1,6 @@
 import React, {ChangeEvent} from 'react';
 import {Form, FormGroup, Label, Input} from 'reactstrap';
+import language from '../../../../../../common/language';
 
 export interface SignInFormData {
   email?: string;
@@ -17,6 +18,10 @@ export const defaultSignupFormData: SignInFormData = {
   password: undefined,
   confirmPassword: undefined,
 };
+
+const emailLabel = language("input.label.email");
+const passwordLabel = language("input.label.password");
+const confirmPasswordLabel = language("input.label.confirm_password");
 
 const SignupForm: React.FC<SignupFormProps> = ({formData, onChange}) => {
   const onFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -36,7 +41,7 @@ const SignupForm: React.FC<SignupFormProps> = ({formData, onChange}) => {
           placeholder={''}
           onChange={onFieldChange}
         />
-        <Label for={'email'}>{'Email'}</Label>
+        <Label for={'email'}>{emailLabel}</Label>
       </FormGroup>
       <FormGroup floating>
         <Input
@@ -47,7 +52,7 @@ const SignupForm: React.FC<SignupFormProps> = ({formData, onChange}) => {
           placeholder={''}
           onChange={onFieldChange}
         />
-        <Label for={'password'}>{'Password'}</Label>
+        <Label for={'password'}>{passwordLabel}</Label>
       </FormGroup>
       <FormGroup floating>
         <Input
@@ -58,7 +63,7 @@ const SignupForm: React.FC<SignupFormProps> = ({formData, onChange}) => {
           placeholder={''}
           onChange={onFieldChange}
         />
-        <Label for={'confirm-password'}>{'Confirm Password'}</Label>
+        <Label for={'confirm-password'}>{confirmPasswordLabel}</Label>
       </FormGroup>
     </Form>
   );

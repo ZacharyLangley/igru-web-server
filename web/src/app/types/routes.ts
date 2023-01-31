@@ -1,13 +1,3 @@
-export enum RouteLabel {
-  HOME = 'Home',
-  TASKS = 'Tasks',
-  GARDENS = 'Gardens',
-  PLANTS = 'Plants',
-  STRAINS = 'Strains',
-  RECIPES = 'Recipes',
-  SETTINGS = 'Settings',
-}
-
 export enum RoutePath {
   HOME = '/',
   TASKS = '/tasks',

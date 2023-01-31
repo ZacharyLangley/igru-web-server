@@ -1,12 +1,15 @@
 import React, {useState} from 'react';
 import AuthForm from '../../AuthForm/AuthForm';
 import SigninForm, {defaultSignInFormData} from './SigninForm/SigninForm';
+import language from '../../../../../common/language/index';
 
 interface SigninProps {
   testID?: string;
   title?: string;
   form?: JSX.Element | JSX.Element[];
 }
+
+const headerTitle = language("auth.sign_in.header");
 
 const Signin: React.FC<SigninProps> = ({
   testID = 'sign-in-form-container',
@@ -24,7 +27,7 @@ const Signin: React.FC<SigninProps> = ({
 
   return (
     <AuthForm
-      title={'SIGN INTO YOUR ACCOUNT'}
+      title={headerTitle}
       form={<SigninForm formData={formData} onChange={updateFormData} />}
     />
   );

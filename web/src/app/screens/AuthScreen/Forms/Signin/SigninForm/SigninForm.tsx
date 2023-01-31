@@ -1,5 +1,6 @@
 import React, {ChangeEvent} from 'react';
 import {Form, FormGroup, Label, Input} from 'reactstrap';
+import language from '../../../../../../common/language';
 
 export interface SignInFormData {
   email?: string;
@@ -15,6 +16,9 @@ export const defaultSignInFormData: SignInFormData = {
   email: undefined,
   password: undefined,
 };
+
+const emailLabel = language("input.label.email");
+const passwordLabel = language("input.label.password");
 
 const SigninForm: React.FC<SigninFormProps> = ({formData, onChange}) => {
   const onFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -34,7 +38,7 @@ const SigninForm: React.FC<SigninFormProps> = ({formData, onChange}) => {
           placeholder={''}
           onChange={onFieldChange}
         />
-        <Label for={'email'}>{'Email'}</Label>
+        <Label for={'email'}>{emailLabel}</Label>
       </FormGroup>
       <FormGroup floating>
         <Input
@@ -45,7 +49,7 @@ const SigninForm: React.FC<SigninFormProps> = ({formData, onChange}) => {
           placeholder={''}
           onChange={onFieldChange}
         />
-        <Label for={'email'}>{'Password'}</Label>
+        <Label for={'email'}>{passwordLabel}</Label>
       </FormGroup>
     </Form>
   );

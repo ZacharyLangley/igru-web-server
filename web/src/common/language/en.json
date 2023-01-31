@@ -1,0 +1,23 @@
+{
+    "auth.sign_in.header": "SIGN INTO YOUR ACCOUNT",
+    "auth.sign_in.title": "Need an account?",
+    "auth.sign_in.link_title": "Click Here",
+    "auth.sign_in.button_title": "LOGIN",
+
+    "auth.sign_up.header": "CREATE YOUR ACCOUNT",
+    "auth.sign_up.title": "Already a user?",
+    "auth.sign_up.link_title": "Click Here",
+    "auth.sign_up.button_title": "SIGN UP",
+    
+    "sidebar.option.home": "Home",
+    "sidebar.option.taks": "Tasks",
+    "sidebar.option.gardens": "Gardens",
+    "sidebar.option.plants": "Plants",
+    "sidebar.option.strains": "Strains",
+    "sidebar.option.recipes": "Recipes",
+    "sidebar.option.settings": "Settings",
+
+    "input.label.email": "Email",
+    "input.label.password": "Password",
+    "input.label.confirm_password": "Confirm Password"
+}
