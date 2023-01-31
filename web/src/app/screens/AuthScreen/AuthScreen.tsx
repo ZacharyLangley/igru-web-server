@@ -1,5 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import {Location, Outlet, useLocation, useNavigate} from 'react-router-dom';
+
+import { dispatchSignUpAction } from 'src/domain/actions/sessions';
+import { dispatchUpdateUserAction } from 'src/domain/actions/user';
 import Logo from '../../../common/components/Logo/Logo';
 import {RoutePath} from '../../types/routes';
 
@@ -33,6 +37,7 @@ const determineFooter = (location: Location) => {
 };
 
 const AuthScreen: React.FC<AuthScreenProps> = ({testID = 'auth-screen'}) => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const branding = (
@@ -41,6 +46,10 @@ const AuthScreen: React.FC<AuthScreenProps> = ({testID = 'auth-screen'}) => {
       <div className={'auth-screen-title'}>{'IGRU'}</div>
     </div>
   );
+
+  useEffect(() => {
+    console.log('Dispatching Actions for Sagas...')
+  }, [dispatch]);
 
   const onClick = () => {
     const {pathname} = location;

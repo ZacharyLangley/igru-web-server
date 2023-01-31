@@ -9,40 +9,40 @@ import {
 
 export interface DispatchSignInAction extends Action {
     type: SessionActionTypes.DISPATCH_SIGN_IN_ACTION;
-    payload: CreateSessionRequest;
+    payload: Partial<CreateSessionRequest>;
   }
 
 export interface SetSignInAction extends Action {
     type: SessionActionTypes.SET_SIGN_IN_ACTION;
-    payload: CreateSessionResponse;
+    payload: Partial<CreateSessionResponse>;
 }
 
 export interface DispatchSignOutAction extends Action {
     type: SessionActionTypes.DISPATCH_SIGN_OUT_ACTION;
-    payload: DeleteSessionRequest;
+    payload: Partial<DeleteSessionRequest>;
 }
 
 export interface SetSignOutAction extends Action {
     type: SessionActionTypes.SET_SIGN_OUT_ACTION;
-    payload: DeleteSessionResponse;
+    payload: Partial<DeleteSessionResponse>;
 }
 
 export interface DispatchValidateSessionAction extends Action {
     type: SessionActionTypes.DISPATCH_VALIDATE_SESSION_ACTION;
-    payload: GetSessionsRequest;
+    payload: Partial<GetSessionsRequest>;
 }
 
 export interface SetValidatedSessionAction extends Action {
     type: SessionActionTypes.SET_VALIDATED_SESSION_ACTION;
-    payload: GetSessionsResponse
+    payload: Partial<GetSessionsResponse>
 }
 
 export interface DispatchValidateSessionPermissionsAction extends Action {
     type: SessionActionTypes.DISPATCH_VALIDATE_SESSION_PERMISSIONS_ACTION;
-    payload: CheckSessionPermissionsRequest;
+    payload: Partial<CheckSessionPermissionsRequest>;
 }   
 
 export interface SetValidatedSessionPermissionsAction extends Action {
     type: SessionActionTypes.SET_VALIDATED_SESSION_PERMISSIONS_ACTION;
-    payload: CheckSessionPermissionsResponse
+    payload: Partial<CheckSessionPermissionsResponse>
 }
