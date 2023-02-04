@@ -16,6 +16,7 @@ const PrivateRouter = createBrowserRouter([
       {
         path: RoutePath.HOME,
         element: <Signin />,
+
       },
       {
         path: RoutePath.SIGN_UP,

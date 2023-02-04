@@ -16,12 +16,12 @@ import {
     CheckSessionPermissionsRequest, CheckSessionPermissionsResponse,
 } from 'client/authentication/v1/sessions_pb';
 
-export const dispatchSignUpAction = (payload: Partial<CreateSessionRequest>): DispatchSignInAction => ({
+export const dispatchSignInAction = (payload: Partial<CreateSessionRequest>): DispatchSignInAction => ({
     type: SessionActionTypes.DISPATCH_SIGN_IN_ACTION,
     payload
 });
 
-export const setSignUpAction = (payload: Partial<CreateSessionResponse>): SetSignInAction => ({
+export const setSignInAction = (payload: Partial<CreateSessionResponse>): SetSignInAction => ({
     type: SessionActionTypes.SET_SIGN_IN_ACTION,
     payload
 });
