@@ -9,6 +9,6 @@ plugins:
     # like remote generation does.
     opt: target=ts
   - plugin: connect-web
-    out: gen
+    out: client
     # With target=ts, we generate TypeScript files.
     opt: target=ts
