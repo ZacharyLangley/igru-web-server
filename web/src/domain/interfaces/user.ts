@@ -6,7 +6,7 @@ import {
   UpdateUserRequest, UpdateUserResponse,
   GetUsersRequest, GetUsersResponse,
   ResetUserPasswordRequest, ResetUserPasswordResponse
-} from 'client/authentication/v1/user_pb';
+} from 'src/client/authentication/v1/user_pb';
 
 export interface DispatchSignUpAction extends Action {
   type: UserActionTypes.DISPATCH_SIGN_UP_ACTION;

@@ -8,7 +8,7 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "client/*": ["client/*"],
+      "client/*": ["src/client/*"],
       "domain/*": ["src/domain/*"],
       "components/*": ["src/common/components/*"],
       "assets/*": ["src/common/assets/*"],

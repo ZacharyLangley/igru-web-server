@@ -17,7 +17,7 @@ import {
   UpdateUserRequest, UpdateUserResponse,
   GetUsersRequest, GetUsersResponse,
   ResetUserPasswordRequest, ResetUserPasswordResponse
- } from 'client/authentication/v1/user_pb';
+ } from 'src/client/authentication/v1/user_pb';
 
 export const dispatchSignUpAction = (payload: Partial<CreateUserRequest>): DispatchSignUpAction => ({
   type: UserActionTypes.DISPATCH_SIGN_UP_ACTION,

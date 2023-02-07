@@ -8,9 +8,16 @@ import {
     DispatchGetUsersAction,
     DispatchResetPasswordAction
   } from '../interfaces/user';
+import { signUpRequest } from '../../domain/requests/user';
+import { CreateUserResponse } from '../../client/authentication/v1/user_pb';
 
 export function* signUpUser (action: DispatchSignUpAction) {
     try {
+        const {email, password} = action.payload;
+        if (email && password) {
+            const response: CreateUserResponse = yield signUpRequest(email, password);
+            yield console.log('signUpUser: ', action, response);
+        }
         yield console.log('signUpUser: ', action);
     } catch (e) {
         yield console.log('signUpUser: ', e);
