@@ -92,9 +92,9 @@ services:
       - "CHOKIDAR_USEPOLLING=true"
       - "WATCHPACK_POLLING=true"
     depends_on:
-      - authentication-service
-      - garden-service
-      - broker-service
+      - authentication
+      - garden
+      - ingress
 
   jaeger:
     image: jaegertracing/all-in-one:1.6

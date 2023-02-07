@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { PingRequest, PingResponse } from "./broker_pb.js";
+import { PingRequest, PingResponse } from "./broker_pb";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
