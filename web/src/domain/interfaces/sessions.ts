@@ -14,7 +14,7 @@ export interface DispatchSignInAction extends Action {
 
 export interface SetSignInAction extends Action {
     type: SessionActionTypes.SET_SIGN_IN_ACTION;
-    payload: Partial<CreateSessionResponse>;
+    payload: Partial<string>;
 }
 
 export interface DispatchSignOutAction extends Action {

@@ -2,20 +2,26 @@ import {
     createPromiseClient,
     createConnectTransport,
 } from '@bufbuild/connect-web';
-import { CreateSessionRequest } from 'client/authentication/v1/session_pb';
-import { SessionService } from 'client/authentication/v1/session_connectweb';
+import { SessionService } from 'src/client/authentication/v1/session_connectweb';
 
 const client = createPromiseClient(
     SessionService,
     createConnectTransport({
-        baseUrl: 'http://authentication',
+        baseUrl: '',
     })
 );
 
 export function* signInRequest (email: string, password: string) {
-    console.log('signUpRequest', {email, password})
-    const response: CreateSessionRequest = yield client.createSession({email, password})
-    return;
+    console.log('signInRequest', {email, password})
+    var sessionToken = ""
+    yield client.createSession({email, password}, {
+        onHeader: (header: Headers) => {
+            let token = header.get("session")
+            if (token) {
+                sessionToken = token
+            }
+        }});
+    return sessionToken;
 }
 
 // export const signOutRequest = async () => {

@@ -10,7 +10,7 @@ import {
     SetValidatedSessionPermissionsAction
 } from '../interfaces/sessions';
 import {
-    CreateSessionRequest, CreateSessionResponse, 
+    CreateSessionRequest, 
     DeleteSessionRequest, DeleteSessionResponse,
     GetSessionsRequest, GetSessionsResponse,
     CheckSessionPermissionsRequest, CheckSessionPermissionsResponse,
@@ -21,7 +21,7 @@ export const dispatchSignInAction = (payload: Partial<CreateSessionRequest>): Di
     payload
 });
 
-export const setSignInAction = (payload: Partial<CreateSessionResponse>): SetSignInAction => ({
+export const setSignInAction = (payload: Partial<string>): SetSignInAction => ({
     type: SessionActionTypes.SET_SIGN_IN_ACTION,
     payload
 });

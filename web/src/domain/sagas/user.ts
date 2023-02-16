@@ -17,6 +17,11 @@ export function* signUpUser (action: DispatchSignUpAction) {
         if (email && password) {
             const response: CreateUserResponse = yield signUpRequest(email, password);
             yield console.log('signUpUser: ', action, response);
+            if (!response.user) {
+                yield console.log('failed to create user');
+                return;
+            }
+            yield console.log('Created user: ', response.user.id);
         }
     } catch (e) {
         yield console.log('signUpUser: ', e);

@@ -8,14 +8,13 @@ import {
     DispatchValidateSessionPermissionsAction,
 } from '../interfaces/sessions';
 import { signInRequest } from '../../domain/requests/sessions';
-import { CreateSessionResponse } from '../../client/authentication/v1/session_pb';
 
 export function* signIn (action: DispatchSignInAction) {
     try {
         const {email, password} = action.payload;
         if (email && password) {
-            const response: CreateSessionResponse = yield signInRequest(email, password);
-            yield console.log('signIn: ', response);
+            let resp: string = yield signInRequest(email, password);
+            yield console.log('signIn: ', resp);
         }
     } catch (e) {
         yield console.log('signIn: ', e);
