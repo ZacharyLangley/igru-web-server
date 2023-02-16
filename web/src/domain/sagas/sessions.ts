@@ -8,7 +8,7 @@ import {
     DispatchValidateSessionPermissionsAction,
 } from '../interfaces/sessions';
 import { signInRequest } from '../../domain/requests/sessions';
-import { CreateSessionResponse } from '../../client/authentication/v1/sessions_pb';
+import { CreateSessionResponse } from '../../client/authentication/v1/session_pb';
 
 export function* signIn (action: DispatchSignInAction) {
     try {

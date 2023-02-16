@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { AddGroupMemberRequest, AddGroupMemberResponse, CreateGroupRequest, CreateGroupResponse, DeleteGroupRequest, DeleteGroupResponse, GetGroupMembersRequest, GetGroupMembersResponse, GetGroupRequest, GetGroupResponse, GetGroupsRequest, GetGroupsResponse, GetUserGroupsRequest, GetUserGroupsResponse, RemoveGroupMemberRequest, RemoveGroupMemberResponse, UpdateGroupMemberRequest, UpdateGroupMemberResponse, UpdateGroupRequest, UpdateGroupResponse } from "./group_pb.js";
+import { AddGroupMemberRequest, AddGroupMemberResponse, CreateGroupRequest, CreateGroupResponse, DeleteGroupRequest, DeleteGroupResponse, GetGroupMembersRequest, GetGroupMembersResponse, GetGroupRequest, GetGroupResponse, GetGroupsRequest, GetGroupsResponse, GetUserGroupsRequest, GetUserGroupsResponse, RemoveGroupMemberRequest, RemoveGroupMemberResponse, UpdateGroupMemberRequest, UpdateGroupMemberResponse, UpdateGroupRequest, UpdateGroupResponse } from "./group_pb";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**

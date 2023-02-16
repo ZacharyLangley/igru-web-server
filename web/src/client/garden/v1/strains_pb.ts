@@ -5,7 +5,7 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3 } from "@bufbuild/protobuf";
-import { Strain } from "./schema_pb.js";
+import { Strain } from "./schema_pb";
 
 /**
  * @generated from message garden.v1.CreateStrainRequest

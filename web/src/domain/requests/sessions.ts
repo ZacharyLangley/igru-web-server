@@ -2,14 +2,13 @@ import {
     createPromiseClient,
     createConnectTransport,
 } from '@bufbuild/connect-web';
-import { CreateSessionRequest } from 'client/authentication/v1/sessions_pb';
-
+import { CreateSessionRequest } from '../../client/authentication/v1/session_pb';
 import { SessionService } from '../../client/authentication/v1/session_connectweb';
 
 const client = createPromiseClient(
     SessionService,
     createConnectTransport({
-        baseUrl: '',
+        baseUrl: 'http://authentication',
     })
 );
 

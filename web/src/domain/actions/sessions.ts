@@ -14,7 +14,7 @@ import {
     DeleteSessionRequest, DeleteSessionResponse,
     GetSessionsRequest, GetSessionsResponse,
     CheckSessionPermissionsRequest, CheckSessionPermissionsResponse,
-} from 'src/client/authentication/v1/sessions_pb';
+} from '../../client/authentication/v1/session_pb';
 
 export const dispatchSignInAction = (payload: Partial<CreateSessionRequest>): DispatchSignInAction => ({
     type: SessionActionTypes.DISPATCH_SIGN_IN_ACTION,

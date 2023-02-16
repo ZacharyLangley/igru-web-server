@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateStrainRequest, CreateStrainResponse, DeleteStrainRequest, DeleteStrainResponse, GetStrainRequest, GetStrainResponse, GetStrainsRequest, GetStrainsResponse, UpdateStrainRequest, UpdateStrainResponse } from "./strains_pb.js";
+import { CreateStrainRequest, CreateStrainResponse, DeleteStrainRequest, DeleteStrainResponse, GetStrainRequest, GetStrainResponse, GetStrainsRequest, GetStrainsResponse, UpdateStrainRequest, UpdateStrainResponse } from "./strains_pb";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**

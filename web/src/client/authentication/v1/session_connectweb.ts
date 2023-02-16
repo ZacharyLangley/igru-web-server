@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CheckSessionPermissionsRequest, CheckSessionPermissionsResponse, CreateSessionRequest, CreateSessionResponse, DeleteSessionRequest, DeleteSessionResponse, GetSessionsRequest, GetSessionsResponse } from "./session_pb.js";
+import { CheckSessionPermissionsRequest, CheckSessionPermissionsResponse, CreateSessionRequest, CreateSessionResponse, DeleteSessionRequest, DeleteSessionResponse, GetSessionsRequest, GetSessionsResponse } from "./session_pb";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
