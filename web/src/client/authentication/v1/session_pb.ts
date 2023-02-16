@@ -5,8 +5,8 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3 } from "@bufbuild/protobuf";
-import { PaginationRequest } from "../../common/v1/pagination_pb";
-import { PermissionRequest, PermissionResponse, Session } from "./schema_pb";
+import { PaginationRequest } from "../../common/v1/pagination_pb.js";
+import { PermissionRequest, PermissionResponse, Session } from "./schema_pb.js";
 
 /**
  * @generated from message authentication.v1.CreateSessionRequest

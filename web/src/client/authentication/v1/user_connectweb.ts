@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateUserRequest, CreateUserResponse, DeleteUserRequest, DeleteUserResponse, GetUsersRequest, GetUsersResponse, ResetUserPasswordRequest, ResetUserPasswordResponse, UpdateUserRequest, UpdateUserResponse } from "./user_pb";
+import { CreateUserRequest, CreateUserResponse, DeleteUserRequest, DeleteUserResponse, GetUsersRequest, GetUsersResponse, ResetUserPasswordRequest, ResetUserPasswordResponse, UpdateUserRequest, UpdateUserResponse } from "./user_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**

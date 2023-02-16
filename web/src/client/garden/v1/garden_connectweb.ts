@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateGardenRequest, CreateGardenResponse, DeleteGardenRequest, DeleteGardenResponse, GetGardenRequest, GetGardenResponse, GetGardensRequest, GetGardensResponse, UpdateGardenRequest, UpdateGardenResponse } from "./garden_pb";
+import { CreateGardenRequest, CreateGardenResponse, DeleteGardenRequest, DeleteGardenResponse, GetGardenRequest, GetGardenResponse, GetGardensRequest, GetGardensResponse, UpdateGardenRequest, UpdateGardenResponse } from "./garden_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**

@@ -5,7 +5,7 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3 } from "@bufbuild/protobuf";
-import { Recipe } from "./schema_pb";
+import { Recipe } from "./schema_pb.js";
 
 /**
  * @generated from message garden.v1.CreateRecipeRequest

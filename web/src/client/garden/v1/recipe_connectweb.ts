@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateRecipeRequest, CreateRecipeResponse, DeleteRecipeRequest, DeleteRecipeResponse, GetRecipeRequest, GetRecipeResponse, GetRecipesRequest, GetRecipesResponse, UpdateRecipeRequest, UpdateRecipeResponse } from "./recipe_pb";
+import { CreateRecipeRequest, CreateRecipeResponse, DeleteRecipeRequest, DeleteRecipeResponse, GetRecipeRequest, GetRecipeResponse, GetRecipesRequest, GetRecipesResponse, UpdateRecipeRequest, UpdateRecipeResponse } from "./recipe_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
