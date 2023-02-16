@@ -78,24 +78,6 @@ services:
     environment:
       METRICS.JAEGERADDRESS: jaeger:14268
 
-  web:
-    build:
-      context: ./..
-      dockerfile: build/web.dockerfile
-    command: "npm start"
-    volumes:
-      - ../web:/web:delegated
-      - /node_modules
-    ports:
-      - "3000:80"
-    environment:
-      - "CHOKIDAR_USEPOLLING=true"
-      - "WATCHPACK_POLLING=true"
-    depends_on:
-      - authentication
-      - garden
-      - ingress
-
   jaeger:
     image: jaegertracing/all-in-one:1.6
     ports:

@@ -16,7 +16,9 @@
                 "--config", "${workspaceFolder}/build/ingress/default.yml"
             ],
             "env": {
-                "GRPC.ADDRESS": "0.0.0.0:8081",
+                "CLIENTS.AUTHENTICATION.ADDRESS": "http://127.0.0.1:8081",
+                "CLIENTS.GARDEN.ADDRESS": "http://127.0.0.1:8082",
+                "WEBPROXYADDRESS": "127.0.0.1:3000"
             }
         },
         {
