@@ -11,7 +11,7 @@ import {
 const client = createPromiseClient(
     UserService,
     createConnectTransport({
-        baseUrl: 'http://authentication',
+        baseUrl: '',
     })
 );
 

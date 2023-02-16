@@ -9,7 +9,7 @@ import { SessionService } from '../../client/authentication/v1/session_connectwe
 const client = createPromiseClient(
     SessionService,
     createConnectTransport({
-        baseUrl: 'http://authentication',
+        baseUrl: '',
     })
 );
 
