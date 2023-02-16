@@ -5,7 +5,7 @@ import {
     DeleteSessionRequest, DeleteSessionResponse,
     GetSessionsRequest, GetSessionsResponse,
     CheckSessionPermissionsRequest, CheckSessionPermissionsResponse,
-} from '../../client/authentication/v1/session_pb';
+} from 'client/authentication/v1/session_pb';
 
 export interface DispatchSignInAction extends Action {
     type: SessionActionTypes.DISPATCH_SIGN_IN_ACTION;

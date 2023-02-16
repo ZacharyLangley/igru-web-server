@@ -8,6 +8,7 @@ web/node_module: web/package.json
 generate: web/node_module
 	sqlc generate
 	buf generate
+	sed -i '' 's/.js\"/\"/g' web/src/client/*/*/*.ts
 
 build-authentication:
 	docker build -f build/authentication-service.dockerfile -t authentication:latest .
