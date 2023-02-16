@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreatePlantRequest, CreatePlantResponse, DeletePlantRequest, DeletePlantResponse, GetPlantRequest, GetPlantResponse, GetPlantsRequest, GetPlantsResponse, UpdatePlantRequest, UpdatePlantResponse } from "./plant_pb";
+import { CreatePlantRequest, CreatePlantResponse, DeletePlantRequest, DeletePlantResponse, GetPlantRequest, GetPlantResponse, GetPlantsRequest, GetPlantsResponse, UpdatePlantRequest, UpdatePlantResponse } from "./plant_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
