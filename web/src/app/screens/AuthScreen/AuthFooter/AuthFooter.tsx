@@ -11,6 +11,7 @@ export interface AuthFooterProps {
   linkUrl: string;
   buttonTitle?: string;
   onButtonClick?: () => void;
+  disableButton?: boolean;
 }
 
 const AuthFooter: React.FC<AuthFooterProps> = ({
@@ -20,6 +21,7 @@ const AuthFooter: React.FC<AuthFooterProps> = ({
   linkUrl,
   buttonTitle,
   onButtonClick,
+  disableButton,
 }) => {
   return (
     <div className={'footer-container'}>
@@ -30,7 +32,7 @@ const AuthFooter: React.FC<AuthFooterProps> = ({
         </Link>
       </div>
       <div className={'footer-button-container'}>
-        <PrimaryButton title={buttonTitle} onClick={onButtonClick} />
+        <PrimaryButton title={buttonTitle} onClick={onButtonClick} disable={disableButton} />
       </div>
     </div>
   );

@@ -56,25 +56,25 @@ func runServer(cmd *cobra.Command, args []string) error {
 	r.Use(loggingMiddleware)
 	// Attach services
 	if err := proxy.RegisterProxy(r, cfg.Clients.Authentication, authenticationv1connect.UserServiceName); err != nil {
-		return fmt.Errorf("failed to register authentication proxy")
+		return fmt.Errorf("failed to register authentication proxy: %w", err)
 	}
 	if err := proxy.RegisterProxy(r, cfg.Clients.Authentication, authenticationv1connect.GroupServiceName); err != nil {
-		return fmt.Errorf("failed to register authentication proxy")
+		return fmt.Errorf("failed to register authentication proxy: %w", err)
 	}
 	if err := proxy.RegisterProxy(r, cfg.Clients.Authentication, authenticationv1connect.SessionServiceName); err != nil {
-		return fmt.Errorf("failed to register authentication proxy")
+		return fmt.Errorf("failed to register authentication proxy: %w", err)
 	}
 	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.GardenServiceName); err != nil {
-		return fmt.Errorf("failed to register gardens proxy")
+		return fmt.Errorf("failed to register gardens proxy: %w", err)
 	}
 	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.PlantServiceName); err != nil {
-		return fmt.Errorf("failed to register gardens proxy")
+		return fmt.Errorf("failed to register gardens proxy: %w", err)
 	}
 	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.StrainServiceName); err != nil {
-		return fmt.Errorf("failed to register gardens proxy")
+		return fmt.Errorf("failed to register gardens proxy: %w", err)
 	}
 	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.RecipeServiceName); err != nil {
-		return fmt.Errorf("failed to register gardens proxy")
+		return fmt.Errorf("failed to register gardens proxy: %w", err)
 	}
 
 	// Attach embedded frontend

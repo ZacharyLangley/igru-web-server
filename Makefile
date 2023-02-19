@@ -2,9 +2,13 @@ vet: generate
 	buf lint
 	go vet ./...
 
-generate:
+web/node_module: web/package.json
+	cd web;npm install
+
+generate: web/node_module
 	sqlc generate
 	buf generate
+	sed -i '' 's/.js\"/\"/g' web/src/client/*/*/*.ts
 
 build-authentication:
 	docker build -f build/authentication-service.dockerfile -t authentication:latest .
@@ -15,8 +19,8 @@ build-garden:
 build-broker:
 	docker build -f build/broker-service.dockerfile -t broker:latest .
 
-build-web:
-	cd web;npm install;BUILD_PATH=../cmd/ingress/public npm run build
+build-web: web/node_module
+	BUILD_PATH=../cmd/ingress/public npm run build
 
 build: build-authentication build-garden build-broker
 

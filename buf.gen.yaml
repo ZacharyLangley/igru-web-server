@@ -15,3 +15,11 @@ plugins:
     out: pkg/proto
     opt:
       - paths=source_relative
+  - plugin: es
+    out: web/src/client
+    opt: target=ts
+    path: web/node_modules/.bin/protoc-gen-es
+  - plugin: connect-web
+    out: web/src/client
+    opt: target=ts
+    path: web/node_modules/.bin/protoc-gen-connect-web

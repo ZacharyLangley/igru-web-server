@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@bufbuild/connect-web": "^0.6.0",
+    "@bufbuild/protobuf": "^1.0.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -31,11 +33,14 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "buf:generate": "buf generate",
     "eject": "react-scripts eject",
     "prettier:format": "prettier --write src/",
     "tsc": "tsc"
   },
   "devDependencies": {
+    "@bufbuild/protoc-gen-connect-web": "^0.6.0",
+    "@bufbuild/protoc-gen-es": "^1.0.0",
     "prettier": "^2.7.1"
   },
   "eslintConfig": {
