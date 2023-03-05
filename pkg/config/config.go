@@ -4,8 +4,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var configPath string
-
 func New(conf any) error {
 	v := viper.New()
 	v.AutomaticEnv()

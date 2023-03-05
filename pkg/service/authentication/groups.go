@@ -20,6 +20,9 @@ func (s *Service) CreateGroup(baseCtx gocontext.Context, req *connect.Request[v1
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}
+	if err := validateCreateGroupRequest(req.Msg); err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+	}
 	var group models.Group
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
@@ -42,6 +45,9 @@ func (s *Service) UpdateGroup(baseCtx gocontext.Context, req *connect.Request[v1
 	res := connect.NewResponse(&v1.UpdateGroupResponse{})
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	}
+	if err := validateUpdateGroupRequest(req.Msg); err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
 	groupID, err := uuid.Parse(req.Msg.Group.Id)
 	if err != nil {
@@ -76,6 +82,9 @@ func (s *Service) DeleteGroup(baseCtx gocontext.Context, req *connect.Request[v1
 	res := connect.NewResponse(&v1.DeleteGroupResponse{})
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	}
+	if err := validateDeleteGroupRequest(req.Msg); err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
 	groupID, err := uuid.Parse(req.Msg.Id)
 	if err != nil {
@@ -132,7 +141,7 @@ func (s *Service) GetGroups(baseCtx gocontext.Context, req *connect.Request[v1.G
 			Offset: req.Msg.Pagination.Cursor,
 		})
 		if err != nil {
-			return nil
+			return fmt.Errorf("failed to get groups: %w", err)
 		}
 		res.Msg.Groups = make([]*v1.Group, 0, len(groups))
 		for _, group := range groups {
@@ -145,6 +154,9 @@ func (s *Service) GetGroups(baseCtx gocontext.Context, req *connect.Request[v1.G
 				newGroup.UpdatedAt = timestamppb.New(group.UpdatedAt.Time)
 			}
 			newGroup.NumMembers, err = query.CountGroupMembers(ctx, group.ID)
+			if err != nil {
+				return fmt.Errorf("failed to count group members: %w", err)
+			}
 			res.Msg.Groups = append(res.Msg.Groups, &newGroup)
 		}
 		return nil
@@ -252,7 +264,7 @@ func (s *Service) GetUserGroups(baseCtx gocontext.Context, req *connect.Request[
 			UserID: userID,
 		})
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to get user groups: %w", err)
 		}
 		res.Msg.Groups = make([]*v1.Group, 0, len(groups))
 		for _, group := range groups {
@@ -265,6 +277,9 @@ func (s *Service) GetUserGroups(baseCtx gocontext.Context, req *connect.Request[
 				newGroup.UpdatedAt = timestamppb.New(group.UpdatedAt.Time)
 			}
 			newGroup.NumMembers, err = query.CountGroupMembers(ctx, group.ID)
+			if err != nil {
+				return fmt.Errorf("failed to count group members: %w", err)
+			}
 			res.Msg.Groups = append(res.Msg.Groups, &newGroup)
 		}
 		return nil

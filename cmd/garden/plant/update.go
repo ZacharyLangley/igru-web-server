@@ -48,8 +48,8 @@ func init() {
 	updateCmd.Flags().BoolVar(&updateBudPistils, "budPistils", false, "Bud Pistils of an existing plant")
 	updateCmd.Flags().StringVar(&updateTags, "tags", "", "Tags of an existing plant")
 	updateCmd.Flags().BoolVar(&updateSetAcquiredAt, "setAcquiredAt", false, "Set acquired at time of an existing plant to now")
-	updateCmd.MarkFlagRequired("name")
-	updateCmd.MarkFlagRequired("config")
+	config.Must(updateCmd.MarkFlagRequired("name"))
+	config.Must(updateCmd.MarkFlagRequired("config"))
 	RootCmd.AddCommand(updateCmd)
 }
 

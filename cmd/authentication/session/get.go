@@ -15,7 +15,7 @@ import (
 )
 
 func init() {
-	getCmd.MarkFlagRequired("config")
+	config.Must(getCmd.MarkFlagRequired("config"))
 	RootCmd.AddCommand(getCmd)
 }
 

@@ -19,7 +19,7 @@ var (
 
 func init() {
 	getCmd.Flags().StringVar(&getRecipeID, "id", "", "id of an existing recipe")
-	getCmd.MarkFlagRequired("id")
+	config.Must(getCmd.MarkFlagRequired("id"))
 	RootCmd.AddCommand(getCmd)
 }
 

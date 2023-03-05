@@ -5,14 +5,10 @@ import (
 	"encoding/base64"
 	"errors"
 	"net/http"
-	"strings"
-	"time"
 
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/authentication"
 	"golang.org/x/crypto/bcrypt"
 )
-
-const sessionDuration = time.Minute * 5
 
 var errUnauthorizedUser = errors.New("could not authenticate user")
 
@@ -58,23 +54,4 @@ func ExtractSessionToken(h http.Header) (string, error) {
 		return "", errUnauthorizedUser
 	}
 	return authHeader, nil
-}
-
-const (
-	letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&!?"
-	letterMax   = len(letterBytes)
-)
-
-func randCryptoString(n int) string {
-	sb := strings.Builder{}
-	sb.Grow(n)
-	buffer := make([]byte, n)
-	_, err := rand.Read(buffer)
-	if err != nil {
-		panic(err)
-	}
-	for i := 0; i < n; i++ {
-		sb.WriteByte(letterBytes[buffer[i]%byte(letterMax)])
-	}
-	return sb.String()
 }

@@ -48,7 +48,9 @@ func (h HTTP) handleTunneling(w http.ResponseWriter, r *http.Request) {
 func transfer(destination io.WriteCloser, source io.ReadCloser) {
 	defer destination.Close()
 	defer source.Close()
-	io.Copy(destination, source)
+	if _, err := io.Copy(destination, source); err != nil {
+		zap.L().Error("transfer copy error", zap.Error(err))
+	}
 }
 func (h HTTP) handleHTTP(w http.ResponseWriter, req *http.Request) {
 	req.URL.Scheme = h.URL.Scheme
@@ -62,7 +64,9 @@ func (h HTTP) handleHTTP(w http.ResponseWriter, req *http.Request) {
 	defer resp.Body.Close()
 	copyHeader(w.Header(), resp.Header)
 	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		zap.L().Error("copy error", zap.Error(err))
+	}
 }
 func copyHeader(dst, src http.Header) {
 	for k, vv := range src {

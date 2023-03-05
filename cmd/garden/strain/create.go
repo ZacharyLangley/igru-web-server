@@ -37,8 +37,8 @@ func init() {
 	createCmd.Flags().Float64Var(&createCBDPercent, "cbdPercent", 0, "CBD percent of a strain")
 	createCmd.Flags().StringVar(&createAroma, "aroma", "", "Aroma of a strain")
 	createCmd.Flags().StringVar(&createTaste, "taste", "", "Taste of a strain")
-	createCmd.MarkFlagRequired("name")
-	createCmd.MarkFlagRequired("config")
+	config.Must(createCmd.MarkFlagRequired("name"))
+	config.Must(createCmd.MarkFlagRequired("config"))
 	RootCmd.AddCommand(createCmd)
 }
 

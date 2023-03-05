@@ -31,7 +31,7 @@ func init() {
 	createCmd.Flags().Float64Var(&createPh, "ph", 0, "pH of a recipe")
 	createCmd.Flags().Float64Var(&createMixTimeMilliseconds, "mixTimeMilliseconds", 0, "MixTimeMilliseconds of a recipe")
 	createCmd.Flags().StringVar(&createTags, "tags", "", "Tags of a recipe")
-	createCmd.MarkFlagRequired("name")
+	config.Must(createCmd.MarkFlagRequired("name"))
 	RootCmd.AddCommand(createCmd)
 }
 

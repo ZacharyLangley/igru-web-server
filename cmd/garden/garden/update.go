@@ -35,8 +35,8 @@ func init() {
 	updateCmd.Flags().StringVar(&updateGrowSize, "growSize", "", "Grow size of an existing garden")
 	updateCmd.Flags().StringVar(&updateContainerSize, "containerSize", "", "ContainerSize of an existing garden")
 	updateCmd.Flags().StringVar(&updateTags, "tags", "", "Tags of an existing garden")
-	updateCmd.MarkFlagRequired("name")
-	updateCmd.MarkFlagRequired("config")
+	config.Must(updateCmd.MarkFlagRequired("name"))
+	config.Must(updateCmd.MarkFlagRequired("config"))
 	RootCmd.AddCommand(updateCmd)
 }
 

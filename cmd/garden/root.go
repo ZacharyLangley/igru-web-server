@@ -5,6 +5,7 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/cmd/garden/plant"
 	"github.com/ZacharyLangley/igru-web-server/cmd/garden/recipe"
 	"github.com/ZacharyLangley/igru-web-server/cmd/garden/strain"
+	"github.com/ZacharyLangley/igru-web-server/pkg/config"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +17,7 @@ var RootCmd = &cobra.Command{
 }
 
 func init() {
-	serveCmd.MarkFlagRequired("config")
+	config.Must(serveCmd.MarkFlagRequired("config"))
 	RootCmd.AddCommand(serveCmd)
 	RootCmd.AddCommand(garden.RootCmd)
 	RootCmd.AddCommand(plant.RootCmd)

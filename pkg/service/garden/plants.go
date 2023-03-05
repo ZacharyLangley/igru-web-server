@@ -115,11 +115,15 @@ func (s *Service) UpdatePlant(baseCtx gocontext.Context, req *connect_go.Request
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}
+	// TODO: Create validation function
 	plantID, err := uuid.Parse(req.Msg.Id)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid user id format: %w", err))
 	}
 	parentageID, err := uuid.Parse(req.Msg.Parentage)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid parentage id format: %w", err))
+	}
 	groupID, err := s.resolvePlantGroupID(ctx, plantID)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid group id: %w", err))

@@ -23,10 +23,10 @@ func init() {
 	createCmd.Flags().StringVar(&createFullName, "full-name", "", "Full name of a new user")
 	createCmd.Flags().StringVar(&createEmail, "email", "", "Email of a new user")
 	createCmd.Flags().StringVar(&createPassword, "password", "", "Password of a new user")
-	createCmd.MarkFlagRequired("full-name")
-	createCmd.MarkFlagRequired("email")
-	createCmd.MarkFlagRequired("password")
-	createCmd.MarkFlagRequired("config")
+	config.Must(createCmd.MarkFlagRequired("full-name"))
+	config.Must(createCmd.MarkFlagRequired("email"))
+	config.Must(createCmd.MarkFlagRequired("password"))
+	config.Must(createCmd.MarkFlagRequired("config"))
 	RootCmd.AddCommand(createCmd)
 }
 

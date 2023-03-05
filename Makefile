@@ -11,18 +11,18 @@ generate: web/node_module
 	sed -i '' 's/.js\"/\"/g' web/src/client/*/*/*.ts
 
 build-authentication:
-	docker build -f build/authentication-service.dockerfile -t authentication:latest .
+	docker build -f build/Dockerfile -t authentication:latest .
 
 build-garden:
-	docker build -f build/garden-service.dockerfile -t garden:latest .
+	docker build -f build/Dockerfile -t garden:latest .
 
 build-broker:
-	docker build -f build/broker-service.dockerfile -t broker:latest .
+	docker build -f build/Ddockerfile -t broker:latest .
 
 build-web: web/node_module
 	BUILD_PATH=../cmd/ingress/public npm run build
 
-build: build-authentication build-garden build-broker
+build: build-authentication build-garden build-broker build-web
 
 test-env:
 	@echo "Creating Mock Database..."

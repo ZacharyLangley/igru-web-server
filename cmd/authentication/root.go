@@ -1,6 +1,8 @@
 package authentication
 
 import (
+	"time"
+
 	"github.com/ZacharyLangley/igru-web-server/cmd/authentication/group"
 	"github.com/ZacharyLangley/igru-web-server/cmd/authentication/session"
 	"github.com/ZacharyLangley/igru-web-server/cmd/authentication/user"
@@ -16,7 +18,9 @@ var RootCmd = &cobra.Command{
 }
 
 func init() {
-	serveCmd.MarkFlagRequired("config")
+	if err := serveCmd.MarkFlagRequired("config"); err != nil {
+		panic(err)
+	}
 	RootCmd.AddCommand(serveCmd)
 	RootCmd.AddCommand(user.RootCmd)
 	RootCmd.AddCommand(group.RootCmd)
@@ -24,9 +28,10 @@ func init() {
 }
 
 type Config struct {
-	Database config.Database `mapstructure:"database"`
-	GRPC     config.GRPC     `mapstructure:"grpc"`
-	Metrics  config.Metrics  `mapstructure:"metrics"`
+	Database        config.Database `mapstructure:"database"`
+	GRPC            config.GRPC     `mapstructure:"grpc"`
+	Metrics         config.Metrics  `mapstructure:"metrics"`
+	SessionDuration time.Duration   `mapstructure:"sessionDuration"`
 }
 
 var serveCmd = &cobra.Command{

@@ -18,7 +18,7 @@ var (
 
 func init() {
 	deleteCmd.Flags().StringVar(&deleteRecipeID, "id", "", "ID of an existing recipe")
-	deleteCmd.MarkFlagRequired("id")
+	config.Must(deleteCmd.MarkFlagRequired("id"))
 	RootCmd.AddCommand(deleteCmd)
 }
 

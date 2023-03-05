@@ -1,7 +1,7 @@
 import {Action} from 'redux';
 import {SessionActionTypes} from '../types/sessions';
 import {
-    CreateSessionRequest, CreateSessionResponse, 
+    CreateSessionRequest, 
     DeleteSessionRequest, DeleteSessionResponse,
     GetSessionsRequest, GetSessionsResponse,
     CheckSessionPermissionsRequest, CheckSessionPermissionsResponse,

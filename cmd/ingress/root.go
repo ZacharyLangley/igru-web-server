@@ -1,6 +1,7 @@
 package ingress
 
 import (
+	"github.com/ZacharyLangley/igru-web-server/pkg/config"
 	"github.com/spf13/cobra"
 )
 
@@ -9,6 +10,6 @@ var RootCmd = &cobra.Command{
 }
 
 func init() {
-	serveCmd.MarkFlagRequired("config")
+	config.Must(serveCmd.MarkFlagRequired("config"))
 	RootCmd.AddCommand(serveCmd)
 }
