@@ -1,16 +1,32 @@
 {
+    "branding.name": "IGRU",
+
     "auth.sign_in.header": "SIGN INTO YOUR ACCOUNT",
     "auth.sign_in.title": "Need an account?",
     "auth.sign_in.link_title": "Click Here",
     "auth.sign_in.button_title": "LOGIN",
 
     "auth.sign_up.header": "CREATE YOUR ACCOUNT",
+    "auth.sign_up.header.success": "SIGN UP SUCCESSUL",
+    "auth.sign_up.header.failure": "SOMETHING WENT WRONG",
     "auth.sign_up.title": "Already a user?",
     "auth.sign_up.link_title": "Click Here",
     "auth.sign_up.button_title": "SIGN UP",
-    
+
+    "auth.sign_up.success.message_top": "Thank you for signing up for IGRU.",
+    "auth.sign_up.success.message_bottom": "Feel free to click the link below to go back to the login page and authenticate your account.",    
+    "auth.sign_up.success.button_title": "Proceed to Sign In",
+
+    "auth.sign_up.error.message_top": "It appears that your registration to IGRU failed unexpectedly.",
+    "auth.sign_up.error.message_bottom": "Feel free to click the link below to go try again",    
+    "auth.sign_up.error.button_title": "Proceed to Sign Up Form'",
+
+    "navbar.dropdown.header": "Welcome to IGRU", 
+    "navbar.dropdown.profile": "Profile",
+    "navbar.dropdown.signout": "Sign Out",
+
     "sidebar.option.home": "Home",
-    "sidebar.option.taks": "Tasks",
+    "sidebar.option.tasks": "Tasks",
     "sidebar.option.gardens": "Gardens",
     "sidebar.option.plants": "Plants",
     "sidebar.option.strains": "Strains",

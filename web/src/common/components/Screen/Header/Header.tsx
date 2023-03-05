@@ -2,12 +2,15 @@ import React from 'react';
 import {Navbar, NavbarBrand, Button} from 'reactstrap';
 
 import Logo from '../../Logo/Logo';
+import { ProfileDropdown } from 'src/common/components/ProfileDropdown/ProfileDropdown';
 import './styles.scss';
 
 export interface HeaderProps {
   testID?: string;
   onClick?: () => void;
 }
+
+const menubarUnicode = '\u2261'
 
 const Header: React.FC<HeaderProps> = ({
   testID = 'global-layout-header',
@@ -25,11 +28,12 @@ const Header: React.FC<HeaderProps> = ({
         outline
         onClick={onClick}
       >
-        {'\u2261'}
+        {menubarUnicode}
       </Button>
       <NavbarBrand id={`${testID}:logo:container`} href='/' className='me-auto'>
         <Logo testID={`${testID}:logo`} />
       </NavbarBrand>
+      <ProfileDropdown />
     </Navbar>
   );
 };

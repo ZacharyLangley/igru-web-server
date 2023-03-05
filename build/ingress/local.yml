@@ -1,0 +1,8 @@
+grpc:
+  address: :8000
+webProxyAddress: ""
+clients:
+  authentication:
+    address: http://authentication
+  garden:
+    address: http://garden

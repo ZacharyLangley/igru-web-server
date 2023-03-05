@@ -1,5 +1,6 @@
 import React from 'react';
 
+import language from 'src/common/language/index';
 import logo from '../../assets/branding/IGRU_White_logo.png';
 import './styles.scss';
 
@@ -9,6 +10,10 @@ export interface LogoProps {
   height?: number;
   width?: number;
   hideName?: boolean;
+}
+
+const text = {
+  brandingLabel: language('branding.name')
 }
 
 const Logo: React.FC<LogoProps> = ({
@@ -33,11 +38,12 @@ const Logo: React.FC<LogoProps> = ({
         width={width}
       />
     </div>
-    {!hideName && (
+    {
+      !hideName &&
       <div id={`${testID}:text`} className={'logo-text'}>
-        {'IGRU'}
+        {text.brandingLabel}
       </div>
-    )}
+    }
   </div>
 );
 

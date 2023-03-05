@@ -2,8 +2,7 @@ import {Action} from 'redux';
 import {SessionActionTypes} from '../types/sessions';
 import {
     CreateSessionRequest, 
-    DeleteSessionRequest, DeleteSessionResponse,
-    GetSessionsRequest, GetSessionsResponse,
+    GetSessionsRequest,
     CheckSessionPermissionsRequest, CheckSessionPermissionsResponse,
 } from 'client/authentication/v1/session_pb';
 
@@ -12,19 +11,12 @@ export interface DispatchSignInAction extends Action {
     payload: Partial<CreateSessionRequest>;
   }
 
-export interface SetSignInAction extends Action {
-    type: SessionActionTypes.SET_SIGN_IN_ACTION;
-    payload: Partial<string>;
+export interface SignInSuccessAction extends Action {
+    type: SessionActionTypes.SIGN_IN_SUCCESS_ACTION;
 }
 
-export interface DispatchSignOutAction extends Action {
-    type: SessionActionTypes.DISPATCH_SIGN_OUT_ACTION;
-    payload: Partial<DeleteSessionRequest>;
-}
-
-export interface SetSignOutAction extends Action {
-    type: SessionActionTypes.SET_SIGN_OUT_ACTION;
-    payload: Partial<DeleteSessionResponse>;
+export interface SignInFailureAction extends Action {
+    type: SessionActionTypes.SIGN_IN_FAILURE_ACTION;
 }
 
 export interface DispatchValidateSessionAction extends Action {
@@ -32,9 +24,20 @@ export interface DispatchValidateSessionAction extends Action {
     payload: Partial<GetSessionsRequest>;
 }
 
-export interface SetValidatedSessionAction extends Action {
-    type: SessionActionTypes.SET_VALIDATED_SESSION_ACTION;
-    payload: Partial<GetSessionsResponse>
+export interface ValidateSessionSuccessAction extends Action {
+    type: SessionActionTypes.VALIDATE_SESSION_SUCCESS_ACTION
+}
+
+export interface ValidateSessionFailureAction extends Action {
+    type: SessionActionTypes.VALIDATE_SESSION_FAILURE_ACTION
+}
+
+export interface DispatchSignOutAction extends Action {
+    type: SessionActionTypes.DISPATCH_SIGN_OUT_ACTION;
+}
+
+export interface SignOutSuccessAction extends Action {
+    type: SessionActionTypes.SIGN_OUT_SUCCESS_ACTION;
 }
 
 export interface DispatchValidateSessionPermissionsAction extends Action {
