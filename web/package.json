@@ -36,11 +36,14 @@
     "buf:generate": "buf generate",
     "eject": "react-scripts eject",
     "prettier:format": "prettier --write src/",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:report": "eslint . --ext .js,.jsx,.ts,.tsx -o eslint_report.json -f json --no-color --quiet"
   },
   "devDependencies": {
     "@bufbuild/protoc-gen-connect-web": "^0.6.0",
     "@bufbuild/protoc-gen-es": "^1.0.0",
+    "eslint": "^8.35.0",
     "prettier": "^2.7.1"
   },
   "eslintConfig": {

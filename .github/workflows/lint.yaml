@@ -1,0 +1,46 @@
+name: Lint
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - master
+      - main
+  pull_request:
+permissions:
+  contents: read
+  checks: write
+  statuses: write
+jobs:
+  golangci-lint:
+    name: Golang CI Linter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.20'
+      - uses: actions/checkout@v3
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.51.2
+  eslint:
+    name: Run ESLint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./web
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install modules
+      run: npm install
+    - name: Save Code Linting Report JSON
+      run: npm run lint:report
+      continue-on-error: true
+    - name: Annotate Code Linting Results
+      uses: ataylorme/eslint-annotate-action@v2
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        report-json: "web/eslint_report.json"
+        only-pr-files: false
+        markdown-report-on-step-summary: true
