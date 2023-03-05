@@ -38,7 +38,7 @@
     "prettier:format": "prettier --write src/",
     "tsc": "tsc",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "lint:report": "eslint . --ext .js,.jsx,.ts,.tsx -o eslint_report.json -f json --no-color --quiet"
+    "lint:report": "eslint . --ext .js,.jsx,.ts,.tsx -o eslint_report.json -f json"
   },
   "devDependencies": {
     "@bufbuild/protoc-gen-connect-web": "^0.6.0",

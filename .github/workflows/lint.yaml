@@ -20,6 +20,7 @@ jobs:
         with:
           go-version: '1.20'
       - uses: actions/checkout@v3
+      - run: mkdir cmd/ingress/public && touch cmd/ingress/public/index.html
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
@@ -44,3 +45,4 @@ jobs:
         report-json: "web/eslint_report.json"
         only-pr-files: false
         markdown-report-on-step-summary: true
+        fail-on-warning: true
