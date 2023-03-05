@@ -21,7 +21,6 @@ import (
 
 //go:embed public
 var content embed.FS
-var webContent fs.FS
 
 type Config struct {
 	Metrics config.Metrics `mapstructure:"metrics"`
@@ -47,7 +46,9 @@ func runServer(cmd *cobra.Command, args []string) error {
 	}
 	ctx := context.New(cmd.Context())
 	// Setup tracing
-	cfg.Metrics.Setup("ingress")
+	if err := cfg.Metrics.Setup("ingress"); err != nil {
+		return fmt.Errorf("failed to setup metrics: %w", err)
+	}
 	// Create and populate Mux
 	zap.L().Info("Setting up router")
 	r := mux.NewRouter()

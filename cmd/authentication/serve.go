@@ -18,12 +18,16 @@ func runServer(cmd *cobra.Command, args []string) error {
 	}
 	ctx := context.New(cmd.Context())
 	// Setup tracing
-	cfg.Metrics.Setup("authentication")
+	if err := cfg.Metrics.Setup("authentication"); err != nil {
+		return fmt.Errorf("failed to setup metrics: %w", err)
+	}
 	// Connect to DB
 	conn, err := database.Open(ctx, cfg.Database)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 	// Start serving
-	return connect.ServeMux(ctx, cfg.GRPC, authentication.New(conn))
+	service := authentication.New(conn)
+	service.SessionDuration = cfg.SessionDuration
+	return connect.ServeMux(ctx, cfg.GRPC)
 }

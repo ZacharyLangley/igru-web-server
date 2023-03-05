@@ -33,8 +33,8 @@ func init() {
 	createCmd.Flags().StringVar(&createGrowSize, "growSize", "", "Grow size of a new garden")
 	createCmd.Flags().StringVar(&createContainerSize, "containerSize", "", "ContainerSize of a new garden")
 	createCmd.Flags().StringVar(&createTags, "tags", "", "Tags of a new garden")
-	createCmd.MarkFlagRequired("name")
-	createCmd.MarkFlagRequired("config")
+	config.Must(createCmd.MarkFlagRequired("name"))
+	config.Must(createCmd.MarkFlagRequired("config"))
 	RootCmd.AddCommand(createCmd)
 }
 

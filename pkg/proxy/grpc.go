@@ -74,5 +74,7 @@ func (h GRPC) handleHTTP(w http.ResponseWriter, req *http.Request) {
 	defer resp.Body.Close()
 	copyHeader(w.Header(), resp.Header)
 	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		zap.L().Error("copy error", zap.Error(err))
+	}
 }

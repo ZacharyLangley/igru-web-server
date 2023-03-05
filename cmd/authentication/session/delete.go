@@ -13,18 +13,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	deleteCmd.MarkFlagRequired("config")
-	RootCmd.AddCommand(deleteCmd)
-}
-
 var (
 	deleteSessionID string
 )
 
 func init() {
+	config.Must(deleteCmd.MarkFlagRequired("config"))
 	deleteCmd.Flags().StringVar(&deleteSessionID, "id", "", "ID of an existing session")
-	deleteCmd.MarkFlagRequired("id")
+	config.Must(deleteCmd.MarkFlagRequired("id"))
 	RootCmd.AddCommand(deleteCmd)
 }
 

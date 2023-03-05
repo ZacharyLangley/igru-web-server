@@ -23,7 +23,11 @@ func (s *Service) CreateStrain(baseCtx gocontext.Context, req *connect_go.Reques
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}
+	// TODO: Add validation function
 	parentageID, err := uuid.Parse(req.Msg.Parentage)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid parentage id format: %w", err))
+	}
 	// Check write access
 	allowed, err := s.checker.AssertWrite(ctx, req, req.Msg.GroupId)
 	if err != nil {
@@ -110,11 +114,15 @@ func (s *Service) UpdateStrain(baseCtx gocontext.Context, req *connect_go.Reques
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}
+	// TODO: Add validation functions
 	strainID, err := uuid.Parse(req.Msg.Id)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid user id format: %w", err))
 	}
 	parentageID, err := uuid.Parse(req.Msg.Parentage)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid parentage id format: %w", err))
+	}
 	groupID, err := s.resolveStrainGroupID(ctx, strainID)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid strain id: %w", err))

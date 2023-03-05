@@ -20,9 +20,9 @@ var getTokenPassword string
 func init() {
 	loginCmd.Flags().StringVar(&getTokenEmail, "email", "", "Email of a new user")
 	loginCmd.Flags().StringVar(&getTokenPassword, "password", "", "Password of a new user")
-	loginCmd.MarkFlagRequired("email")
-	loginCmd.MarkFlagRequired("password")
-	loginCmd.MarkFlagRequired("config")
+	config.Must(loginCmd.MarkFlagRequired("email"))
+	config.Must(loginCmd.MarkFlagRequired("password"))
+	config.Must(loginCmd.MarkFlagRequired("config"))
 	RootCmd.AddCommand(loginCmd)
 }
 

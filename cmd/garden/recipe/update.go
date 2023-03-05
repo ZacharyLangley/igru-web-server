@@ -33,7 +33,7 @@ func init() {
 	updateCmd.Flags().Float64Var(&updatePh, "ph", 0, "pH of a recipe")
 	updateCmd.Flags().Float64Var(&updateMixTimeMilliseconds, "mixTimeMilliseconds", 0, "MixTimeMilliseconds of a recipe")
 	updateCmd.Flags().StringVar(&updateTags, "tags", "", "Tags of a recipe")
-	updateCmd.MarkFlagRequired("id")
+	config.Must(updateCmd.MarkFlagRequired("id"))
 	RootCmd.AddCommand(updateCmd)
 }
 

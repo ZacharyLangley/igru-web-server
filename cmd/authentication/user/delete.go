@@ -13,18 +13,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	deleteCmd.MarkFlagRequired("config")
-	RootCmd.AddCommand(deleteCmd)
-}
-
 var (
 	deleteUserID string
 )
 
 func init() {
+	config.Must(deleteCmd.MarkFlagRequired("config"))
 	deleteCmd.Flags().StringVar(&deleteUserID, "id", "", "ID of an existing user")
-	deleteCmd.MarkFlagRequired("id")
+	config.Must(deleteCmd.MarkFlagRequired("id"))
 	RootCmd.AddCommand(deleteCmd)
 }
 
@@ -36,7 +32,7 @@ var deleteCmd = &cobra.Command{
 	},
 	Short:   "Delete an existing user",
 	PreRunE: config.SetupCobraLogger,
-	RunE:    createUser,
+	RunE:    deleteUser,
 	Args: func(cmd *cobra.Command, args []string) error {
 		// Optionally run one of the validators provided by cobra
 		if err := cobra.MinimumNArgs(1)(cmd, args); err != nil {

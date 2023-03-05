@@ -36,7 +36,9 @@ func runServer(cmd *cobra.Command, args []string) error {
 	}
 	ctx := context.New(cmd.Context())
 	// Setup tracing
-	cfg.Metrics.Setup("garden")
+	if err := cfg.Metrics.Setup("garden"); err != nil {
+		return fmt.Errorf("failed to setup metrics: %w", err)
+	}
 	// Connect to DB
 	conn, err := database.Open(ctx, cfg.Database)
 	if err != nil {
