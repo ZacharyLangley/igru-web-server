@@ -1,39 +1,53 @@
-import {takeLatest} from 'redux-saga/effects';
+import {call, put, takeLatest} from 'redux-saga/effects';
 import {SessionActionTypes} from '../types/sessions';
 
 import {
     DispatchSignInAction,
-    DispatchSignOutAction,
-    DispatchValidateSessionAction,
     DispatchValidateSessionPermissionsAction,
 } from '../interfaces/sessions';
-import { signInRequest } from '../../domain/requests/sessions';
+import { signInRequest, signOutRequest, validateSessionRequest } from '../../domain/requests/sessions';
+import { signInFailureAction, signInSuccessAction, validateSessionFailureAction, validateSessionSuccessAction } from '../../domain/actions/sessions';
+import { getUserCookie, removeUserCookie, setUserCookie } from 'src/domain/utils/cookies';
+import { GetSessionsResponse } from 'src/client/authentication/v1/session_pb';
 
 export function* signIn (action: DispatchSignInAction) {
     try {
         const {email, password} = action.payload;
         if (email && password) {
-            let resp: string = yield signInRequest(email, password);
-            yield console.log('signIn: ', resp);
+            const response: string = yield call(signInRequest, email, password);
+            if (!response) yield put(signInFailureAction())
+            else {
+                yield call(setUserCookie, response);
+                yield put(signInSuccessAction())
+            }
         }
     } catch (e) {
-        yield console.log('signIn: ', e);
+        yield put(signInFailureAction())
     }
 }
 
-export function* signOut (action: DispatchSignOutAction) {
+// TODO: Needs delete user session logic
+export function* signOut () {
     try {
-        yield console.log('signOut: ', action);
+        yield call(removeUserCookie);
+        yield call(signOutRequest);
     } catch (e) {
         yield console.log('signOut: ', e);
     }
 }
 
-export function* validateSession (action: DispatchValidateSessionAction) {
+// Needs Expiration Logic 
+export function* validateSession () {
     try {
-        yield console.log('validateSession: ', action);
+        const token: string = yield getUserCookie();
+        if (!token) yield put(validateSessionFailureAction());
+        else {
+            const response: GetSessionsResponse = yield call(validateSessionRequest, token)
+            if (!response) yield put(validateSessionFailureAction());
+            else yield put(validateSessionSuccessAction())
+        }
     } catch (e) {
-        yield console.log('validateSession: ', e);
+        yield put(validateSessionFailureAction());
     }
 }
 

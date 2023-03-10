@@ -1,4 +1,4 @@
-import {takeLatest} from 'redux-saga/effects';
+import {call, put, takeLatest} from 'redux-saga/effects';
 
 import {UserActionTypes} from '../types/user';
 import {
@@ -10,18 +10,15 @@ import {
   } from '../interfaces/user';
 import { signUpRequest } from '../../domain/requests/user';
 import { CreateUserResponse } from '../../client/authentication/v1/user_pb';
+import { signUpFailedAction, signUpSuccessAction } from '../../domain/actions/user';
 
 export function* signUpUser (action: DispatchSignUpAction) {
     try {
         const {email, password} = action.payload;
         if (email && password) {
-            const response: CreateUserResponse = yield signUpRequest(email, password);
-            yield console.log('signUpUser: ', action, response);
-            if (!response.user) {
-                yield console.log('failed to create user');
-                return;
-            }
-            yield console.log('Created user: ', response.user.id);
+            const response: CreateUserResponse = yield call(signUpRequest, email, password);
+            if (!response.user) yield put(signUpFailedAction());
+            else yield put(signUpSuccessAction(response))
         }
     } catch (e) {
         yield console.log('signUpUser: ', e);

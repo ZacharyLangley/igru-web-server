@@ -13,9 +13,17 @@ export interface DispatchSignUpAction extends Action {
   payload: Partial<CreateUserRequest>;
 }
 
-export interface SetSignUpAction extends Action {
-  type: UserActionTypes.SET_SIGN_UP_ACTION;
+export interface SignUpSuccessAction extends Action {
+  type: UserActionTypes.SIGN_UP_SUCCESS_ACTION;
   payload: Partial<CreateUserResponse>;
+}
+
+export interface SignUpFailureAction extends Action {
+  type: UserActionTypes.SIGN_UP_FAILURE_ACTION;
+}
+
+export interface SignUpResetAction extends Action {
+  type: UserActionTypes.SIGN_UP_RESET_ACTION;
 }
 
 export interface DispatchDeleteUserAction extends Action {

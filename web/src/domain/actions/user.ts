@@ -1,7 +1,9 @@
 import {UserActionTypes} from '../types/user';
 import {
   DispatchSignUpAction,
-  SetSignUpAction,
+  SignUpSuccessAction,
+  SignUpFailureAction,
+  SignUpResetAction,
   DispatchDeleteUserAction,
   SetDeleteUserAction,
   DispatchUpdateUserAction,
@@ -9,7 +11,7 @@ import {
   DispatchGetUsersAction,
   SetGetUsersAction,
   DispatchResetPasswordAction,
-  SetResetPasswordAction
+  SetResetPasswordAction,
 } from '../interfaces/user';
 import { 
   CreateUserRequest, CreateUserResponse,
@@ -24,10 +26,14 @@ export const dispatchSignUpAction = (payload: Partial<CreateUserRequest>): Dispa
   payload
 });
 
-export const setSignUpAction = (payload: Partial<CreateUserResponse>): SetSignUpAction => ({
-  type: UserActionTypes.SET_SIGN_UP_ACTION,
+export const signUpSuccessAction = (payload: Partial<CreateUserResponse>): SignUpSuccessAction => ({
+  type: UserActionTypes.SIGN_UP_SUCCESS_ACTION,
   payload
 });
+
+export const signUpFailedAction = (): SignUpFailureAction => ({type: UserActionTypes.SIGN_UP_FAILURE_ACTION});
+
+export const signUpResetAction = (): SignUpResetAction => ({type: UserActionTypes.SIGN_UP_RESET_ACTION});
 
 export const dispatchDeleteUserAction = (payload: Partial<DeleteUserRequest>): DispatchDeleteUserAction => ({
   type: UserActionTypes.DISPATCH_DELETE_USER_ACTION,
