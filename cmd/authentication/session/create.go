@@ -22,7 +22,6 @@ func init() {
 	createCmd.Flags().StringVar(&getTokenPassword, "password", "", "Password of a new user")
 	config.Must(createCmd.MarkFlagRequired("email"))
 	config.Must(createCmd.MarkFlagRequired("password"))
-	config.Must(createCmd.MarkFlagRequired("config"))
 	RootCmd.AddCommand(createCmd)
 }
 

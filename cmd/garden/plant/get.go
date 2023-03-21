@@ -18,7 +18,6 @@ var (
 )
 
 func init() {
-	config.Must(getCmd.MarkFlagRequired("config"))
 	getCmd.Flags().StringVar(&getPlantID, "id", "", "id of an existing plant")
 	config.Must(getCmd.MarkFlagRequired("id"))
 	RootCmd.AddCommand(getCmd)

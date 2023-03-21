@@ -18,9 +18,6 @@ var RootCmd = &cobra.Command{
 }
 
 func init() {
-	if err := serveCmd.MarkFlagRequired("config"); err != nil {
-		panic(err)
-	}
 	RootCmd.AddCommand(serveCmd)
 	RootCmd.AddCommand(user.RootCmd)
 	RootCmd.AddCommand(group.RootCmd)

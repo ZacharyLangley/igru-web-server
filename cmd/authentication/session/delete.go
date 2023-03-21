@@ -18,7 +18,6 @@ var (
 )
 
 func init() {
-	config.Must(deleteCmd.MarkFlagRequired("config"))
 	deleteCmd.Flags().StringVar(&deleteSessionID, "id", "", "ID of an existing session")
 	config.Must(deleteCmd.MarkFlagRequired("id"))
 	RootCmd.AddCommand(deleteCmd)

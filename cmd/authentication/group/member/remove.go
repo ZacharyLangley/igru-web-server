@@ -22,7 +22,6 @@ func init() {
 	config.Must(removeCmd.MarkFlagRequired("groupID"))
 	removeCmd.Flags().StringVar(&removeUserID, "userID", "", "ID of an existing user")
 	config.Must(removeCmd.MarkFlagRequired("userID"))
-	config.Must(removeCmd.MarkFlagRequired("config"))
 	RootCmd.AddCommand(removeCmd)
 }
 
