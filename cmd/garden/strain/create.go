@@ -38,7 +38,6 @@ func init() {
 	createCmd.Flags().StringVar(&createAroma, "aroma", "", "Aroma of a strain")
 	createCmd.Flags().StringVar(&createTaste, "taste", "", "Taste of a strain")
 	config.Must(createCmd.MarkFlagRequired("name"))
-	config.Must(createCmd.MarkFlagRequired("config"))
 	RootCmd.AddCommand(createCmd)
 }
 

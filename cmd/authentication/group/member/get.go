@@ -18,7 +18,6 @@ var getGroupID string
 func init() {
 	getCmd.Flags().StringVar(&getGroupID, "groupID", "", "ID of an existing user group")
 	config.Must(getCmd.MarkFlagRequired("groupID"))
-	config.Must(getCmd.MarkFlagRequired("config"))
 	RootCmd.AddCommand(getCmd)
 }
 

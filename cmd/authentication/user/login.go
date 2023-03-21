@@ -22,8 +22,6 @@ func init() {
 	loginCmd.Flags().StringVar(&getTokenPassword, "password", "", "Password of a new user")
 	config.Must(loginCmd.MarkFlagRequired("email"))
 	config.Must(loginCmd.MarkFlagRequired("password"))
-	config.Must(loginCmd.MarkFlagRequired("config"))
-	RootCmd.AddCommand(loginCmd)
 }
 
 var loginCmd = &cobra.Command{

@@ -22,7 +22,6 @@ func init() {
 	config.Must(addCmd.MarkFlagRequired("groupID"))
 	addCmd.Flags().StringVar(&addUserID, "userID", "", "ID of an existing user")
 	config.Must(addCmd.MarkFlagRequired("userID"))
-	config.Must(addCmd.MarkFlagRequired("config"))
 	RootCmd.AddCommand(addCmd)
 }
 

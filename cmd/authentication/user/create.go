@@ -26,7 +26,6 @@ func init() {
 	config.Must(createCmd.MarkFlagRequired("full-name"))
 	config.Must(createCmd.MarkFlagRequired("email"))
 	config.Must(createCmd.MarkFlagRequired("password"))
-	config.Must(createCmd.MarkFlagRequired("config"))
 	RootCmd.AddCommand(createCmd)
 }
 
