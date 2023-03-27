@@ -2,7 +2,6 @@ import {
     createPromiseClient,
     createConnectTransport,
 } from '@bufbuild/connect-web';
-import { CreateUserResponse } from '../../client/authentication/v1/user_pb';
 
 import {
     UserService
@@ -15,7 +14,6 @@ const client = createPromiseClient(
     })
 );
 
-export function* signUpRequest (email: string, password: string) {
-    const response: CreateUserResponse = yield client.createUser({email, password});
-    return response;
+export const signUpRequest = async (email: string, password: string) => {
+    return await client.createUser({email, password});
 }

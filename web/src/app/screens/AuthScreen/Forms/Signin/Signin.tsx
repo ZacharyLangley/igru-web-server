@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import { useDispatch } from 'react-redux';
 
 import AuthForm from '../../AuthForm/AuthForm';
 import SigninForm, {defaultSignInFormData} from './SigninForm/SigninForm';
@@ -8,7 +7,7 @@ import AuthDialog from '../../AuthDialog/AuthDialog';
 import Branding from '../../../../../common/components/Branding/Branding';
 import AuthFooter from '../../AuthFooter/AuthFooter';
 import { RoutePath } from '../../../../types/routes';
-import { dispatchSignInAction } from '../../../../../domain/actions/sessions';
+import useSession from 'src/store/useSession/useSession';
 
 interface SigninProps {
   testID?: string;
@@ -27,7 +26,7 @@ const Signin: React.FC<SigninProps> = ({
   testID = 'sign-in-form-container',
   ...props
 }) => {
-  const dispatch = useDispatch();
+  const {signIn} = useSession();
   const [formData, setFormData] = useState(defaultSignInFormData);
 
   const updateFormData = (key: string, value: number | string) => {
@@ -39,7 +38,7 @@ const Signin: React.FC<SigninProps> = ({
 
   const handleAuthentication = () => {
     if (isValid(formData)) {
-      dispatch(dispatchSignInAction({email: formData.email, password: formData.password}));
+      signIn(formData.email, formData.password)
     }
   }
 

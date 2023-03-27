@@ -1,13 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 
-import { dispatchSignOutAction } from 'src/domain/actions/sessions';
 import language from 'src/common/language/index';
 import { RoutePath } from 'src/app/types/routes';
 import Icon from 'src/common/components/Icon/Icon';
 import profileIcon from 'src/common/assets/icons/nav/profile_icon.png';
+import useSession from 'src/store/useSession/useSession';
 
 const welcomeLabel = language('navbar.dropdown.header');
 const profileLabel = language('navbar.dropdown.profile');
@@ -18,7 +17,7 @@ interface ProfileDropdownProps {}
 const dropdownToggleStyle = {backgroundColor: 'transparent', borderWidth: 0, borderRadius: 50};
 
 export const ProfileDropdown:React.FC<ProfileDropdownProps>  = () => {
-    const dispatch = useDispatch();
+    const {signOut} = useSession();
     const navigate = useNavigate();
 
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -26,9 +25,9 @@ export const ProfileDropdown:React.FC<ProfileDropdownProps>  = () => {
     const toggle = () => setDropdownOpen((prevState) => !prevState);
 
     const onSignOutClick = useCallback(() => {
-        dispatch(dispatchSignOutAction())
+        signOut();
         navigate(RoutePath.HOME);
-    }, [dispatch, navigate])
+    }, [signOut, navigate])
 
     return (
         <div className="d-flex p-1">
