@@ -1,11 +1,10 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import language from 'src/common/language/index';
 import { RoutePath } from 'src/app/types/routes';
 import PrimaryButton from '../../../../../../common/components/Button/PrimaryButton/PrimaryButton';
-import { signUpResetAction } from '../../../../../../domain/actions/user';
+import useUser from 'src/store/useUser/useUser';
 
 interface SignupFailureProps {}
 
@@ -16,11 +15,11 @@ const text = {
 }
 
 export const SignupFailure: React.FC<SignupFailureProps> = () => {
+    const {resetSignUpStatus} = useUser();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
 
     const onClick = () => {
-        dispatch(signUpResetAction())
+        resetSignUpStatus();
         navigate(RoutePath.SIGN_UP)
     }
 

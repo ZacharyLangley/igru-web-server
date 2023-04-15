@@ -1,26 +1,25 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import language from 'src/common/language/index';
 import { RoutePath } from 'src/app/types/routes';
 import PrimaryButton from '../../../../../../common/components/Button/PrimaryButton/PrimaryButton';
-import { signUpResetAction } from '../../../../../../domain/actions/user';
+import useUser from 'src/store/useUser/useUser';
 
 interface SignupSuccessProps {}
 
 const text = {
-    messageLineTop: language("auth.sign_up.error.message_top"),
-    messageLineBottom: language("auth.sign_up.error.message_bottom"),
-    buttonTitle: language("auth.sign_up.error.button_title")
+    messageLineTop: language("auth.sign_up.success.message_top"),
+    messageLineBottom: language("auth.sign_up.success.message_bottom"),
+    buttonTitle: language("auth.sign_up.success.button_title")
 }
 
 export const SignupSuccess: React.FC<SignupSuccessProps> = () => {
+    const {resetSignUpStatus} = useUser();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
 
     const onClick = () => {
-        dispatch(signUpResetAction())
+        resetSignUpStatus();
         navigate(RoutePath.HOME)
     }
 

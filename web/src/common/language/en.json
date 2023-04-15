@@ -19,7 +19,7 @@
 
     "auth.sign_up.error.message_top": "It appears that your registration to IGRU failed unexpectedly.",
     "auth.sign_up.error.message_bottom": "Feel free to click the link below to go try again",    
-    "auth.sign_up.error.button_title": "Proceed to Sign Up Form'",
+    "auth.sign_up.error.button_title": "Proceed to Sign Up Form",
 
     "navbar.dropdown.header": "Welcome to IGRU", 
     "navbar.dropdown.profile": "Profile",

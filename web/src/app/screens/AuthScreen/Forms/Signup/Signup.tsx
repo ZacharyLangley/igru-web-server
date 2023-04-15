@@ -1,5 +1,4 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 
 import AuthForm from '../../AuthForm/AuthForm';
 import SignupForm, {defaultSignupFormData} from './SignupForm/SignupForm';
@@ -8,11 +7,9 @@ import AuthDialog from '../../AuthDialog/AuthDialog';
 import Branding from '../../../../../common/components/Branding/Branding';
 import AuthFooter from '../../AuthFooter/AuthFooter';
 import { RoutePath } from '../../../../types/routes';
-import { dispatchSignUpAction } from '../../../../../domain/actions/user';
-import { userSignUpStatusSelector } from '../../../../../domain/selectors/user';
-import { UserSignUpStatus } from '../../../../../domain/types/user';
 import { SignupSuccess } from './SignupForm/SignupSuccess';
 import { SignupFailure } from './SignupForm/SignupFailure';
+import useUser, {Status} from 'src/store/useUser/useUser';
 
 interface SignupProps {
   testID?: string;
@@ -36,9 +33,8 @@ const isValid = (formData: any) => (
 )
 
 const Signup: React.FC<SignupProps> = () => {
-  const dispatch = useDispatch();
+  const {signUpStatus, signUp} = useUser();
   const [formData, setFormData] = useState(defaultSignupFormData);
-  const signUpStatus = useSelector(userSignUpStatusSelector);
   
   const updateFormData = useCallback((key: string, value: number | string) => {
     setFormData({
@@ -49,29 +45,29 @@ const Signup: React.FC<SignupProps> = () => {
 
   const onClick = () => {
     if (isValid(formData)) {
-      dispatch(dispatchSignUpAction({email: formData.email, password: formData.password}));
+      signUp(formData.email, formData.password);
     }
   };
 
   const formTitle = useMemo(() => {
     switch(signUpStatus) {
-      case UserSignUpStatus.FAILURE: return text.headerTitleFailure;
-      case UserSignUpStatus.SUCCESS: return text.headerTitleSuccess;
-      case UserSignUpStatus.IDLE:
+      case Status.FAILURE: return text.headerTitleFailure;
+      case Status.SUCCESS: return text.headerTitleSuccess;
+      case Status.IDLE:
       default: return text.headerTitle;
     }
   }, [signUpStatus]);
 
   const formBody = useMemo(() => {
     switch(signUpStatus) {
-      case UserSignUpStatus.FAILURE: return <SignupFailure />
-      case UserSignUpStatus.SUCCESS: return <SignupSuccess />
-      case UserSignUpStatus.IDLE:
+      case Status.FAILURE: return <SignupFailure />
+      case Status.SUCCESS: return <SignupSuccess />
+      case Status.IDLE:
       default: return <SignupForm formData={formData} onChange={updateFormData} />;
     }
   }, [signUpStatus, formData, updateFormData]);
 
-  const formFooter = (signUpStatus === UserSignUpStatus.IDLE)
+  const formFooter = (signUpStatus === Status.IDLE)
     ? (
       <AuthFooter
         title={text.authFooterTitle}
