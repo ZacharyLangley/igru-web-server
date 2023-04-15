@@ -12,8 +12,8 @@ database:
   maxRetries: 5
   migrationPath: "/migrations"
 logger:
-  development: false
-  level: info
+  development: true
+  level: debug
 metrics:
   jaegerAddress: "localhost:14268"
 sessionDuration: 5m

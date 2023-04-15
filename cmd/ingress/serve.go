@@ -52,8 +52,8 @@ func runServer(cmd *cobra.Command, args []string) error {
 	// Create and populate Mux
 	zap.L().Info("Setting up router")
 	r := mux.NewRouter()
-	r.MethodNotAllowedHandler = errorHandler("method not allowed")
-	r.NotFoundHandler = errorHandler("not found")
+	r.MethodNotAllowedHandler = errorHandler("method not fucking allowed")
+	r.NotFoundHandler = errorHandler("not fucking found")
 	r.Use(loggingMiddleware)
 	// Attach services
 	if err := proxy.RegisterProxy(r, cfg.Clients.Authentication, authenticationv1connect.UserServiceName); err != nil {
@@ -127,5 +127,6 @@ func loggingMiddleware(next http.Handler) http.Handler {
 			zap.String("requestURI", r.RequestURI))
 		// Call the next handler, which can be another middleware in the chain, or the final handler.
 		next.ServeHTTP(w, r)
+		logger.Debug("processed request")
 	})
 }

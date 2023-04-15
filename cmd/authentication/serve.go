@@ -29,5 +29,5 @@ func runServer(cmd *cobra.Command, args []string) error {
 	// Start serving
 	service := authentication.New(conn)
 	service.SessionDuration = cfg.SessionDuration
-	return connect.ServeMux(ctx, cfg.GRPC)
+	return connect.ServeMux(ctx, cfg.GRPC, service)
 }
