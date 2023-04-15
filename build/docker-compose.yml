@@ -20,9 +20,7 @@ services:
           condition: on-failure
 
   authentication:
-    build:
-      context: ./..
-      dockerfile: build/Dockerfile
+    image: igru:latest
     command: auth serve --config default.yml --level debug
     volumes:
       - ./authentication/default.yml://default.yml:ro
@@ -49,9 +47,7 @@ services:
       - ./db-data/cockroach/://cockroach/cockroach-data
 
   garden:
-    build:
-      context: ./..
-      dockerfile: build/Dockerfile
+    image: igru:latest
     command: garden serve --config default.yml --level debug
     restart: always
     ports:
@@ -67,9 +63,7 @@ services:
       - init-db
 
   ingress:
-    build:
-      context: ./..
-      dockerfile: build/Dockerfile
+    image: igru:latest
     command: ingress serve --config default.yml --level debug
     volumes:
       - ./ingress/default.yml://default.yml:ro

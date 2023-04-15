@@ -20,6 +20,9 @@ func ServeMux(ctx context.Context, grpcConfig config.GRPC, services ...Service) 
 	for _, svc := range services {
 		svc.Register(mux)
 	}
+	mux.HandleFunc("*", func(w http.ResponseWriter, r *http.Request) {
+		zap.L().Info("Got something")
+	})
 	// Create HTTP server
 	srv := &http.Server{
 		Addr:    grpcConfig.Address,
