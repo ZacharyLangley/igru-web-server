@@ -40,7 +40,7 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 		sess, err = queries.CreateSession(ctx, models.CreateSessionParams{
 			UserID:    user.ID,
 			CreatedAt: now,
-			ExpiredAt: now.Add(s.SessionDuration),
+			ExpiredAt: now.Add(time.Duration(s.SessionDuration)),
 		})
 		return err
 	}); err != nil {
