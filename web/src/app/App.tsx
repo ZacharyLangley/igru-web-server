@@ -9,18 +9,18 @@ import useUser from 'src/store/useUser/useUser';
 interface AppProps {}
 
 const App: React.FC<AppProps> = () => {
-  const {sessionValidated, validateSession} = useSession();
+  const {sessionValidated, getSessionUser} = useSession();
   const {setUser} = useUser();
   const router = useMemo(() => sessionValidated ? PrivateRouter : PublicRouter, [sessionValidated]);
 
   useEffect(() => {
     const validateUser = async () => {
-      const user = await validateSession();
+      const user = await getSessionUser();
       setUser(user);
     }
 
     validateUser();
-  }, [validateSession, setUser])
+  }, [getSessionUser, setUser])
 
   return <RouterProvider router={router} />;
 };

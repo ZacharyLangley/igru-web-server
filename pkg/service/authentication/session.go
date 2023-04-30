@@ -40,7 +40,7 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 		sess, err = queries.CreateSession(ctx, models.CreateSessionParams{
 			UserID:    user.ID,
 			CreatedAt: now,
-			ExpiredAt: now.Add(time.Duration(s.SessionDuration)),
+			ExpiredAt: now.Add(s.SessionDuration),
 		})
 		// Need to do a conditional here where if fullName is not submitted, then we use the email
 		res.Msg.User = &v1.User{
@@ -60,7 +60,7 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 	return res, nil
 }
 
-func (s *Service) GetUserSession(baseCtx gocontext.Context, req *connect.Request[v1.GetSessionUserRequest]) (*connect.Response[v1.GetSessionUserResponse], error) {
+func (s *Service) GetSessionUser(baseCtx gocontext.Context, req *connect.Request[v1.GetSessionUserRequest]) (*connect.Response[v1.GetSessionUserResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetSessionUserResponse{})
 	token, err := ExtractSessionToken(req.Header())

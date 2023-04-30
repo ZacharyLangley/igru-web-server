@@ -19,7 +19,7 @@ interface SessionState {
 interface SessionActions {
     signIn: (email?: string, password?: string) => void;
     signOut: () => void;
-    validateSession: () => void;
+    getSessionUser: () => void;
     validateSessionPermissions: () => void;
 }
 
@@ -47,7 +47,7 @@ const useSession = create<SessionState & SessionActions>((set) => ({
         removeUserCookie()
         set({sessionValidated: false, signInStatus: Status.IDLE, error: undefined});
     },
-    validateSession: async () => {
+    getSessionUser: async () => {
         try {
             const token = await getUserCookie();
             if (token) {
