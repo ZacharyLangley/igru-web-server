@@ -60,6 +60,43 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 	return res, nil
 }
 
+func (s *Service) ValidateSession(baseCtx gocontext.Context, req *connect.Request[v1.ValidateSessionRequest]) (*connect.Response[v1.ValidateSessionResponse], error) {
+	ctx := context.New(baseCtx)
+	res := connect.NewResponse(&v1.ValidateSessionResponse{})
+	token, err := ExtractSessionToken(req.Header())
+	if err != nil {
+		return nil, err
+	}
+	sess, err := auth.DecodeToken(token)
+	if err != nil {
+		ctx.L().Error("Failed to verify session", zap.Error(err))
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("missing token"))
+	}
+	now := time.Now()
+	if now.After(sess.ExpiredAt) {
+		ctx.L().Error("Token is Expired", zap.Error(err))
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("expired token"))
+	}
+
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
+		queries := models.New(tx)
+		user, err := queries.GetUser(ctx, sess.UserID)
+		if err != nil {
+			return err
+		}
+		res.Msg.User = &v1.User{
+			Id:       user.ID.String(),
+			Email:    user.Email,
+			FullName: user.Email,
+		}
+		return err
+	}); err != nil {
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid user id"))
+	}
+
+	return res, nil
+}
+
 func (s *Service) GetSessions(baseCtx gocontext.Context, req *connect.Request[v1.GetSessionsRequest]) (*connect.Response[v1.GetSessionsResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetSessionsResponse{})
@@ -94,6 +131,7 @@ func (s *Service) GetSessions(baseCtx gocontext.Context, req *connect.Request[v1
 	for _, sess := range sessions {
 		var newSession v1.Session
 		newSession.Id = sess.ID.String()
+		newSession.UserId = sess.UserID.String()
 		newSession.CreatedAt = timestamppb.New(sess.CreatedAt)
 		newSession.ExpiredAt = timestamppb.New(sess.ExpiredAt)
 		res.Msg.Sessions = append(res.Msg.Sessions, &newSession)

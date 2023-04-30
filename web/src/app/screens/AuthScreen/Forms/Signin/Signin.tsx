@@ -8,6 +8,7 @@ import Branding from '../../../../../common/components/Branding/Branding';
 import AuthFooter from '../../AuthFooter/AuthFooter';
 import { RoutePath } from '../../../../types/routes';
 import useSession from 'src/store/useSession/useSession';
+import useUser from 'src/store/useUser/useUser';
 
 interface SigninProps {
   testID?: string;
@@ -27,6 +28,7 @@ const Signin: React.FC<SigninProps> = ({
   ...props
 }) => {
   const {signIn} = useSession();
+  const {setUser} = useUser();
   const [formData, setFormData] = useState(defaultSignInFormData);
 
   const updateFormData = (key: string, value: number | string) => {
@@ -36,9 +38,11 @@ const Signin: React.FC<SigninProps> = ({
     });
   };
 
-  const handleAuthentication = () => {
+  const handleAuthentication = async () => {
     if (isValid(formData)) {
-      signIn(formData.email, formData.password)
+      const user = await signIn(formData.email, formData.password);
+      console.log(user);
+      setUser(user);
     }
   }
 

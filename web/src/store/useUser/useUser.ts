@@ -17,7 +17,8 @@ interface UserState {
 
 interface UserActions {
     signUp: (email?: string, password?: string) => void;
-    resetSignUpStatus: () => void,
+    setUser: (user: any) => void;
+    resetSignUpStatus: () => void;
     deleteUser: () => void;
     updateUser: () => void;
     getUsers: () => void;
@@ -42,6 +43,7 @@ const useUser = create<UserState & UserActions>((set) => ({
             set({signUpStatus: Status.FAILURE, error});
         }
     },
+    setUser: (user: any) => set({user}),
     resetSignUpStatus: () => {
         set({signUpStatus: Status.IDLE, error: undefined})
     },

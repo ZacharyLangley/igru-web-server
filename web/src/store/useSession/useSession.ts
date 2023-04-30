@@ -34,8 +34,9 @@ const useSession = create<SessionState & SessionActions>((set) => ({
                 set({signInStatus: Status.PENDING, error: undefined});
                 const response = await signInRequest(email, password);
                 if (response) {
-                    setUserCookie(response);
+                    setUserCookie(response.token);
                     set({sessionValidated: true, signInStatus: Status.SUCCESS});
+                    return response.user;
                 } else set({signInStatus: Status.FAILURE})
             }
         } catch (error) {

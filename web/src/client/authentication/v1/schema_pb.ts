@@ -108,17 +108,22 @@ export class Session extends Message<Session> {
   address = "";
 
   /**
-   * @generated from field: google.protobuf.Timestamp created_at = 3;
+   * @generated from field: string user_id = 3;
+   */
+  userId = "";
+
+  /**
+   * @generated from field: google.protobuf.Timestamp created_at = 4;
    */
   createdAt?: Timestamp;
 
   /**
-   * @generated from field: google.protobuf.Timestamp last_used_at = 4;
+   * @generated from field: google.protobuf.Timestamp last_used_at = 5;
    */
   lastUsedAt?: Timestamp;
 
   /**
-   * @generated from field: google.protobuf.Timestamp expired_at = 5;
+   * @generated from field: google.protobuf.Timestamp expired_at = 6;
    */
   expiredAt?: Timestamp;
 
@@ -132,9 +137,10 @@ export class Session extends Message<Session> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "address", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "created_at", kind: "message", T: Timestamp },
-    { no: 4, name: "last_used_at", kind: "message", T: Timestamp },
-    { no: 5, name: "expired_at", kind: "message", T: Timestamp },
+    { no: 3, name: "user_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "created_at", kind: "message", T: Timestamp },
+    { no: 5, name: "last_used_at", kind: "message", T: Timestamp },
+    { no: 6, name: "expired_at", kind: "message", T: Timestamp },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Session {
