@@ -53,7 +53,10 @@ const useSession = create<SessionState & SessionActions>((set) => ({
             if (token) {
                 set({signInStatus: Status.PENDING});
                 const response = await validateSessionRequest(token)
-                if (response) set({sessionValidated: true, signInStatus: Status.SUCCESS})
+                if (response) {
+                    set({sessionValidated: true, signInStatus: Status.SUCCESS})
+                    return response.user;
+                }
                 else set({sessionValidated: false, signInStatus: Status.FAILURE})
             }
 
