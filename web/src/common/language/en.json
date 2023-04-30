@@ -34,6 +34,8 @@
     "sidebar.option.settings": "Settings",
 
     "input.label.email": "Email",
+    "input.label.full_name": "Name",
     "input.label.password": "Password",
-    "input.label.confirm_password": "Confirm Password"
+    "input.label.confirm_password": "Confirm Password",
+    "input.label.optional": "Optional"
 }

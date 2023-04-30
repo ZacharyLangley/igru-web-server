@@ -25,6 +25,44 @@ const (
 	GroupServiceName = "authentication.v1.GroupService"
 )
 
+// These constants are the fully-qualified names of the RPCs defined in this package. They're
+// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+//
+// Note that these are different from the fully-qualified method names used by
+// google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
+// reflection-formatted method names, remove the leading slash and convert the remaining slash to a
+// period.
+const (
+	// GroupServiceCreateGroupProcedure is the fully-qualified name of the GroupService's CreateGroup
+	// RPC.
+	GroupServiceCreateGroupProcedure = "/authentication.v1.GroupService/CreateGroup"
+	// GroupServiceUpdateGroupProcedure is the fully-qualified name of the GroupService's UpdateGroup
+	// RPC.
+	GroupServiceUpdateGroupProcedure = "/authentication.v1.GroupService/UpdateGroup"
+	// GroupServiceDeleteGroupProcedure is the fully-qualified name of the GroupService's DeleteGroup
+	// RPC.
+	GroupServiceDeleteGroupProcedure = "/authentication.v1.GroupService/DeleteGroup"
+	// GroupServiceGetGroupProcedure is the fully-qualified name of the GroupService's GetGroup RPC.
+	GroupServiceGetGroupProcedure = "/authentication.v1.GroupService/GetGroup"
+	// GroupServiceGetGroupsProcedure is the fully-qualified name of the GroupService's GetGroups RPC.
+	GroupServiceGetGroupsProcedure = "/authentication.v1.GroupService/GetGroups"
+	// GroupServiceAddGroupMemberProcedure is the fully-qualified name of the GroupService's
+	// AddGroupMember RPC.
+	GroupServiceAddGroupMemberProcedure = "/authentication.v1.GroupService/AddGroupMember"
+	// GroupServiceUpdateGroupMemberProcedure is the fully-qualified name of the GroupService's
+	// UpdateGroupMember RPC.
+	GroupServiceUpdateGroupMemberProcedure = "/authentication.v1.GroupService/UpdateGroupMember"
+	// GroupServiceRemoveGroupMemberProcedure is the fully-qualified name of the GroupService's
+	// RemoveGroupMember RPC.
+	GroupServiceRemoveGroupMemberProcedure = "/authentication.v1.GroupService/RemoveGroupMember"
+	// GroupServiceGetGroupMembersProcedure is the fully-qualified name of the GroupService's
+	// GetGroupMembers RPC.
+	GroupServiceGetGroupMembersProcedure = "/authentication.v1.GroupService/GetGroupMembers"
+	// GroupServiceGetUserGroupsProcedure is the fully-qualified name of the GroupService's
+	// GetUserGroups RPC.
+	GroupServiceGetUserGroupsProcedure = "/authentication.v1.GroupService/GetUserGroups"
+)
+
 // GroupServiceClient is a client for the authentication.v1.GroupService service.
 type GroupServiceClient interface {
 	CreateGroup(context.Context, *connect_go.Request[v1.CreateGroupRequest]) (*connect_go.Response[v1.CreateGroupResponse], error)
@@ -51,52 +89,52 @@ func NewGroupServiceClient(httpClient connect_go.HTTPClient, baseURL string, opt
 	return &groupServiceClient{
 		createGroup: connect_go.NewClient[v1.CreateGroupRequest, v1.CreateGroupResponse](
 			httpClient,
-			baseURL+"/authentication.v1.GroupService/CreateGroup",
+			baseURL+GroupServiceCreateGroupProcedure,
 			opts...,
 		),
 		updateGroup: connect_go.NewClient[v1.UpdateGroupRequest, v1.UpdateGroupResponse](
 			httpClient,
-			baseURL+"/authentication.v1.GroupService/UpdateGroup",
+			baseURL+GroupServiceUpdateGroupProcedure,
 			opts...,
 		),
 		deleteGroup: connect_go.NewClient[v1.DeleteGroupRequest, v1.DeleteGroupResponse](
 			httpClient,
-			baseURL+"/authentication.v1.GroupService/DeleteGroup",
+			baseURL+GroupServiceDeleteGroupProcedure,
 			opts...,
 		),
 		getGroup: connect_go.NewClient[v1.GetGroupRequest, v1.GetGroupResponse](
 			httpClient,
-			baseURL+"/authentication.v1.GroupService/GetGroup",
+			baseURL+GroupServiceGetGroupProcedure,
 			opts...,
 		),
 		getGroups: connect_go.NewClient[v1.GetGroupsRequest, v1.GetGroupsResponse](
 			httpClient,
-			baseURL+"/authentication.v1.GroupService/GetGroups",
+			baseURL+GroupServiceGetGroupsProcedure,
 			opts...,
 		),
 		addGroupMember: connect_go.NewClient[v1.AddGroupMemberRequest, v1.AddGroupMemberResponse](
 			httpClient,
-			baseURL+"/authentication.v1.GroupService/AddGroupMember",
+			baseURL+GroupServiceAddGroupMemberProcedure,
 			opts...,
 		),
 		updateGroupMember: connect_go.NewClient[v1.UpdateGroupMemberRequest, v1.UpdateGroupMemberResponse](
 			httpClient,
-			baseURL+"/authentication.v1.GroupService/UpdateGroupMember",
+			baseURL+GroupServiceUpdateGroupMemberProcedure,
 			opts...,
 		),
 		removeGroupMember: connect_go.NewClient[v1.RemoveGroupMemberRequest, v1.RemoveGroupMemberResponse](
 			httpClient,
-			baseURL+"/authentication.v1.GroupService/RemoveGroupMember",
+			baseURL+GroupServiceRemoveGroupMemberProcedure,
 			opts...,
 		),
 		getGroupMembers: connect_go.NewClient[v1.GetGroupMembersRequest, v1.GetGroupMembersResponse](
 			httpClient,
-			baseURL+"/authentication.v1.GroupService/GetGroupMembers",
+			baseURL+GroupServiceGetGroupMembersProcedure,
 			opts...,
 		),
 		getUserGroups: connect_go.NewClient[v1.GetUserGroupsRequest, v1.GetUserGroupsResponse](
 			httpClient,
-			baseURL+"/authentication.v1.GroupService/GetUserGroups",
+			baseURL+GroupServiceGetUserGroupsProcedure,
 			opts...,
 		),
 	}
@@ -187,53 +225,53 @@ type GroupServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewGroupServiceHandler(svc GroupServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle("/authentication.v1.GroupService/CreateGroup", connect_go.NewUnaryHandler(
-		"/authentication.v1.GroupService/CreateGroup",
+	mux.Handle(GroupServiceCreateGroupProcedure, connect_go.NewUnaryHandler(
+		GroupServiceCreateGroupProcedure,
 		svc.CreateGroup,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.GroupService/UpdateGroup", connect_go.NewUnaryHandler(
-		"/authentication.v1.GroupService/UpdateGroup",
+	mux.Handle(GroupServiceUpdateGroupProcedure, connect_go.NewUnaryHandler(
+		GroupServiceUpdateGroupProcedure,
 		svc.UpdateGroup,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.GroupService/DeleteGroup", connect_go.NewUnaryHandler(
-		"/authentication.v1.GroupService/DeleteGroup",
+	mux.Handle(GroupServiceDeleteGroupProcedure, connect_go.NewUnaryHandler(
+		GroupServiceDeleteGroupProcedure,
 		svc.DeleteGroup,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.GroupService/GetGroup", connect_go.NewUnaryHandler(
-		"/authentication.v1.GroupService/GetGroup",
+	mux.Handle(GroupServiceGetGroupProcedure, connect_go.NewUnaryHandler(
+		GroupServiceGetGroupProcedure,
 		svc.GetGroup,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.GroupService/GetGroups", connect_go.NewUnaryHandler(
-		"/authentication.v1.GroupService/GetGroups",
+	mux.Handle(GroupServiceGetGroupsProcedure, connect_go.NewUnaryHandler(
+		GroupServiceGetGroupsProcedure,
 		svc.GetGroups,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.GroupService/AddGroupMember", connect_go.NewUnaryHandler(
-		"/authentication.v1.GroupService/AddGroupMember",
+	mux.Handle(GroupServiceAddGroupMemberProcedure, connect_go.NewUnaryHandler(
+		GroupServiceAddGroupMemberProcedure,
 		svc.AddGroupMember,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.GroupService/UpdateGroupMember", connect_go.NewUnaryHandler(
-		"/authentication.v1.GroupService/UpdateGroupMember",
+	mux.Handle(GroupServiceUpdateGroupMemberProcedure, connect_go.NewUnaryHandler(
+		GroupServiceUpdateGroupMemberProcedure,
 		svc.UpdateGroupMember,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.GroupService/RemoveGroupMember", connect_go.NewUnaryHandler(
-		"/authentication.v1.GroupService/RemoveGroupMember",
+	mux.Handle(GroupServiceRemoveGroupMemberProcedure, connect_go.NewUnaryHandler(
+		GroupServiceRemoveGroupMemberProcedure,
 		svc.RemoveGroupMember,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.GroupService/GetGroupMembers", connect_go.NewUnaryHandler(
-		"/authentication.v1.GroupService/GetGroupMembers",
+	mux.Handle(GroupServiceGetGroupMembersProcedure, connect_go.NewUnaryHandler(
+		GroupServiceGetGroupMembersProcedure,
 		svc.GetGroupMembers,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.GroupService/GetUserGroups", connect_go.NewUnaryHandler(
-		"/authentication.v1.GroupService/GetUserGroups",
+	mux.Handle(GroupServiceGetUserGroupsProcedure, connect_go.NewUnaryHandler(
+		GroupServiceGetUserGroupsProcedure,
 		svc.GetUserGroups,
 		opts...,
 	))

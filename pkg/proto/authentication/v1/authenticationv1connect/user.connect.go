@@ -25,6 +25,27 @@ const (
 	UserServiceName = "authentication.v1.UserService"
 )
 
+// These constants are the fully-qualified names of the RPCs defined in this package. They're
+// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+//
+// Note that these are different from the fully-qualified method names used by
+// google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
+// reflection-formatted method names, remove the leading slash and convert the remaining slash to a
+// period.
+const (
+	// UserServiceCreateUserProcedure is the fully-qualified name of the UserService's CreateUser RPC.
+	UserServiceCreateUserProcedure = "/authentication.v1.UserService/CreateUser"
+	// UserServiceDeleteUserProcedure is the fully-qualified name of the UserService's DeleteUser RPC.
+	UserServiceDeleteUserProcedure = "/authentication.v1.UserService/DeleteUser"
+	// UserServiceResetUserPasswordProcedure is the fully-qualified name of the UserService's
+	// ResetUserPassword RPC.
+	UserServiceResetUserPasswordProcedure = "/authentication.v1.UserService/ResetUserPassword"
+	// UserServiceUpdateUserProcedure is the fully-qualified name of the UserService's UpdateUser RPC.
+	UserServiceUpdateUserProcedure = "/authentication.v1.UserService/UpdateUser"
+	// UserServiceGetUsersProcedure is the fully-qualified name of the UserService's GetUsers RPC.
+	UserServiceGetUsersProcedure = "/authentication.v1.UserService/GetUsers"
+)
+
 // UserServiceClient is a client for the authentication.v1.UserService service.
 type UserServiceClient interface {
 	CreateUser(context.Context, *connect_go.Request[v1.CreateUserRequest]) (*connect_go.Response[v1.CreateUserResponse], error)
@@ -46,27 +67,27 @@ func NewUserServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts
 	return &userServiceClient{
 		createUser: connect_go.NewClient[v1.CreateUserRequest, v1.CreateUserResponse](
 			httpClient,
-			baseURL+"/authentication.v1.UserService/CreateUser",
+			baseURL+UserServiceCreateUserProcedure,
 			opts...,
 		),
 		deleteUser: connect_go.NewClient[v1.DeleteUserRequest, v1.DeleteUserResponse](
 			httpClient,
-			baseURL+"/authentication.v1.UserService/DeleteUser",
+			baseURL+UserServiceDeleteUserProcedure,
 			opts...,
 		),
 		resetUserPassword: connect_go.NewClient[v1.ResetUserPasswordRequest, v1.ResetUserPasswordResponse](
 			httpClient,
-			baseURL+"/authentication.v1.UserService/ResetUserPassword",
+			baseURL+UserServiceResetUserPasswordProcedure,
 			opts...,
 		),
 		updateUser: connect_go.NewClient[v1.UpdateUserRequest, v1.UpdateUserResponse](
 			httpClient,
-			baseURL+"/authentication.v1.UserService/UpdateUser",
+			baseURL+UserServiceUpdateUserProcedure,
 			opts...,
 		),
 		getUsers: connect_go.NewClient[v1.GetUsersRequest, v1.GetUsersResponse](
 			httpClient,
-			baseURL+"/authentication.v1.UserService/GetUsers",
+			baseURL+UserServiceGetUsersProcedure,
 			opts...,
 		),
 	}
@@ -122,28 +143,28 @@ type UserServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewUserServiceHandler(svc UserServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle("/authentication.v1.UserService/CreateUser", connect_go.NewUnaryHandler(
-		"/authentication.v1.UserService/CreateUser",
+	mux.Handle(UserServiceCreateUserProcedure, connect_go.NewUnaryHandler(
+		UserServiceCreateUserProcedure,
 		svc.CreateUser,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.UserService/DeleteUser", connect_go.NewUnaryHandler(
-		"/authentication.v1.UserService/DeleteUser",
+	mux.Handle(UserServiceDeleteUserProcedure, connect_go.NewUnaryHandler(
+		UserServiceDeleteUserProcedure,
 		svc.DeleteUser,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.UserService/ResetUserPassword", connect_go.NewUnaryHandler(
-		"/authentication.v1.UserService/ResetUserPassword",
+	mux.Handle(UserServiceResetUserPasswordProcedure, connect_go.NewUnaryHandler(
+		UserServiceResetUserPasswordProcedure,
 		svc.ResetUserPassword,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.UserService/UpdateUser", connect_go.NewUnaryHandler(
-		"/authentication.v1.UserService/UpdateUser",
+	mux.Handle(UserServiceUpdateUserProcedure, connect_go.NewUnaryHandler(
+		UserServiceUpdateUserProcedure,
 		svc.UpdateUser,
 		opts...,
 	))
-	mux.Handle("/authentication.v1.UserService/GetUsers", connect_go.NewUnaryHandler(
-		"/authentication.v1.UserService/GetUsers",
+	mux.Handle(UserServiceGetUsersProcedure, connect_go.NewUnaryHandler(
+		UserServiceGetUsersProcedure,
 		svc.GetUsers,
 		opts...,
 	))

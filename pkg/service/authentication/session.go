@@ -42,6 +42,12 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 			CreatedAt: now,
 			ExpiredAt: now.Add(time.Duration(s.SessionDuration)),
 		})
+		// Need to do a conditional here where if fullName is not submitted, then we use the email
+		res.Msg.User = &v1.User{
+			Id:       user.ID.String(),
+			Email:    user.Email,
+			FullName: user.Email,
+		}
 		return err
 	}); err != nil {
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid email/password"))
