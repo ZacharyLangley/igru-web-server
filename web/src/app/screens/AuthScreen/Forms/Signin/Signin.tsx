@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import AuthForm from '../../AuthForm/AuthForm';
 import SigninForm, {defaultSignInFormData} from './SigninForm/SigninForm';
 import language from '../../../../../common/language/index';
-import AuthDialog from '../../AuthDialog/AuthDialog';
+import Dialog from '../../../../../common/components/Dialog/Dialog';
 import Branding from '../../../../../common/components/Branding/Branding';
 import AuthFooter from '../../AuthFooter/AuthFooter';
 import { RoutePath } from '../../../../types/routes';
@@ -47,7 +47,7 @@ const Signin: React.FC<SigninProps> = ({
   }
 
   return (
-    <AuthDialog
+    <Dialog
       header={<Branding />}
       body={
         <AuthForm

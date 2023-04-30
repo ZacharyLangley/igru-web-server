@@ -17,8 +17,9 @@ interface ProfileDropdownProps {}
 
 const dropdownToggleStyle = {backgroundColor: 'transparent', borderWidth: 0, borderRadius: 50};
 
-const formatUserName = (name: string) => {
-    return name.charAt(0).toUpperCase() + name.slice(1)
+const formatUserName = (name?: string) => {
+    if (!name) return;
+    return name?.charAt(0).toUpperCase() + name?.slice(1)
 }
 
 export const ProfileDropdown:React.FC<ProfileDropdownProps>  = () => {
@@ -29,7 +30,7 @@ export const ProfileDropdown:React.FC<ProfileDropdownProps>  = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
     const toggle = () => setDropdownOpen((prevState) => !prevState);
-    const name = useMemo(() => formatUserName(user.fullName || user.email), [user])
+    const name = useMemo(() => formatUserName(user?.fullName || user?.email), [user])
     const onSignOutClick = useCallback(() => {
         signOut();
         navigate(RoutePath.HOME);

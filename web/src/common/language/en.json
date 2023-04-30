@@ -37,5 +37,11 @@
     "input.label.full_name": "Name",
     "input.label.password": "Password",
     "input.label.confirm_password": "Confirm Password",
-    "input.label.optional": "Optional"
+    "input.label.optional": "Optional",
+
+    "error.label.title": "An Error has Occured",
+    "error.label.message": "Something must have hit you hard to end up here. Hope I don't see the other guy.",
+    "error.label.footer.navigate.unauth": "Go to Sign In Page",
+    "error.label.footer.navigate.auth": "Go to Home Dashboard",
+    "error.label.footer.signout": "Sign Out"
 }

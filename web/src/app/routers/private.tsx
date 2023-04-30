@@ -16,7 +16,7 @@ const PrivateRouter = createBrowserRouter([
   {
     path: RoutePath.HOME,
     element: <MainScreen />,
-    errorElement: <Error />,
+    errorElement: <Error isPublic={false}/>,
     children: [
       {
         path: RoutePath.HOME,
