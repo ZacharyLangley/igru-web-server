@@ -25,6 +25,30 @@ const (
 	StrainServiceName = "garden.v1.StrainService"
 )
 
+// These constants are the fully-qualified names of the RPCs defined in this package. They're
+// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+//
+// Note that these are different from the fully-qualified method names used by
+// google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
+// reflection-formatted method names, remove the leading slash and convert the remaining slash to a
+// period.
+const (
+	// StrainServiceCreateStrainProcedure is the fully-qualified name of the StrainService's
+	// CreateStrain RPC.
+	StrainServiceCreateStrainProcedure = "/garden.v1.StrainService/CreateStrain"
+	// StrainServiceDeleteStrainProcedure is the fully-qualified name of the StrainService's
+	// DeleteStrain RPC.
+	StrainServiceDeleteStrainProcedure = "/garden.v1.StrainService/DeleteStrain"
+	// StrainServiceUpdateStrainProcedure is the fully-qualified name of the StrainService's
+	// UpdateStrain RPC.
+	StrainServiceUpdateStrainProcedure = "/garden.v1.StrainService/UpdateStrain"
+	// StrainServiceGetStrainsProcedure is the fully-qualified name of the StrainService's GetStrains
+	// RPC.
+	StrainServiceGetStrainsProcedure = "/garden.v1.StrainService/GetStrains"
+	// StrainServiceGetStrainProcedure is the fully-qualified name of the StrainService's GetStrain RPC.
+	StrainServiceGetStrainProcedure = "/garden.v1.StrainService/GetStrain"
+)
+
 // StrainServiceClient is a client for the garden.v1.StrainService service.
 type StrainServiceClient interface {
 	CreateStrain(context.Context, *connect_go.Request[v1.CreateStrainRequest]) (*connect_go.Response[v1.CreateStrainResponse], error)
@@ -46,27 +70,27 @@ func NewStrainServiceClient(httpClient connect_go.HTTPClient, baseURL string, op
 	return &strainServiceClient{
 		createStrain: connect_go.NewClient[v1.CreateStrainRequest, v1.CreateStrainResponse](
 			httpClient,
-			baseURL+"/garden.v1.StrainService/CreateStrain",
+			baseURL+StrainServiceCreateStrainProcedure,
 			opts...,
 		),
 		deleteStrain: connect_go.NewClient[v1.DeleteStrainRequest, v1.DeleteStrainResponse](
 			httpClient,
-			baseURL+"/garden.v1.StrainService/DeleteStrain",
+			baseURL+StrainServiceDeleteStrainProcedure,
 			opts...,
 		),
 		updateStrain: connect_go.NewClient[v1.UpdateStrainRequest, v1.UpdateStrainResponse](
 			httpClient,
-			baseURL+"/garden.v1.StrainService/UpdateStrain",
+			baseURL+StrainServiceUpdateStrainProcedure,
 			opts...,
 		),
 		getStrains: connect_go.NewClient[v1.GetStrainsRequest, v1.GetStrainsResponse](
 			httpClient,
-			baseURL+"/garden.v1.StrainService/GetStrains",
+			baseURL+StrainServiceGetStrainsProcedure,
 			opts...,
 		),
 		getStrain: connect_go.NewClient[v1.GetStrainRequest, v1.GetStrainResponse](
 			httpClient,
-			baseURL+"/garden.v1.StrainService/GetStrain",
+			baseURL+StrainServiceGetStrainProcedure,
 			opts...,
 		),
 	}
@@ -122,28 +146,28 @@ type StrainServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewStrainServiceHandler(svc StrainServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle("/garden.v1.StrainService/CreateStrain", connect_go.NewUnaryHandler(
-		"/garden.v1.StrainService/CreateStrain",
+	mux.Handle(StrainServiceCreateStrainProcedure, connect_go.NewUnaryHandler(
+		StrainServiceCreateStrainProcedure,
 		svc.CreateStrain,
 		opts...,
 	))
-	mux.Handle("/garden.v1.StrainService/DeleteStrain", connect_go.NewUnaryHandler(
-		"/garden.v1.StrainService/DeleteStrain",
+	mux.Handle(StrainServiceDeleteStrainProcedure, connect_go.NewUnaryHandler(
+		StrainServiceDeleteStrainProcedure,
 		svc.DeleteStrain,
 		opts...,
 	))
-	mux.Handle("/garden.v1.StrainService/UpdateStrain", connect_go.NewUnaryHandler(
-		"/garden.v1.StrainService/UpdateStrain",
+	mux.Handle(StrainServiceUpdateStrainProcedure, connect_go.NewUnaryHandler(
+		StrainServiceUpdateStrainProcedure,
 		svc.UpdateStrain,
 		opts...,
 	))
-	mux.Handle("/garden.v1.StrainService/GetStrains", connect_go.NewUnaryHandler(
-		"/garden.v1.StrainService/GetStrains",
+	mux.Handle(StrainServiceGetStrainsProcedure, connect_go.NewUnaryHandler(
+		StrainServiceGetStrainsProcedure,
 		svc.GetStrains,
 		opts...,
 	))
-	mux.Handle("/garden.v1.StrainService/GetStrain", connect_go.NewUnaryHandler(
-		"/garden.v1.StrainService/GetStrain",
+	mux.Handle(StrainServiceGetStrainProcedure, connect_go.NewUnaryHandler(
+		StrainServiceGetStrainProcedure,
 		svc.GetStrain,
 		opts...,
 	))

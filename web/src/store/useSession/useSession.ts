@@ -19,7 +19,7 @@ interface SessionState {
 interface SessionActions {
     signIn: (email?: string, password?: string) => void;
     signOut: () => void;
-    validateSession: () => void;
+    getSessionUser: () => void;
     validateSessionPermissions: () => void;
 }
 
@@ -34,8 +34,9 @@ const useSession = create<SessionState & SessionActions>((set) => ({
                 set({signInStatus: Status.PENDING, error: undefined});
                 const response = await signInRequest(email, password);
                 if (response) {
-                    setUserCookie(response);
+                    setUserCookie(response.token);
                     set({sessionValidated: true, signInStatus: Status.SUCCESS});
+                    return response.user;
                 } else set({signInStatus: Status.FAILURE})
             }
         } catch (error) {
@@ -46,13 +47,16 @@ const useSession = create<SessionState & SessionActions>((set) => ({
         removeUserCookie()
         set({sessionValidated: false, signInStatus: Status.IDLE, error: undefined});
     },
-    validateSession: async () => {
+    getSessionUser: async () => {
         try {
             const token = await getUserCookie();
             if (token) {
                 set({signInStatus: Status.PENDING});
                 const response = await validateSessionRequest(token)
-                if (response) set({sessionValidated: true, signInStatus: Status.SUCCESS})
+                if (response) {
+                    set({sessionValidated: true, signInStatus: Status.SUCCESS})
+                    return response.user;
+                }
                 else set({sessionValidated: false, signInStatus: Status.FAILURE})
             }
 
