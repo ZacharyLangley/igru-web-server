@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { GetNodeRequest, GetNodeResponse, GetNodesRequest, GetNodesResponse, UpdateNodeRequest, UpdateNodeResponse } from "./node_pb";
+import { DeleteNodeRequest, DeleteNodeResponse, GetNodeRequest, GetNodeResponse, GetNodesRequest, GetNodesResponse, UpdateNodeRequest, UpdateNodeResponse } from "./node_pb";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -19,6 +19,15 @@ export const NodeService = {
       name: "UpdateNode",
       I: UpdateNodeRequest,
       O: UpdateNodeResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc node.v1.NodeService.DeleteNode
+     */
+    deleteNode: {
+      name: "DeleteNode",
+      I: DeleteNodeRequest,
+      O: DeleteNodeResponse,
       kind: MethodKind.Unary,
     },
     /**

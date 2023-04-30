@@ -28,6 +28,7 @@ const (
 // NodeServiceClient is a client for the node.v1.NodeService service.
 type NodeServiceClient interface {
 	UpdateNode(context.Context, *connect_go.Request[v1.UpdateNodeRequest]) (*connect_go.Response[v1.UpdateNodeResponse], error)
+	DeleteNode(context.Context, *connect_go.Request[v1.DeleteNodeRequest]) (*connect_go.Response[v1.DeleteNodeResponse], error)
 	GetNodes(context.Context, *connect_go.Request[v1.GetNodesRequest]) (*connect_go.Response[v1.GetNodesResponse], error)
 	GetNode(context.Context, *connect_go.Request[v1.GetNodeRequest]) (*connect_go.Response[v1.GetNodeResponse], error)
 }
@@ -47,6 +48,11 @@ func NewNodeServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts
 			baseURL+"/node.v1.NodeService/UpdateNode",
 			opts...,
 		),
+		deleteNode: connect_go.NewClient[v1.DeleteNodeRequest, v1.DeleteNodeResponse](
+			httpClient,
+			baseURL+"/node.v1.NodeService/DeleteNode",
+			opts...,
+		),
 		getNodes: connect_go.NewClient[v1.GetNodesRequest, v1.GetNodesResponse](
 			httpClient,
 			baseURL+"/node.v1.NodeService/GetNodes",
@@ -63,6 +69,7 @@ func NewNodeServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts
 // nodeServiceClient implements NodeServiceClient.
 type nodeServiceClient struct {
 	updateNode *connect_go.Client[v1.UpdateNodeRequest, v1.UpdateNodeResponse]
+	deleteNode *connect_go.Client[v1.DeleteNodeRequest, v1.DeleteNodeResponse]
 	getNodes   *connect_go.Client[v1.GetNodesRequest, v1.GetNodesResponse]
 	getNode    *connect_go.Client[v1.GetNodeRequest, v1.GetNodeResponse]
 }
@@ -70,6 +77,11 @@ type nodeServiceClient struct {
 // UpdateNode calls node.v1.NodeService.UpdateNode.
 func (c *nodeServiceClient) UpdateNode(ctx context.Context, req *connect_go.Request[v1.UpdateNodeRequest]) (*connect_go.Response[v1.UpdateNodeResponse], error) {
 	return c.updateNode.CallUnary(ctx, req)
+}
+
+// DeleteNode calls node.v1.NodeService.DeleteNode.
+func (c *nodeServiceClient) DeleteNode(ctx context.Context, req *connect_go.Request[v1.DeleteNodeRequest]) (*connect_go.Response[v1.DeleteNodeResponse], error) {
+	return c.deleteNode.CallUnary(ctx, req)
 }
 
 // GetNodes calls node.v1.NodeService.GetNodes.
@@ -85,6 +97,7 @@ func (c *nodeServiceClient) GetNode(ctx context.Context, req *connect_go.Request
 // NodeServiceHandler is an implementation of the node.v1.NodeService service.
 type NodeServiceHandler interface {
 	UpdateNode(context.Context, *connect_go.Request[v1.UpdateNodeRequest]) (*connect_go.Response[v1.UpdateNodeResponse], error)
+	DeleteNode(context.Context, *connect_go.Request[v1.DeleteNodeRequest]) (*connect_go.Response[v1.DeleteNodeResponse], error)
 	GetNodes(context.Context, *connect_go.Request[v1.GetNodesRequest]) (*connect_go.Response[v1.GetNodesResponse], error)
 	GetNode(context.Context, *connect_go.Request[v1.GetNodeRequest]) (*connect_go.Response[v1.GetNodeResponse], error)
 }
@@ -99,6 +112,11 @@ func NewNodeServiceHandler(svc NodeServiceHandler, opts ...connect_go.HandlerOpt
 	mux.Handle("/node.v1.NodeService/UpdateNode", connect_go.NewUnaryHandler(
 		"/node.v1.NodeService/UpdateNode",
 		svc.UpdateNode,
+		opts...,
+	))
+	mux.Handle("/node.v1.NodeService/DeleteNode", connect_go.NewUnaryHandler(
+		"/node.v1.NodeService/DeleteNode",
+		svc.DeleteNode,
 		opts...,
 	))
 	mux.Handle("/node.v1.NodeService/GetNodes", connect_go.NewUnaryHandler(
@@ -119,6 +137,10 @@ type UnimplementedNodeServiceHandler struct{}
 
 func (UnimplementedNodeServiceHandler) UpdateNode(context.Context, *connect_go.Request[v1.UpdateNodeRequest]) (*connect_go.Response[v1.UpdateNodeResponse], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("node.v1.NodeService.UpdateNode is not implemented"))
+}
+
+func (UnimplementedNodeServiceHandler) DeleteNode(context.Context, *connect_go.Request[v1.DeleteNodeRequest]) (*connect_go.Response[v1.DeleteNodeResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("node.v1.NodeService.DeleteNode is not implemented"))
 }
 
 func (UnimplementedNodeServiceHandler) GetNodes(context.Context, *connect_go.Request[v1.GetNodesRequest]) (*connect_go.Response[v1.GetNodesResponse], error) {

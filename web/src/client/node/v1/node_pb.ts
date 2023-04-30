@@ -94,6 +94,74 @@ export class UpdateNodeResponse extends Message<UpdateNodeResponse> {
 }
 
 /**
+ * @generated from message node.v1.DeleteNodeRequest
+ */
+export class DeleteNodeRequest extends Message<DeleteNodeRequest> {
+  /**
+   * @generated from field: string mac_address = 1;
+   */
+  macAddress = "";
+
+  constructor(data?: PartialMessage<DeleteNodeRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime = proto3;
+  static readonly typeName = "node.v1.DeleteNodeRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "mac_address", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeleteNodeRequest {
+    return new DeleteNodeRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DeleteNodeRequest {
+    return new DeleteNodeRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DeleteNodeRequest {
+    return new DeleteNodeRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DeleteNodeRequest | PlainMessage<DeleteNodeRequest> | undefined, b: DeleteNodeRequest | PlainMessage<DeleteNodeRequest> | undefined): boolean {
+    return proto3.util.equals(DeleteNodeRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message node.v1.DeleteNodeResponse
+ */
+export class DeleteNodeResponse extends Message<DeleteNodeResponse> {
+  constructor(data?: PartialMessage<DeleteNodeResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime = proto3;
+  static readonly typeName = "node.v1.DeleteNodeResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeleteNodeResponse {
+    return new DeleteNodeResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DeleteNodeResponse {
+    return new DeleteNodeResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DeleteNodeResponse {
+    return new DeleteNodeResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DeleteNodeResponse | PlainMessage<DeleteNodeResponse> | undefined, b: DeleteNodeResponse | PlainMessage<DeleteNodeResponse> | undefined): boolean {
+    return proto3.util.equals(DeleteNodeResponse, a, b);
+  }
+}
+
+/**
  * @generated from message node.v1.GetNodesRequest
  */
 export class GetNodesRequest extends Message<GetNodesRequest> {

@@ -1,6 +1,12 @@
+-- RPC Queries
+
 -- name: GetNode :one
 SELECT * FROM nodes
 WHERE mac_address = $1 LIMIT 1;
+
+-- name: DeleteNode :exec
+DELETE FROM nodes
+WHERE mac_address = $1;
 
 -- name: GetNodes :many
 SELECT * FROM nodes
@@ -36,4 +42,22 @@ WHERE node_id = $1;
 UPDATE sensors
 SET name=$2, model=$3, category=$4
 WHERE node_id=$1
+RETURNING *;
+
+-- Internal Queries
+
+-- name: CreateNode :one
+INSERT INTO nodes (
+  mac_address, name, location, created_at
+) VALUES (
+  $1, $2, $3, CURRENT_TIMESTAMP
+)
+RETURNING *;
+
+-- name: AddNodeSensor :one
+INSERT INTO nodes (
+  node_id, name, model, category
+) VALUES (
+  $1, $2, $3, $4
+)
 RETURNING *;
