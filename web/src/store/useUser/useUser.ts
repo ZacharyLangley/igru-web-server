@@ -35,7 +35,6 @@ const useUser = create<UserState & UserActions>((set) => ({
             if (email && password) {
                 set({signUpStatus: Status.PENDING, error: undefined});
                 const response = await signUpRequest(email, password);
-                console.log(response)
                 if (response) set({signUpStatus: Status.SUCCESS});
                 else set({signUpStatus: Status.FAILURE})
             }

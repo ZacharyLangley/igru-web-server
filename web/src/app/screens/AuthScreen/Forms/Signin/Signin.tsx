@@ -41,7 +41,6 @@ const Signin: React.FC<SigninProps> = ({
   const handleAuthentication = async () => {
     if (isValid(formData)) {
       const user = await signIn(formData.email, formData.password);
-      console.log(user);
       setUser(user);
     }
   }
