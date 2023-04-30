@@ -7,7 +7,7 @@ ADD web/src/ src/
 RUN npm install
 RUN npm run build
 
-FROM golang:1.19 as build
+FROM golang:1.20 as build
 WORKDIR /go/src/app
 ADD go.mod go.sum ./
 RUN go mod download

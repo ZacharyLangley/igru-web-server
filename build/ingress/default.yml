@@ -6,4 +6,6 @@ clients:
     address: http://authentication
   garden:
     address: http://garden
+  node:
+    address: http://node
 

@@ -13,6 +13,8 @@ services:
       - "CREATE DATABASE IF NOT EXISTS authentication;"
       - "-e"
       - "CREATE DATABASE IF NOT EXISTS garden;"
+      - "-e"
+      - "CREATE DATABASE IF NOT EXISTS node;"
     depends_on:
       - db
     deploy:
@@ -59,6 +61,22 @@ services:
     volumes:
       - ./garden/default.yml://default.yml:ro
       - ./garden/migrations://migrations:ro
+    depends_on:
+      - init-db
+
+  node:
+    image: igru:latest
+    command: node serve --config default.yml --level debug
+    restart: always
+    ports:
+      - "8083:80"
+    environment:
+      DATABASE.HOST: db
+      LOGGER.LEVEL: debug
+      METRICS.JAEGERADDRESS: jaeger:14268
+    volumes:
+      - ./node/default.yml://default.yml:ro
+      - ./node/migrations://migrations:ro
     depends_on:
       - init-db
 

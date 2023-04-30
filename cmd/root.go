@@ -6,6 +6,7 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/cmd/authentication"
 	"github.com/ZacharyLangley/igru-web-server/cmd/garden"
 	"github.com/ZacharyLangley/igru-web-server/cmd/ingress"
+	"github.com/ZacharyLangley/igru-web-server/cmd/node"
 	"github.com/ZacharyLangley/igru-web-server/pkg/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -40,4 +41,5 @@ func init() {
 	rootCmd.AddCommand(authentication.RootCmd)
 	rootCmd.AddCommand(garden.RootCmd)
 	rootCmd.AddCommand(ingress.RootCmd)
+	rootCmd.AddCommand(node.RootCmd)
 }
