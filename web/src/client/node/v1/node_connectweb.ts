@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateNodeRequest, CreateNodeResponse, GetNodeRequest, GetNodeResponse, GetNodesRequest, GetNodesResponse, UpdateNodeRequest, UpdateNodeResponse } from "./node_pb";
+import { GetNodeRequest, GetNodeResponse, GetNodesRequest, GetNodesResponse, UpdateNodeRequest, UpdateNodeResponse } from "./node_pb";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -12,15 +12,6 @@ import { MethodKind } from "@bufbuild/protobuf";
 export const NodeService = {
   typeName: "node.v1.NodeService",
   methods: {
-    /**
-     * @generated from rpc node.v1.NodeService.CreateNode
-     */
-    createNode: {
-      name: "CreateNode",
-      I: CreateNodeRequest,
-      O: CreateNodeResponse,
-      kind: MethodKind.Unary,
-    },
     /**
      * @generated from rpc node.v1.NodeService.UpdateNode
      */

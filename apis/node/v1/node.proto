@@ -5,22 +5,11 @@ package node.v1;
 import "node/v1/schema.proto";
 
 service NodeService {
-    rpc CreateNode (CreateNodeRequest) returns (CreateNodeResponse) {}
     rpc UpdateNode(UpdateNodeRequest) returns (UpdateNodeResponse) {}
     rpc GetNodes (GetNodesRequest) returns (GetNodesResponse) {}
     rpc GetNode (GetNodeRequest) returns (GetNodeResponse) {}
 }
 
-message CreateNodeRequest {
-    string mac_address = 1;
-    string name = 2;
-    string ip_address = 3;
-    map<string, string> custom_labels = 4;
-    repeated node.v1.Sensor sensors = 5;
-}
-message CreateNodeResponse {
-    node.v1.Node node = 1;
-}
 message UpdateNodeRequest {
     string mac_address = 1;
     string name = 2;

@@ -1,0 +1,19 @@
+grpc:
+  address: :80
+database:
+  host: localhost
+  port: 26257
+  username: root
+  database: node
+  password: ""
+  sslmode: disable
+  timezone: UTC
+  connect_timeout: 5
+  maxRetries: 5
+  migrationPath: "/migrations"
+logger:
+  development: true
+  level: debug
+metrics:
+  jaegerAddress: "localhost:14268"
+sessionDuration: 5m

@@ -27,7 +27,6 @@ const (
 
 // NodeServiceClient is a client for the node.v1.NodeService service.
 type NodeServiceClient interface {
-	CreateNode(context.Context, *connect_go.Request[v1.CreateNodeRequest]) (*connect_go.Response[v1.CreateNodeResponse], error)
 	UpdateNode(context.Context, *connect_go.Request[v1.UpdateNodeRequest]) (*connect_go.Response[v1.UpdateNodeResponse], error)
 	GetNodes(context.Context, *connect_go.Request[v1.GetNodesRequest]) (*connect_go.Response[v1.GetNodesResponse], error)
 	GetNode(context.Context, *connect_go.Request[v1.GetNodeRequest]) (*connect_go.Response[v1.GetNodeResponse], error)
@@ -43,11 +42,6 @@ type NodeServiceClient interface {
 func NewNodeServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) NodeServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &nodeServiceClient{
-		createNode: connect_go.NewClient[v1.CreateNodeRequest, v1.CreateNodeResponse](
-			httpClient,
-			baseURL+"/node.v1.NodeService/CreateNode",
-			opts...,
-		),
 		updateNode: connect_go.NewClient[v1.UpdateNodeRequest, v1.UpdateNodeResponse](
 			httpClient,
 			baseURL+"/node.v1.NodeService/UpdateNode",
@@ -68,15 +62,9 @@ func NewNodeServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts
 
 // nodeServiceClient implements NodeServiceClient.
 type nodeServiceClient struct {
-	createNode *connect_go.Client[v1.CreateNodeRequest, v1.CreateNodeResponse]
 	updateNode *connect_go.Client[v1.UpdateNodeRequest, v1.UpdateNodeResponse]
 	getNodes   *connect_go.Client[v1.GetNodesRequest, v1.GetNodesResponse]
 	getNode    *connect_go.Client[v1.GetNodeRequest, v1.GetNodeResponse]
-}
-
-// CreateNode calls node.v1.NodeService.CreateNode.
-func (c *nodeServiceClient) CreateNode(ctx context.Context, req *connect_go.Request[v1.CreateNodeRequest]) (*connect_go.Response[v1.CreateNodeResponse], error) {
-	return c.createNode.CallUnary(ctx, req)
 }
 
 // UpdateNode calls node.v1.NodeService.UpdateNode.
@@ -96,7 +84,6 @@ func (c *nodeServiceClient) GetNode(ctx context.Context, req *connect_go.Request
 
 // NodeServiceHandler is an implementation of the node.v1.NodeService service.
 type NodeServiceHandler interface {
-	CreateNode(context.Context, *connect_go.Request[v1.CreateNodeRequest]) (*connect_go.Response[v1.CreateNodeResponse], error)
 	UpdateNode(context.Context, *connect_go.Request[v1.UpdateNodeRequest]) (*connect_go.Response[v1.UpdateNodeResponse], error)
 	GetNodes(context.Context, *connect_go.Request[v1.GetNodesRequest]) (*connect_go.Response[v1.GetNodesResponse], error)
 	GetNode(context.Context, *connect_go.Request[v1.GetNodeRequest]) (*connect_go.Response[v1.GetNodeResponse], error)
@@ -109,11 +96,6 @@ type NodeServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewNodeServiceHandler(svc NodeServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle("/node.v1.NodeService/CreateNode", connect_go.NewUnaryHandler(
-		"/node.v1.NodeService/CreateNode",
-		svc.CreateNode,
-		opts...,
-	))
 	mux.Handle("/node.v1.NodeService/UpdateNode", connect_go.NewUnaryHandler(
 		"/node.v1.NodeService/UpdateNode",
 		svc.UpdateNode,
@@ -134,10 +116,6 @@ func NewNodeServiceHandler(svc NodeServiceHandler, opts ...connect_go.HandlerOpt
 
 // UnimplementedNodeServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedNodeServiceHandler struct{}
-
-func (UnimplementedNodeServiceHandler) CreateNode(context.Context, *connect_go.Request[v1.CreateNodeRequest]) (*connect_go.Response[v1.CreateNodeResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("node.v1.NodeService.CreateNode is not implemented"))
-}
 
 func (UnimplementedNodeServiceHandler) UpdateNode(context.Context, *connect_go.Request[v1.UpdateNodeRequest]) (*connect_go.Response[v1.UpdateNodeResponse], error) {
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("node.v1.NodeService.UpdateNode is not implemented"))

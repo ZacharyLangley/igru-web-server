@@ -3,7 +3,7 @@ vet: generate
 	go vet ./...
 
 web/node_module: web/package.json
-	cd web;npm install
+	cd web;npm install --silent
 
 generate: web/node_module
 	sqlc generate

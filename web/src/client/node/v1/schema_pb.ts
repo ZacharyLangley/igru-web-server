@@ -21,9 +21,9 @@ export class Node extends Message<Node> {
   name = "";
 
   /**
-   * @generated from field: string ip_address = 3;
+   * @generated from field: string owned_by = 3;
    */
-  ipAddress = "";
+  ownedBy = "";
 
   /**
    * @generated from field: map<string, string> custom_labels = 4;
@@ -36,19 +36,19 @@ export class Node extends Message<Node> {
   sensors: Sensor[] = [];
 
   /**
-   * @generated from field: google.protobuf.Timestamp first_seen_at = 13;
+   * @generated from field: google.protobuf.Timestamp created_at = 6;
    */
-  firstSeenAt?: Timestamp;
+  createdAt?: Timestamp;
 
   /**
-   * @generated from field: google.protobuf.Timestamp adopted_at = 11;
+   * @generated from field: google.protobuf.Timestamp adopted_at = 7;
    */
   adoptedAt?: Timestamp;
 
   /**
-   * @generated from field: google.protobuf.Timestamp last_seen_at = 12;
+   * @generated from field: google.protobuf.Timestamp updated_at = 8;
    */
-  lastSeenAt?: Timestamp;
+  updatedAt?: Timestamp;
 
   constructor(data?: PartialMessage<Node>) {
     super();
@@ -60,12 +60,12 @@ export class Node extends Message<Node> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "mac_address", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "ip_address", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "owned_by", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 4, name: "custom_labels", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
     { no: 5, name: "sensors", kind: "message", T: Sensor, repeated: true },
-    { no: 13, name: "first_seen_at", kind: "message", T: Timestamp },
-    { no: 11, name: "adopted_at", kind: "message", T: Timestamp },
-    { no: 12, name: "last_seen_at", kind: "message", T: Timestamp },
+    { no: 6, name: "created_at", kind: "message", T: Timestamp },
+    { no: 7, name: "adopted_at", kind: "message", T: Timestamp },
+    { no: 8, name: "updated_at", kind: "message", T: Timestamp },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Node {
