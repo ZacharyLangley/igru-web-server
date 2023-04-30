@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package node.v1;
+
+import "node/v1/schema.proto";
+
+service NodeService {
+    rpc UpdateNode(UpdateNodeRequest) returns (UpdateNodeResponse) {}
+    rpc DeleteNode(DeleteNodeRequest) returns (DeleteNodeResponse) {}
+    rpc GetNodes (GetNodesRequest) returns (GetNodesResponse) {}
+    rpc GetNode (GetNodeRequest) returns (GetNodeResponse) {}
+}
+
+message UpdateNodeRequest {
+    string mac_address = 1;
+    string name = 2;
+    map<string, string> custom_labels = 4;
+}
+message UpdateNodeResponse {
+    node.v1.Node node = 1;
+}
+
+message DeleteNodeRequest {
+    string mac_address = 1;
+}
+
+message DeleteNodeResponse {}
+
+message GetNodesRequest {}
+
+message GetNodesResponse {
+    repeated node.v1.Node nodes = 1;
+}
+
+message GetNodeRequest {
+    string mac_address = 1;
+}
+message GetNodeResponse {
+    node.v1.Node node = 1;
+}

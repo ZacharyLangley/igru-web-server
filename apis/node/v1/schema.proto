@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package node.v1;
+
+import "google/protobuf/timestamp.proto";
+
+message Node {
+    string mac_address = 1;
+    string name = 2;
+    string owned_by = 3;
+    map<string, string> custom_labels = 4;
+    repeated Sensor sensors = 5;
+    google.protobuf.Timestamp created_at = 6;
+    google.protobuf.Timestamp adopted_at = 7;
+    google.protobuf.Timestamp updated_at = 8;
+}
+
+message Sensor {
+    string name = 1;
+    string model = 2;
+    Category category = 3;
+    enum Category {
+        CATEGORY_UNSPECIFIED = 0;
+        CATEGORY_TEMPERATURE = 1;
+        CATEGORY_HUMIDITY = 2;
+        CATEGORY_AIR_PRESSURE = 3;
+        CATEGORY_LIGHT = 4;
+    }
+}
