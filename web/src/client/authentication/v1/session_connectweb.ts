@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CheckSessionPermissionsRequest, CheckSessionPermissionsResponse, CreateSessionRequest, CreateSessionResponse, DeleteSessionRequest, DeleteSessionResponse, GetSessionsRequest, GetSessionsResponse, ValidateSessionRequest, ValidateSessionResponse } from "./session_pb";
+import { CheckSessionPermissionsRequest, CheckSessionPermissionsResponse, CreateSessionRequest, CreateSessionResponse, DeleteSessionRequest, DeleteSessionResponse, GetSessionsRequest, GetSessionsResponse, GetSessionUserRequest, GetSessionUserResponse } from "./session_pb";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -31,12 +31,12 @@ export const SessionService = {
       kind: MethodKind.Unary,
     },
     /**
-     * @generated from rpc authentication.v1.SessionService.ValidateSession
+     * @generated from rpc authentication.v1.SessionService.GetSessionUser
      */
-    validateSession: {
-      name: "ValidateSession",
-      I: ValidateSessionRequest,
-      O: ValidateSessionResponse,
+    getSessionUser: {
+      name: "GetSessionUser",
+      I: GetSessionUserRequest,
+      O: GetSessionUserResponse,
       kind: MethodKind.Unary,
     },
     /**

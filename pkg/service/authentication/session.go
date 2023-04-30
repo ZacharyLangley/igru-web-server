@@ -60,9 +60,9 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 	return res, nil
 }
 
-func (s *Service) ValidateSession(baseCtx gocontext.Context, req *connect.Request[v1.ValidateSessionRequest]) (*connect.Response[v1.ValidateSessionResponse], error) {
+func (s *Service) GetUserSession(baseCtx gocontext.Context, req *connect.Request[v1.GetSessionUserRequest]) (*connect.Response[v1.GetSessionUserResponse], error) {
 	ctx := context.New(baseCtx)
-	res := connect.NewResponse(&v1.ValidateSessionResponse{})
+	res := connect.NewResponse(&v1.GetSessionUserResponse{})
 	token, err := ExtractSessionToken(req.Header())
 	if err != nil {
 		return nil, err

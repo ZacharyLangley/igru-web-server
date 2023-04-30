@@ -8,7 +8,7 @@ import "common/v1/pagination.proto";
 service SessionService {
   rpc CreateSession(CreateSessionRequest) returns (CreateSessionResponse) {}
   rpc GetSessions(GetSessionsRequest) returns (GetSessionsResponse) {}
-  rpc ValidateSession(ValidateSessionRequest) returns (ValidateSessionResponse) {}
+  rpc GetSessionUser(GetSessionUserRequest) returns (GetSessionUserResponse) {}
   rpc DeleteSession(DeleteSessionRequest) returns (DeleteSessionResponse) {}
   rpc CheckSessionPermissions(CheckSessionPermissionsRequest) returns (CheckSessionPermissionsResponse) {}
 }
@@ -16,15 +16,14 @@ service SessionService {
 message CreateSessionRequest {
   string email = 1;
   string password = 2;
-  string fullName = 3;
 }
 message CreateSessionResponse {
   authentication.v1.User user = 1;
 }
 
-message ValidateSessionRequest {}
+message GetSessionUserRequest {}
 
-message ValidateSessionResponse {
+message GetSessionUserResponse {
   authentication.v1.User user = 1;
 }
 

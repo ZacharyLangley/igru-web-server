@@ -39,9 +39,9 @@ const (
 	// SessionServiceGetSessionsProcedure is the fully-qualified name of the SessionService's
 	// GetSessions RPC.
 	SessionServiceGetSessionsProcedure = "/authentication.v1.SessionService/GetSessions"
-	// SessionServiceValidateSessionProcedure is the fully-qualified name of the SessionService's
-	// ValidateSession RPC.
-	SessionServiceValidateSessionProcedure = "/authentication.v1.SessionService/ValidateSession"
+	// SessionServiceGetSessionUserProcedure is the fully-qualified name of the SessionService's
+	// GetSessionUser RPC.
+	SessionServiceGetSessionUserProcedure = "/authentication.v1.SessionService/GetSessionUser"
 	// SessionServiceDeleteSessionProcedure is the fully-qualified name of the SessionService's
 	// DeleteSession RPC.
 	SessionServiceDeleteSessionProcedure = "/authentication.v1.SessionService/DeleteSession"
@@ -54,7 +54,7 @@ const (
 type SessionServiceClient interface {
 	CreateSession(context.Context, *connect_go.Request[v1.CreateSessionRequest]) (*connect_go.Response[v1.CreateSessionResponse], error)
 	GetSessions(context.Context, *connect_go.Request[v1.GetSessionsRequest]) (*connect_go.Response[v1.GetSessionsResponse], error)
-	ValidateSession(context.Context, *connect_go.Request[v1.ValidateSessionRequest]) (*connect_go.Response[v1.ValidateSessionResponse], error)
+	GetSessionUser(context.Context, *connect_go.Request[v1.GetSessionUserRequest]) (*connect_go.Response[v1.GetSessionUserResponse], error)
 	DeleteSession(context.Context, *connect_go.Request[v1.DeleteSessionRequest]) (*connect_go.Response[v1.DeleteSessionResponse], error)
 	CheckSessionPermissions(context.Context, *connect_go.Request[v1.CheckSessionPermissionsRequest]) (*connect_go.Response[v1.CheckSessionPermissionsResponse], error)
 }
@@ -79,9 +79,9 @@ func NewSessionServiceClient(httpClient connect_go.HTTPClient, baseURL string, o
 			baseURL+SessionServiceGetSessionsProcedure,
 			opts...,
 		),
-		validateSession: connect_go.NewClient[v1.ValidateSessionRequest, v1.ValidateSessionResponse](
+		getSessionUser: connect_go.NewClient[v1.GetSessionUserRequest, v1.GetSessionUserResponse](
 			httpClient,
-			baseURL+SessionServiceValidateSessionProcedure,
+			baseURL+SessionServiceGetSessionUserProcedure,
 			opts...,
 		),
 		deleteSession: connect_go.NewClient[v1.DeleteSessionRequest, v1.DeleteSessionResponse](
@@ -101,7 +101,7 @@ func NewSessionServiceClient(httpClient connect_go.HTTPClient, baseURL string, o
 type sessionServiceClient struct {
 	createSession           *connect_go.Client[v1.CreateSessionRequest, v1.CreateSessionResponse]
 	getSessions             *connect_go.Client[v1.GetSessionsRequest, v1.GetSessionsResponse]
-	validateSession         *connect_go.Client[v1.ValidateSessionRequest, v1.ValidateSessionResponse]
+	getSessionUser          *connect_go.Client[v1.GetSessionUserRequest, v1.GetSessionUserResponse]
 	deleteSession           *connect_go.Client[v1.DeleteSessionRequest, v1.DeleteSessionResponse]
 	checkSessionPermissions *connect_go.Client[v1.CheckSessionPermissionsRequest, v1.CheckSessionPermissionsResponse]
 }
@@ -116,9 +116,9 @@ func (c *sessionServiceClient) GetSessions(ctx context.Context, req *connect_go.
 	return c.getSessions.CallUnary(ctx, req)
 }
 
-// ValidateSession calls authentication.v1.SessionService.ValidateSession.
-func (c *sessionServiceClient) ValidateSession(ctx context.Context, req *connect_go.Request[v1.ValidateSessionRequest]) (*connect_go.Response[v1.ValidateSessionResponse], error) {
-	return c.validateSession.CallUnary(ctx, req)
+// GetSessionUser calls authentication.v1.SessionService.GetSessionUser.
+func (c *sessionServiceClient) GetSessionUser(ctx context.Context, req *connect_go.Request[v1.GetSessionUserRequest]) (*connect_go.Response[v1.GetSessionUserResponse], error) {
+	return c.getSessionUser.CallUnary(ctx, req)
 }
 
 // DeleteSession calls authentication.v1.SessionService.DeleteSession.
@@ -135,7 +135,7 @@ func (c *sessionServiceClient) CheckSessionPermissions(ctx context.Context, req 
 type SessionServiceHandler interface {
 	CreateSession(context.Context, *connect_go.Request[v1.CreateSessionRequest]) (*connect_go.Response[v1.CreateSessionResponse], error)
 	GetSessions(context.Context, *connect_go.Request[v1.GetSessionsRequest]) (*connect_go.Response[v1.GetSessionsResponse], error)
-	ValidateSession(context.Context, *connect_go.Request[v1.ValidateSessionRequest]) (*connect_go.Response[v1.ValidateSessionResponse], error)
+	GetSessionUser(context.Context, *connect_go.Request[v1.GetSessionUserRequest]) (*connect_go.Response[v1.GetSessionUserResponse], error)
 	DeleteSession(context.Context, *connect_go.Request[v1.DeleteSessionRequest]) (*connect_go.Response[v1.DeleteSessionResponse], error)
 	CheckSessionPermissions(context.Context, *connect_go.Request[v1.CheckSessionPermissionsRequest]) (*connect_go.Response[v1.CheckSessionPermissionsResponse], error)
 }
@@ -157,9 +157,9 @@ func NewSessionServiceHandler(svc SessionServiceHandler, opts ...connect_go.Hand
 		svc.GetSessions,
 		opts...,
 	))
-	mux.Handle(SessionServiceValidateSessionProcedure, connect_go.NewUnaryHandler(
-		SessionServiceValidateSessionProcedure,
-		svc.ValidateSession,
+	mux.Handle(SessionServiceGetSessionUserProcedure, connect_go.NewUnaryHandler(
+		SessionServiceGetSessionUserProcedure,
+		svc.GetSessionUser,
 		opts...,
 	))
 	mux.Handle(SessionServiceDeleteSessionProcedure, connect_go.NewUnaryHandler(
@@ -186,8 +186,8 @@ func (UnimplementedSessionServiceHandler) GetSessions(context.Context, *connect_
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.SessionService.GetSessions is not implemented"))
 }
 
-func (UnimplementedSessionServiceHandler) ValidateSession(context.Context, *connect_go.Request[v1.ValidateSessionRequest]) (*connect_go.Response[v1.ValidateSessionResponse], error) {
-	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.SessionService.ValidateSession is not implemented"))
+func (UnimplementedSessionServiceHandler) GetSessionUser(context.Context, *connect_go.Request[v1.GetSessionUserRequest]) (*connect_go.Response[v1.GetSessionUserResponse], error) {
+	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("authentication.v1.SessionService.GetSessionUser is not implemented"))
 }
 
 func (UnimplementedSessionServiceHandler) DeleteSession(context.Context, *connect_go.Request[v1.DeleteSessionRequest]) (*connect_go.Response[v1.DeleteSessionResponse], error) {

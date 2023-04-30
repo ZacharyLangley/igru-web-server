@@ -4,7 +4,7 @@ import {
     CallOptions,
 } from '@bufbuild/connect-web';
 
-import { GetSessionsRequest, ValidateSessionResponse } from 'src/client/authentication/v1/session_pb';
+import { GetSessionsRequest, GetSessionUserResponse } from 'src/client/authentication/v1/session_pb';
 import { SessionService } from 'src/client/authentication/v1/session_connectweb';
 import { PaginationRequest } from 'src/client/common/v1/pagination_pb';
 
@@ -30,7 +30,7 @@ export const validateSessionRequest = async (token: string) => {
     const pagination: PaginationRequest = {cursor: 1, length: 10};
     const request: Partial<GetSessionsRequest> = {pagination}
     const options: CallOptions = {headers: {session: token}}
-    const response: ValidateSessionResponse = await client.validateSession(request, options);
+    const response: GetSessionUserResponse = await client.getSessionUser(request, options);
 
     return response;
 }
