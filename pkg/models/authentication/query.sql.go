@@ -96,19 +96,20 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (S
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-  email, group_id, full_name, salt, hash
+  email, group_id, full_name, global_role, salt, hash
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4, $5, $6
 )
 RETURNING id, email, group_id, full_name, global_role, active, salt, hash, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	Email    string
-	GroupID  uuid.UUID
-	FullName sql.NullString
-	Salt     string
-	Hash     string
+	Email      string
+	GroupID    uuid.UUID
+	FullName   sql.NullString
+	GlobalRole sql.NullInt32
+	Salt       string
+	Hash       string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -116,6 +117,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.Email,
 		arg.GroupID,
 		arg.FullName,
+		arg.GlobalRole,
 		arg.Salt,
 		arg.Hash,
 	)

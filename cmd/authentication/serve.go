@@ -26,6 +26,10 @@ func runServer(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
+	// Create admin account if not present already
+	if err := authentication.CreateAdmin(ctx, conn); err != nil {
+		return fmt.Errorf("failed to create admin password: %w", err)
+	}
 	// Start serving
 	service := authentication.New(conn)
 	service.SessionDuration = cfg.SessionDuration
