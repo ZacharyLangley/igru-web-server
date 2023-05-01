@@ -44,7 +44,7 @@ func (c Checker) AssertAll(ctx context.Context, req interface {
 	request.Msg.Requests = make([]*authenticationv1.PermissionRequest, len(roles))
 	for i, role := range roles {
 		request.Msg.Requests[i] = &authenticationv1.PermissionRequest{
-			GroupId: groupID,
+			GroupId: &groupID,
 			Role:    role,
 		}
 	}
@@ -65,12 +65,35 @@ func (c Checker) AssertRead(ctx context.Context, req interface {
 	request := connect.NewRequest(&authenticationv1.CheckSessionPermissionsRequest{})
 	request.Msg.Requests = []*authenticationv1.PermissionRequest{
 		{
-			GroupId: groupID,
+			GroupId: &groupID,
 			Role:    authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
 		},
 		{
-			GroupId: groupID,
+			GroupId: &groupID,
 			Role:    authenticationv1.GroupRole_GROUP_ROLE_READ_ONLY,
+		},
+	}
+	res, err := c.SessionServiceClient.CheckSessionPermissions(ctx, request)
+	if err != nil {
+		return false, fmt.Errorf("failed checking permissions: %w", err)
+	}
+	for _, response := range res.Msg.Responses {
+		if !response.Allowed {
+			return false, nil
+		}
+	}
+	return true, nil
+}
+func (c Checker) AssertGlobalRead(ctx context.Context, req interface {
+	Header() http.Header
+}) (bool, error) {
+	request := connect.NewRequest(&authenticationv1.CheckSessionPermissionsRequest{})
+	request.Msg.Requests = []*authenticationv1.PermissionRequest{
+		{
+			Role: authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
+		},
+		{
+			Role: authenticationv1.GroupRole_GROUP_ROLE_READ_ONLY,
 		},
 	}
 	res, err := c.SessionServiceClient.CheckSessionPermissions(ctx, request)
@@ -90,8 +113,28 @@ func (c Checker) AssertWrite(ctx context.Context, req interface {
 	request := connect.NewRequest(&authenticationv1.CheckSessionPermissionsRequest{})
 	request.Msg.Requests = []*authenticationv1.PermissionRequest{
 		{
-			GroupId: groupID,
+			GroupId: &groupID,
 			Role:    authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
+		},
+	}
+	res, err := c.SessionServiceClient.CheckSessionPermissions(ctx, request)
+	if err != nil {
+		return false, fmt.Errorf("failed checking permissions: %w", err)
+	}
+	for _, response := range res.Msg.Responses {
+		if !response.Allowed {
+			return false, nil
+		}
+	}
+	return true, nil
+}
+func (c Checker) AssertGlobalWrite(ctx context.Context, req interface {
+	Header() http.Header
+}) (bool, error) {
+	request := connect.NewRequest(&authenticationv1.CheckSessionPermissionsRequest{})
+	request.Msg.Requests = []*authenticationv1.PermissionRequest{
+		{
+			Role: authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
 		},
 	}
 	res, err := c.SessionServiceClient.CheckSessionPermissions(ctx, request)
@@ -115,7 +158,7 @@ func (c Checker) AssertAny(ctx context.Context, req interface {
 	request.Msg.Requests = make([]*authenticationv1.PermissionRequest, len(roles))
 	for i, role := range roles {
 		request.Msg.Requests[i] = &authenticationv1.PermissionRequest{
-			GroupId: groupID,
+			GroupId: &groupID,
 			Role:    role,
 		}
 	}
@@ -154,11 +197,16 @@ func Check(ctx context.Context, tx pgx.Tx, userID uuid.UUID, requests []*authent
 	}
 	// Check if requests belong to user group
 	for i, req := range requests {
-		groupID, err := uuid.Parse(req.GroupId)
-		if err != nil {
-			return nil, fmt.Errorf("error parsing group UUID on request %d: %w", i, err)
+		if req.GroupId != nil {
+			// Check group scoped permissions
+			groupID, err := uuid.Parse(*req.GroupId)
+			if err != nil {
+				return nil, fmt.Errorf("error parsing group UUID on request %d: %w", i, err)
+			}
+			_, output[i].Allowed = groupIDs[groupID]
+		} else {
+			// Check global scoped permissions
 		}
-		_, output[i].Allowed = groupIDs[groupID]
 	}
 	return output, nil
 }

@@ -100,7 +100,7 @@ INSERT INTO users (
 ) VALUES (
   $1, $2, $3, $4, $5
 )
-RETURNING id, email, group_id, full_name, active, salt, hash, created_at, updated_at
+RETURNING id, email, group_id, full_name, global_role, active, salt, hash, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -125,6 +125,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Email,
 		&i.GroupID,
 		&i.FullName,
+		&i.GlobalRole,
 		&i.Active,
 		&i.Salt,
 		&i.Hash,
@@ -370,7 +371,7 @@ func (q *Queries) GetSessions(ctx context.Context, arg GetSessionsParams) ([]Ses
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, email, group_id, full_name, active, salt, hash, created_at, updated_at FROM users
+SELECT id, email, group_id, full_name, global_role, active, salt, hash, created_at, updated_at FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -382,6 +383,7 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.Email,
 		&i.GroupID,
 		&i.FullName,
+		&i.GlobalRole,
 		&i.Active,
 		&i.Salt,
 		&i.Hash,
@@ -392,7 +394,7 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, group_id, full_name, active, salt, hash, created_at, updated_at FROM users
+SELECT id, email, group_id, full_name, global_role, active, salt, hash, created_at, updated_at FROM users
 WHERE email = $1 LIMIT 1
 `
 
@@ -404,6 +406,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Email,
 		&i.GroupID,
 		&i.FullName,
+		&i.GlobalRole,
 		&i.Active,
 		&i.Salt,
 		&i.Hash,
@@ -485,7 +488,7 @@ func (q *Queries) GetUserGroups(ctx context.Context, arg GetUserGroupsParams) ([
 }
 
 const getUsers = `-- name: GetUsers :many
-SELECT id, email, group_id, full_name, active, salt, hash, created_at, updated_at FROM users LIMIT $1 OFFSET $2
+SELECT id, email, group_id, full_name, global_role, active, salt, hash, created_at, updated_at FROM users LIMIT $1 OFFSET $2
 `
 
 type GetUsersParams struct {
@@ -507,6 +510,7 @@ func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]User, err
 			&i.Email,
 			&i.GroupID,
 			&i.FullName,
+			&i.GlobalRole,
 			&i.Active,
 			&i.Salt,
 			&i.Hash,
@@ -569,7 +573,7 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET full_name=$2, updated_at=CURRENT_TIMESTAMP
 WHERE id=$1
-RETURNING id, email, group_id, full_name, active, salt, hash, created_at, updated_at
+RETURNING id, email, group_id, full_name, global_role, active, salt, hash, created_at, updated_at
 `
 
 type UpdateUserParams struct {
@@ -585,6 +589,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.Email,
 		&i.GroupID,
 		&i.FullName,
+		&i.GlobalRole,
 		&i.Active,
 		&i.Salt,
 		&i.Hash,

@@ -52,12 +52,17 @@ export class User extends Message<User> {
   fullName = "";
 
   /**
-   * @generated from field: google.protobuf.Timestamp created_at = 4;
+   * @generated from field: authentication.v1.GroupRole global_role = 4;
+   */
+  globalRole = GroupRole.UNSPECIFIED;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp created_at = 5;
    */
   createdAt?: Timestamp;
 
   /**
-   * @generated from field: google.protobuf.Timestamp updated_at = 5;
+   * @generated from field: google.protobuf.Timestamp updated_at = 6;
    */
   updatedAt?: Timestamp;
 
@@ -72,8 +77,9 @@ export class User extends Message<User> {
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "email", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "full_name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "created_at", kind: "message", T: Timestamp },
-    { no: 5, name: "updated_at", kind: "message", T: Timestamp },
+    { no: 4, name: "global_role", kind: "enum", T: proto3.getEnumType(GroupRole) },
+    { no: 5, name: "created_at", kind: "message", T: Timestamp },
+    { no: 6, name: "updated_at", kind: "message", T: Timestamp },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): User {
@@ -324,11 +330,15 @@ export class PermissionResponse extends Message<PermissionResponse> {
  */
 export class PermissionRequest extends Message<PermissionRequest> {
   /**
-   * @generated from field: string group_id = 1;
+   * GroupID that of permission scope. If this is left empty, then this defaults to global scoped.
+   *
+   * @generated from field: optional string group_id = 1;
    */
-  groupId = "";
+  groupId?: string;
 
   /**
+   * Either group role or global role to be checked.
+   *
    * @generated from field: authentication.v1.GroupRole role = 2;
    */
   role = GroupRole.UNSPECIFIED;
@@ -341,7 +351,7 @@ export class PermissionRequest extends Message<PermissionRequest> {
   static readonly runtime = proto3;
   static readonly typeName = "authentication.v1.PermissionRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 2, name: "role", kind: "enum", T: proto3.getEnumType(GroupRole) },
   ]);
 

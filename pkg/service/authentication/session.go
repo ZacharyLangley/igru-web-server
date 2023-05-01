@@ -158,6 +158,10 @@ func (s *Service) CheckSessionPermissions(baseCtx gocontext.Context, req *connec
 
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
+		user, err := queries.GetUser(ctx, sess.UserID)
+		if err != nil {
+			return err
+		}
 		rawRoles, err := queries.GetUserGroupRoles(ctx, sess.UserID)
 		if err != nil {
 			return err
@@ -167,10 +171,20 @@ func (s *Service) CheckSessionPermissions(baseCtx gocontext.Context, req *connec
 			roles[role.GroupID.String()] = v1.GroupRole(role.Role)
 		}
 		for i, permissionRequest := range req.Msg.Requests {
-			grantedRole, ok := roles[permissionRequest.GroupId]
-			res.Msg.Responses[i] = &v1.PermissionResponse{
-				Request: permissionRequest,
-				Allowed: ok && grantedRole == permissionRequest.Role,
+			if permissionRequest.GroupId != nil {
+				// Check group role
+				grantedRole, ok := roles[*permissionRequest.GroupId]
+				res.Msg.Responses[i] = &v1.PermissionResponse{
+					Request: permissionRequest,
+					Allowed: ok && grantedRole == permissionRequest.Role,
+				}
+			} else {
+				// Check global role
+				ok := user.GlobalRole.Valid
+				res.Msg.Responses[i] = &v1.PermissionResponse{
+					Request: permissionRequest,
+					Allowed: ok && v1.GroupRole(user.GlobalRole.Int32) == permissionRequest.Role,
+				}
 			}
 		}
 		return err
