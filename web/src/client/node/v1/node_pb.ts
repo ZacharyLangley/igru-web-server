@@ -6,6 +6,7 @@
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3 } from "@bufbuild/protobuf";
 import { Node } from "./schema_pb";
+import { PaginationRequest } from "../../common/v1/pagination_pb";
 
 /**
  * @generated from message node.v1.UpdateNodeRequest
@@ -98,7 +99,12 @@ export class UpdateNodeResponse extends Message<UpdateNodeResponse> {
  */
 export class DeleteNodeRequest extends Message<DeleteNodeRequest> {
   /**
-   * @generated from field: string mac_address = 1;
+   * @generated from field: optional string group_id = 1;
+   */
+  groupId?: string;
+
+  /**
+   * @generated from field: string mac_address = 2;
    */
   macAddress = "";
 
@@ -110,7 +116,8 @@ export class DeleteNodeRequest extends Message<DeleteNodeRequest> {
   static readonly runtime = proto3;
   static readonly typeName = "node.v1.DeleteNodeRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "mac_address", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 2, name: "mac_address", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeleteNodeRequest {
@@ -165,6 +172,16 @@ export class DeleteNodeResponse extends Message<DeleteNodeResponse> {
  * @generated from message node.v1.GetNodesRequest
  */
 export class GetNodesRequest extends Message<GetNodesRequest> {
+  /**
+   * @generated from field: common.v1.PaginationRequest pagination = 1;
+   */
+  pagination?: PaginationRequest;
+
+  /**
+   * @generated from field: optional string group_id = 2;
+   */
+  groupId?: string;
+
   constructor(data?: PartialMessage<GetNodesRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -173,6 +190,8 @@ export class GetNodesRequest extends Message<GetNodesRequest> {
   static readonly runtime = proto3;
   static readonly typeName = "node.v1.GetNodesRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "pagination", kind: "message", T: PaginationRequest },
+    { no: 2, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetNodesRequest {
@@ -234,7 +253,12 @@ export class GetNodesResponse extends Message<GetNodesResponse> {
  */
 export class GetNodeRequest extends Message<GetNodeRequest> {
   /**
-   * @generated from field: string mac_address = 1;
+   * @generated from field: optional string group_id = 1;
+   */
+  groupId?: string;
+
+  /**
+   * @generated from field: string mac_address = 2;
    */
   macAddress = "";
 
@@ -246,7 +270,8 @@ export class GetNodeRequest extends Message<GetNodeRequest> {
   static readonly runtime = proto3;
   static readonly typeName = "node.v1.GetNodeRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "mac_address", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 2, name: "mac_address", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetNodeRequest {

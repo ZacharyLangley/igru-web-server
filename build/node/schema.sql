@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS sensors (
 	name TEXT NOT NULL,
 	node_id TEXT NOT NULL,
 	model TEXT,
-	category INT
+	category INT,
     PRIMARY KEY(id),
 	CONSTRAINT fk_sensor_nodes
       FOREIGN KEY(node_id) 

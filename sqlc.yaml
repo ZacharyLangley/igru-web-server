@@ -16,3 +16,11 @@ sql:
       package: "garden"
       out: "pkg/models/garden"
       sql_package: pgx/v4
+- schema: "build/node/schema.sql"
+  queries: "build/node/query.sql"
+  engine: "postgresql"
+  gen:
+    go:
+      package: "node"
+      out: "pkg/models/node"
+      sql_package: pgx/v4
