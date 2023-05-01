@@ -156,6 +156,11 @@ export class DeleteStrainRequest extends Message<DeleteStrainRequest> {
    */
   id = "";
 
+  /**
+   * @generated from field: string group_id = 2;
+   */
+  groupId = "";
+
   constructor(data?: PartialMessage<DeleteStrainRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -165,6 +170,7 @@ export class DeleteStrainRequest extends Message<DeleteStrainRequest> {
   static readonly typeName = "garden.v1.DeleteStrainRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeleteStrainRequest {
@@ -236,52 +242,57 @@ export class UpdateStrainRequest extends Message<UpdateStrainRequest> {
   name = "";
 
   /**
-   * @generated from field: string comment = 3;
+   * @generated from field: string group_id = 3;
+   */
+  groupId = "";
+
+  /**
+   * @generated from field: string comment = 4;
    */
   comment = "";
 
   /**
-   * @generated from field: string notes = 4;
+   * @generated from field: string notes = 5;
    */
   notes = "";
 
   /**
-   * @generated from field: string type = 5;
+   * @generated from field: string type = 6;
    */
   type = "";
 
   /**
-   * @generated from field: double price = 6;
+   * @generated from field: double price = 7;
    */
   price = 0;
 
   /**
-   * @generated from field: double thc_percent = 7;
+   * @generated from field: double thc_percent = 8;
    */
   thcPercent = 0;
 
   /**
-   * @generated from field: double cbd_percent = 8;
+   * @generated from field: double cbd_percent = 9;
    */
   cbdPercent = 0;
 
   /**
-   * @generated from field: string parentage = 9;
+   * @generated from field: string parentage = 10;
    */
   parentage = "";
 
   /**
-   * @generated from field: string aroma = 10;
+   * @generated from field: string aroma = 11;
    */
   aroma = "";
 
   /**
-   * @generated from field: string taste = 11;
+   * @generated from field: string taste = 12;
    */
   taste = "";
 
   /**
-   * @generated from field: string tags = 12;
+   * @generated from field: string tags = 13;
    */
   tags = "";
 
@@ -295,16 +306,17 @@ export class UpdateStrainRequest extends Message<UpdateStrainRequest> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "comment", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "notes", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "type", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 6, name: "price", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 7, name: "thc_percent", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 8, name: "cbd_percent", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 9, name: "parentage", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 10, name: "aroma", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 11, name: "taste", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 12, name: "tags", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "comment", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "notes", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "type", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "price", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 8, name: "thc_percent", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 9, name: "cbd_percent", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 10, name: "parentage", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 11, name: "aroma", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 12, name: "taste", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 13, name: "tags", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UpdateStrainRequest {
@@ -444,6 +456,11 @@ export class GetStrainRequest extends Message<GetStrainRequest> {
    */
   id = "";
 
+  /**
+   * @generated from field: string group_id = 2;
+   */
+  groupId = "";
+
   constructor(data?: PartialMessage<GetStrainRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -453,6 +470,7 @@ export class GetStrainRequest extends Message<GetStrainRequest> {
   static readonly typeName = "garden.v1.GetStrainRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetStrainRequest {

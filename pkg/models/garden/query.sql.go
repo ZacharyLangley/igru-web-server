@@ -69,7 +69,7 @@ const createPlant = `-- name: CreatePlant :one
 INSERT INTO plants (
   name, group_id, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
+  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, CURRENT_TIMESTAMP
 )
 RETURNING id, group_id, name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at, updated_at
 `
@@ -90,7 +90,6 @@ type CreatePlantParams struct {
 	BudPistils      bool
 	Tags            string
 	AcquiredAt      time.Time
-	CreatedAt       time.Time
 }
 
 func (q *Queries) CreatePlant(ctx context.Context, arg CreatePlantParams) (Plant, error) {
@@ -110,7 +109,6 @@ func (q *Queries) CreatePlant(ctx context.Context, arg CreatePlantParams) (Plant
 		arg.BudPistils,
 		arg.Tags,
 		arg.AcquiredAt,
-		arg.CreatedAt,
 	)
 	var i Plant
 	err := row.Scan(
@@ -138,15 +136,16 @@ func (q *Queries) CreatePlant(ctx context.Context, arg CreatePlantParams) (Plant
 
 const createRecipe = `-- name: CreateRecipe :one
 INSERT INTO recipes (
-  name, comment, ingredients, instructions, ph, mix_time_milliseconds, tags, created_at
+  name, group_id, comment, ingredients, instructions, ph, mix_time_milliseconds, tags, created_at
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7, $8
+  $1, $2, $3, $4, $5, $6, $7, $8, $9
 )
-RETURNING id, name, comment, ingredients, instructions, ph, mix_time_milliseconds, tags, created_at, updated_at
+RETURNING id, group_id, name, comment, ingredients, instructions, ph, mix_time_milliseconds, tags, created_at, updated_at
 `
 
 type CreateRecipeParams struct {
 	Name                string
+	GroupID             uuid.UUID
 	Comment             string
 	Ingredients         string
 	Instructions        string
@@ -159,6 +158,7 @@ type CreateRecipeParams struct {
 func (q *Queries) CreateRecipe(ctx context.Context, arg CreateRecipeParams) (Recipe, error) {
 	row := q.db.QueryRow(ctx, createRecipe,
 		arg.Name,
+		arg.GroupID,
 		arg.Comment,
 		arg.Ingredients,
 		arg.Instructions,
@@ -170,6 +170,7 @@ func (q *Queries) CreateRecipe(ctx context.Context, arg CreateRecipeParams) (Rec
 	var i Recipe
 	err := row.Scan(
 		&i.ID,
+		&i.GroupID,
 		&i.Name,
 		&i.Comment,
 		&i.Ingredients,
@@ -247,51 +248,76 @@ func (q *Queries) CreateStrain(ctx context.Context, arg CreateStrainParams) (Str
 
 const deleteGarden = `-- name: DeleteGarden :exec
 DELETE FROM gardens
-WHERE id = $1
+WHERE id = $1 AND group_id = $2
 `
 
-func (q *Queries) DeleteGarden(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, deleteGarden, id)
+type DeleteGardenParams struct {
+	ID      uuid.UUID
+	GroupID uuid.UUID
+}
+
+func (q *Queries) DeleteGarden(ctx context.Context, arg DeleteGardenParams) error {
+	_, err := q.db.Exec(ctx, deleteGarden, arg.ID, arg.GroupID)
 	return err
 }
 
 const deletePlant = `-- name: DeletePlant :exec
 DELETE FROM plants
-WHERE id = $1
+WHERE id = $1 AND group_id = $2
 `
 
-func (q *Queries) DeletePlant(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, deletePlant, id)
+type DeletePlantParams struct {
+	ID      uuid.UUID
+	GroupID uuid.UUID
+}
+
+func (q *Queries) DeletePlant(ctx context.Context, arg DeletePlantParams) error {
+	_, err := q.db.Exec(ctx, deletePlant, arg.ID, arg.GroupID)
 	return err
 }
 
 const deleteRecipe = `-- name: DeleteRecipe :exec
 DELETE FROM recipes
-WHERE id = $1
+WHERE id = $1 AND group_id = $2
 `
 
-func (q *Queries) DeleteRecipe(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, deleteRecipe, id)
+type DeleteRecipeParams struct {
+	ID      uuid.UUID
+	GroupID uuid.UUID
+}
+
+func (q *Queries) DeleteRecipe(ctx context.Context, arg DeleteRecipeParams) error {
+	_, err := q.db.Exec(ctx, deleteRecipe, arg.ID, arg.GroupID)
 	return err
 }
 
 const deleteStrain = `-- name: DeleteStrain :exec
 DELETE FROM strains
-WHERE id = $1
+WHERE id = $1 AND group_id = $2
 `
 
-func (q *Queries) DeleteStrain(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, deleteStrain, id)
+type DeleteStrainParams struct {
+	ID      uuid.UUID
+	GroupID uuid.UUID
+}
+
+func (q *Queries) DeleteStrain(ctx context.Context, arg DeleteStrainParams) error {
+	_, err := q.db.Exec(ctx, deleteStrain, arg.ID, arg.GroupID)
 	return err
 }
 
 const getGarden = `-- name: GetGarden :one
 SELECT id, group_id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at FROM gardens
-WHERE id = $1 LIMIT 1
+WHERE id = $1 AND group_id = $2 LIMIT 1
 `
 
-func (q *Queries) GetGarden(ctx context.Context, id uuid.UUID) (Garden, error) {
-	row := q.db.QueryRow(ctx, getGarden, id)
+type GetGardenParams struct {
+	ID      uuid.UUID
+	GroupID uuid.UUID
+}
+
+func (q *Queries) GetGarden(ctx context.Context, arg GetGardenParams) (Garden, error) {
+	row := q.db.QueryRow(ctx, getGarden, arg.ID, arg.GroupID)
 	var i Garden
 	err := row.Scan(
 		&i.ID,
@@ -312,10 +338,11 @@ func (q *Queries) GetGarden(ctx context.Context, id uuid.UUID) (Garden, error) {
 
 const getGardens = `-- name: GetGardens :many
 SELECT id, group_id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at FROM gardens
+WHERE group_id = $1
 `
 
-func (q *Queries) GetGardens(ctx context.Context) ([]Garden, error) {
-	rows, err := q.db.Query(ctx, getGardens)
+func (q *Queries) GetGardens(ctx context.Context, groupID uuid.UUID) ([]Garden, error) {
+	rows, err := q.db.Query(ctx, getGardens, groupID)
 	if err != nil {
 		return nil, err
 	}
@@ -349,11 +376,16 @@ func (q *Queries) GetGardens(ctx context.Context) ([]Garden, error) {
 
 const getPlant = `-- name: GetPlant :one
 SELECT id, group_id, name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at, updated_at FROM plants
-WHERE id = $1 LIMIT 1
+WHERE id = $1 AND group_id = $2 LIMIT 1
 `
 
-func (q *Queries) GetPlant(ctx context.Context, id uuid.UUID) (Plant, error) {
-	row := q.db.QueryRow(ctx, getPlant, id)
+type GetPlantParams struct {
+	ID      uuid.UUID
+	GroupID uuid.UUID
+}
+
+func (q *Queries) GetPlant(ctx context.Context, arg GetPlantParams) (Plant, error) {
+	row := q.db.QueryRow(ctx, getPlant, arg.ID, arg.GroupID)
 	var i Plant
 	err := row.Scan(
 		&i.ID,
@@ -380,10 +412,11 @@ func (q *Queries) GetPlant(ctx context.Context, id uuid.UUID) (Plant, error) {
 
 const getPlants = `-- name: GetPlants :many
 SELECT id, group_id, name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at, updated_at FROM plants
+WHERE group_id = $1
 `
 
-func (q *Queries) GetPlants(ctx context.Context) ([]Plant, error) {
-	rows, err := q.db.Query(ctx, getPlants)
+func (q *Queries) GetPlants(ctx context.Context, groupID uuid.UUID) ([]Plant, error) {
+	rows, err := q.db.Query(ctx, getPlants, groupID)
 	if err != nil {
 		return nil, err
 	}
@@ -422,15 +455,21 @@ func (q *Queries) GetPlants(ctx context.Context) ([]Plant, error) {
 }
 
 const getRecipe = `-- name: GetRecipe :one
-SELECT id, name, comment, ingredients, instructions, ph, mix_time_milliseconds, tags, created_at, updated_at FROM recipes
-WHERE id = $1 LIMIT 1
+SELECT id, group_id, name, comment, ingredients, instructions, ph, mix_time_milliseconds, tags, created_at, updated_at FROM recipes
+WHERE id = $1 AND group_id = $2 LIMIT 1
 `
 
-func (q *Queries) GetRecipe(ctx context.Context, id uuid.UUID) (Recipe, error) {
-	row := q.db.QueryRow(ctx, getRecipe, id)
+type GetRecipeParams struct {
+	ID      uuid.UUID
+	GroupID uuid.UUID
+}
+
+func (q *Queries) GetRecipe(ctx context.Context, arg GetRecipeParams) (Recipe, error) {
+	row := q.db.QueryRow(ctx, getRecipe, arg.ID, arg.GroupID)
 	var i Recipe
 	err := row.Scan(
 		&i.ID,
+		&i.GroupID,
 		&i.Name,
 		&i.Comment,
 		&i.Ingredients,
@@ -445,11 +484,12 @@ func (q *Queries) GetRecipe(ctx context.Context, id uuid.UUID) (Recipe, error) {
 }
 
 const getRecipes = `-- name: GetRecipes :many
-SELECT id, name, comment, ingredients, instructions, ph, mix_time_milliseconds, tags, created_at, updated_at FROM recipes
+SELECT id, group_id, name, comment, ingredients, instructions, ph, mix_time_milliseconds, tags, created_at, updated_at FROM recipes
+WHERE group_id = $1
 `
 
-func (q *Queries) GetRecipes(ctx context.Context) ([]Recipe, error) {
-	rows, err := q.db.Query(ctx, getRecipes)
+func (q *Queries) GetRecipes(ctx context.Context, groupID uuid.UUID) ([]Recipe, error) {
+	rows, err := q.db.Query(ctx, getRecipes, groupID)
 	if err != nil {
 		return nil, err
 	}
@@ -459,6 +499,7 @@ func (q *Queries) GetRecipes(ctx context.Context) ([]Recipe, error) {
 		var i Recipe
 		if err := rows.Scan(
 			&i.ID,
+			&i.GroupID,
 			&i.Name,
 			&i.Comment,
 			&i.Ingredients,
@@ -481,11 +522,16 @@ func (q *Queries) GetRecipes(ctx context.Context) ([]Recipe, error) {
 
 const getStrain = `-- name: GetStrain :one
 SELECT id, group_id, name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at, updated_at FROM strains
-WHERE id = $1 LIMIT 1
+WHERE id = $1 AND group_id = $2 LIMIT 1
 `
 
-func (q *Queries) GetStrain(ctx context.Context, id uuid.UUID) (Strain, error) {
-	row := q.db.QueryRow(ctx, getStrain, id)
+type GetStrainParams struct {
+	ID      uuid.UUID
+	GroupID uuid.UUID
+}
+
+func (q *Queries) GetStrain(ctx context.Context, arg GetStrainParams) (Strain, error) {
+	row := q.db.QueryRow(ctx, getStrain, arg.ID, arg.GroupID)
 	var i Strain
 	err := row.Scan(
 		&i.ID,
@@ -509,10 +555,11 @@ func (q *Queries) GetStrain(ctx context.Context, id uuid.UUID) (Strain, error) {
 
 const getStrains = `-- name: GetStrains :many
 SELECT id, group_id, name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at, updated_at FROM strains
+WHERE group_id = $1
 `
 
-func (q *Queries) GetStrains(ctx context.Context) ([]Strain, error) {
-	rows, err := q.db.Query(ctx, getStrains)
+func (q *Queries) GetStrains(ctx context.Context, groupID uuid.UUID) ([]Strain, error) {
+	rows, err := q.db.Query(ctx, getStrains, groupID)
 	if err != nil {
 		return nil, err
 	}
@@ -549,13 +596,14 @@ func (q *Queries) GetStrains(ctx context.Context) ([]Strain, error) {
 
 const updateGarden = `-- name: UpdateGarden :one
 UPDATE gardens
-SET name = $2, comment= $3, location = $4, grow_type = $5, grow_size = $6, grow_style = $7, container_size = $8, tags = $9, created_at = $10, updated_at=CURRENT_TIMESTAMP
-WHERE id = $1
+SET name = $3, comment= $4, location = $5, grow_type = $6, grow_size = $7, grow_style = $8, container_size = $9, tags = $10, created_at = $11, updated_at=CURRENT_TIMESTAMP
+WHERE id = $1 AND group_id = $2
 RETURNING id, group_id, name, comment, location, grow_type, grow_size, grow_style, container_size, tags, created_at, updated_at
 `
 
 type UpdateGardenParams struct {
 	ID            uuid.UUID
+	GroupID       uuid.UUID
 	Name          string
 	Comment       string
 	Location      string
@@ -570,6 +618,7 @@ type UpdateGardenParams struct {
 func (q *Queries) UpdateGarden(ctx context.Context, arg UpdateGardenParams) (Garden, error) {
 	row := q.db.QueryRow(ctx, updateGarden,
 		arg.ID,
+		arg.GroupID,
 		arg.Name,
 		arg.Comment,
 		arg.Location,
@@ -600,13 +649,14 @@ func (q *Queries) UpdateGarden(ctx context.Context, arg UpdateGardenParams) (Gar
 
 const updatePlant = `-- name: UpdatePlant :one
 UPDATE plants
-SET name = $2, comment = $3, notes = $4, grow_cycle_length = $5, parentage = $6, origin = $7, gender = $8, days_flowering = $9, days_cured = $10, harvested_weight = $11, bud_density = $12, bud_pistils = $13, tags = $14, acquired_at=$15, created_at = $16, updated_at=CURRENT_TIMESTAMP
-WHERE id = $1
+SET name = $3, comment = $4, notes = $5, grow_cycle_length = $6, parentage = $7, origin = $8, gender = $9, days_flowering = $10, days_cured = $11, harvested_weight = $12, bud_density = $13, bud_pistils = $14, tags = $15, acquired_at=$16, updated_at=CURRENT_TIMESTAMP
+WHERE id = $1 AND group_id = $2
 RETURNING id, group_id, name, comment, notes, grow_cycle_length, parentage, origin, gender, days_flowering, days_cured, harvested_weight, bud_density, bud_pistils, tags, acquired_at, created_at, updated_at
 `
 
 type UpdatePlantParams struct {
 	ID              uuid.UUID
+	GroupID         uuid.UUID
 	Name            string
 	Comment         string
 	Notes           string
@@ -621,12 +671,12 @@ type UpdatePlantParams struct {
 	BudPistils      bool
 	Tags            string
 	AcquiredAt      time.Time
-	CreatedAt       time.Time
 }
 
 func (q *Queries) UpdatePlant(ctx context.Context, arg UpdatePlantParams) (Plant, error) {
 	row := q.db.QueryRow(ctx, updatePlant,
 		arg.ID,
+		arg.GroupID,
 		arg.Name,
 		arg.Comment,
 		arg.Notes,
@@ -641,7 +691,6 @@ func (q *Queries) UpdatePlant(ctx context.Context, arg UpdatePlantParams) (Plant
 		arg.BudPistils,
 		arg.Tags,
 		arg.AcquiredAt,
-		arg.CreatedAt,
 	)
 	var i Plant
 	err := row.Scan(
@@ -669,13 +718,14 @@ func (q *Queries) UpdatePlant(ctx context.Context, arg UpdatePlantParams) (Plant
 
 const updateRecipe = `-- name: UpdateRecipe :one
 UPDATE recipes
-SET name = $2, comment = $3, ingredients = $4, instructions = $5, ph = $6, mix_time_milliseconds = $7, tags = $8, created_at = $9, updated_at=CURRENT_TIMESTAMP
-WHERE id = $1
-RETURNING id, name, comment, ingredients, instructions, ph, mix_time_milliseconds, tags, created_at, updated_at
+SET name = $3, comment = $4, ingredients = $5, instructions = $6, ph = $7, mix_time_milliseconds = $8, tags = $9, created_at = $10, updated_at=CURRENT_TIMESTAMP
+WHERE id = $1 AND group_id = $2
+RETURNING id, group_id, name, comment, ingredients, instructions, ph, mix_time_milliseconds, tags, created_at, updated_at
 `
 
 type UpdateRecipeParams struct {
 	ID                  uuid.UUID
+	GroupID             uuid.UUID
 	Name                string
 	Comment             string
 	Ingredients         string
@@ -689,6 +739,7 @@ type UpdateRecipeParams struct {
 func (q *Queries) UpdateRecipe(ctx context.Context, arg UpdateRecipeParams) (Recipe, error) {
 	row := q.db.QueryRow(ctx, updateRecipe,
 		arg.ID,
+		arg.GroupID,
 		arg.Name,
 		arg.Comment,
 		arg.Ingredients,
@@ -701,6 +752,7 @@ func (q *Queries) UpdateRecipe(ctx context.Context, arg UpdateRecipeParams) (Rec
 	var i Recipe
 	err := row.Scan(
 		&i.ID,
+		&i.GroupID,
 		&i.Name,
 		&i.Comment,
 		&i.Ingredients,
@@ -716,13 +768,14 @@ func (q *Queries) UpdateRecipe(ctx context.Context, arg UpdateRecipeParams) (Rec
 
 const updateStrain = `-- name: UpdateStrain :one
 UPDATE strains
-SET name = $2, comment = $3, notes = $4, type = $5, price = $6, thc_percent = $7, cbd_percent = $8, parentage = $9, aroma = $10, taste = $11, tags = $12, created_at = $13, updated_at=CURRENT_TIMESTAMP
-WHERE id = $1
+SET name = $3, comment = $4, notes = $5, type = $6, price = $7, thc_percent = $8, cbd_percent = $9, parentage = $10, aroma = $11, taste = $12, tags = $13, created_at = $14, updated_at=CURRENT_TIMESTAMP
+WHERE id = $1 AND group_id = $2
 RETURNING id, group_id, name, comment, notes, type, price, thc_percent, cbd_percent, parentage, aroma, taste, tags, created_at, updated_at
 `
 
 type UpdateStrainParams struct {
 	ID         uuid.UUID
+	GroupID    uuid.UUID
 	Name       string
 	Comment    string
 	Notes      string
@@ -740,6 +793,7 @@ type UpdateStrainParams struct {
 func (q *Queries) UpdateStrain(ctx context.Context, arg UpdateStrainParams) (Strain, error) {
 	row := q.db.QueryRow(ctx, updateStrain,
 		arg.ID,
+		arg.GroupID,
 		arg.Name,
 		arg.Comment,
 		arg.Notes,

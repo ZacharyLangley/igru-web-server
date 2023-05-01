@@ -29,6 +29,7 @@ message CreateGardenResponse {
 
 message DeleteGardenRequest {
     string id = 1;
+    string group_id = 2;
 }
 message DeleteGardenResponse {
     garden.v1.Garden garden = 1;
@@ -36,14 +37,15 @@ message DeleteGardenResponse {
 
 message UpdateGardenRequest {
     string id = 1;
-    string name = 2;
-    string comment = 3;
-    string location = 4;
-    string grow_type = 5;
-    string grow_size = 6;
-    string grow_style = 7;
-    string container_size = 8;
-    string tags = 9;
+    string group_id = 2;
+    string name = 3;
+    string comment = 4;
+    string location = 5;
+    string grow_type = 6;
+    string grow_size = 7;
+    string grow_style = 8;
+    string container_size = 9;
+    string tags = 10;
 }
 message UpdateGardenResponse {
     garden.v1.Garden garden = 1;
@@ -58,6 +60,7 @@ message GetGardensResponse {
 
 message GetGardenRequest {
     string id = 1;
+    string group_id = 2;
 }
 message GetGardenResponse {
     garden.v1.Garden garden = 1;

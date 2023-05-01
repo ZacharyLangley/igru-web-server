@@ -6,9 +6,9 @@ import (
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/node"
+	authenticationv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/node/v1"
 	"github.com/bufbuild/connect-go"
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -20,31 +20,14 @@ func (s *Service) GetNodes(baseCtx gocontext.Context, req *connect.Request[v1.Ge
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}
-	groupID := uuid.NullUUID{}
-	if req.Msg.GroupId != nil {
-		groupID.UUID, err = uuid.Parse(*req.Msg.GroupId)
-		if err != nil {
-			return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("invalid groupID"))
-		} else {
-			groupID.Valid = true
-		}
-	}
-	var allowed bool
-	if groupID.Valid {
-		// Check group permissions
-		allowed, err = s.checker.AssertRead(ctx, req, *req.Msg.GroupId)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		// Check global permissions
-		allowed, err = s.checker.AssertGlobalRead(ctx, req)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
+	groupID, err := s.checker.AssertAny(ctx,
+		req,
+		req.Msg.GroupId,
+		authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
+		authenticationv1.GroupRole_GROUP_ROLE_READ_ONLY,
+	)
+	if err != nil {
+		return nil, err
 	}
 	var nodes []models.Node
 	sensors := make(map[string][]models.Sensor)
@@ -77,7 +60,6 @@ func (s *Service) GetNodes(baseCtx gocontext.Context, req *connect.Request[v1.Ge
 			Name:       node.Name,
 			CreatedAt:  timestamppb.New(node.CreatedAt),
 		}
-
 		if node.OwnedBy.Valid {
 			newNode.OwnedBy = node.OwnedBy.UUID.String()
 		}

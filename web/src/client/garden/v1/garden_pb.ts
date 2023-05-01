@@ -138,6 +138,11 @@ export class DeleteGardenRequest extends Message<DeleteGardenRequest> {
    */
   id = "";
 
+  /**
+   * @generated from field: string group_id = 2;
+   */
+  groupId = "";
+
   constructor(data?: PartialMessage<DeleteGardenRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -147,6 +152,7 @@ export class DeleteGardenRequest extends Message<DeleteGardenRequest> {
   static readonly typeName = "garden.v1.DeleteGardenRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeleteGardenRequest {
@@ -213,42 +219,47 @@ export class UpdateGardenRequest extends Message<UpdateGardenRequest> {
   id = "";
 
   /**
-   * @generated from field: string name = 2;
+   * @generated from field: string group_id = 2;
+   */
+  groupId = "";
+
+  /**
+   * @generated from field: string name = 3;
    */
   name = "";
 
   /**
-   * @generated from field: string comment = 3;
+   * @generated from field: string comment = 4;
    */
   comment = "";
 
   /**
-   * @generated from field: string location = 4;
+   * @generated from field: string location = 5;
    */
   location = "";
 
   /**
-   * @generated from field: string grow_type = 5;
+   * @generated from field: string grow_type = 6;
    */
   growType = "";
 
   /**
-   * @generated from field: string grow_size = 6;
+   * @generated from field: string grow_size = 7;
    */
   growSize = "";
 
   /**
-   * @generated from field: string grow_style = 7;
+   * @generated from field: string grow_style = 8;
    */
   growStyle = "";
 
   /**
-   * @generated from field: string container_size = 8;
+   * @generated from field: string container_size = 9;
    */
   containerSize = "";
 
   /**
-   * @generated from field: string tags = 9;
+   * @generated from field: string tags = 10;
    */
   tags = "";
 
@@ -261,14 +272,15 @@ export class UpdateGardenRequest extends Message<UpdateGardenRequest> {
   static readonly typeName = "garden.v1.UpdateGardenRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "comment", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "location", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "grow_type", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 6, name: "grow_size", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 7, name: "grow_style", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 8, name: "container_size", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 9, name: "tags", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "comment", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "location", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "grow_type", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "grow_size", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 8, name: "grow_style", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 9, name: "container_size", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 10, name: "tags", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UpdateGardenRequest {
@@ -408,6 +420,11 @@ export class GetGardenRequest extends Message<GetGardenRequest> {
    */
   id = "";
 
+  /**
+   * @generated from field: string group_id = 2;
+   */
+  groupId = "";
+
   constructor(data?: PartialMessage<GetGardenRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -417,6 +434,7 @@ export class GetGardenRequest extends Message<GetGardenRequest> {
   static readonly typeName = "garden.v1.GetGardenRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetGardenRequest {

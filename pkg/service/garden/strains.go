@@ -8,6 +8,7 @@ import (
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/garden"
+	authenticationv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1"
 	"github.com/bufbuild/connect-go"
 	connect_go "github.com/bufbuild/connect-go"
@@ -23,24 +24,26 @@ func (s *Service) CreateStrain(baseCtx gocontext.Context, req *connect_go.Reques
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}
+	// Check write access
+	groupID, err := s.checker.AssertAny(ctx,
+		req,
+		&req.Msg.GroupId,
+		authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
+	)
+	if err != nil {
+		return nil, err
+	}
 	// TODO: Add validation function
 	parentageID, err := uuid.Parse(req.Msg.Parentage)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid parentage id format: %w", err))
-	}
-	// Check write access
-	allowed, err := s.checker.AssertWrite(ctx, req, req.Msg.GroupId)
-	if err != nil {
-		return nil, err
-	}
-	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
 	}
 	var strain models.Strain
 	if err = s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		params := models.CreateStrainParams{
 			Name:       req.Msg.Name,
+			GroupID:    groupID.UUID,
 			Comment:    req.Msg.Comment,
 			Notes:      req.Msg.Notes,
 			Type:       req.Msg.Type,
@@ -61,6 +64,7 @@ func (s *Service) CreateStrain(baseCtx gocontext.Context, req *connect_go.Reques
 
 	res.Msg.Strain = &v1.Strain{
 		Id:         strain.ID.String(),
+		GroupId:    strain.GroupID.String(),
 		Name:       strain.Name,
 		Comment:    strain.Comment,
 		Notes:      strain.Notes,
@@ -83,25 +87,26 @@ func (s *Service) DeleteStrain(baseCtx gocontext.Context, req *connect_go.Reques
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}
+	// Check write access
+	groupID, err := s.checker.AssertAny(ctx,
+		req,
+		&req.Msg.GroupId,
+		authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
+	)
+	if err != nil {
+		return nil, err
+	}
 	strainID, err := uuid.Parse(req.Msg.Id)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid strain id format: %w", err))
 	}
-	// Check write access
-	groupID, err := s.resolveStrainGroupID(ctx, strainID)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid group id: %w", err))
-	}
-	allowed, err := s.checker.AssertWrite(ctx, req, groupID.String())
-	if err != nil {
-		return nil, err
-	}
-	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
-	}
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
-		return queries.DeleteStrain(ctx, strainID)
+		params := models.DeleteStrainParams{
+			ID:      strainID,
+			GroupID: groupID.UUID,
+		}
+		return queries.DeleteStrain(ctx, params)
 	}); err != nil {
 		return nil, err
 	}
@@ -114,6 +119,15 @@ func (s *Service) UpdateStrain(baseCtx gocontext.Context, req *connect_go.Reques
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}
+	// Check write access
+	groupID, err := s.checker.AssertAny(ctx,
+		req,
+		&req.Msg.GroupId,
+		authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
+	)
+	if err != nil {
+		return nil, err
+	}
 	// TODO: Add validation functions
 	strainID, err := uuid.Parse(req.Msg.Id)
 	if err != nil {
@@ -123,23 +137,13 @@ func (s *Service) UpdateStrain(baseCtx gocontext.Context, req *connect_go.Reques
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid parentage id format: %w", err))
 	}
-	groupID, err := s.resolveStrainGroupID(ctx, strainID)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid strain id: %w", err))
-	}
-	allowed, err := s.checker.AssertWrite(ctx, req, groupID.String())
-	if err != nil {
-		return nil, err
-	}
-	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
-	}
 	var strain models.Strain
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
 		query := models.New(tx)
 		params := models.UpdateStrainParams{
 			ID:         strainID,
+			GroupID:    groupID.UUID,
 			Name:       req.Msg.Name,
 			Comment:    req.Msg.Comment,
 			Notes:      req.Msg.Notes,
@@ -159,6 +163,7 @@ func (s *Service) UpdateStrain(baseCtx gocontext.Context, req *connect_go.Reques
 	}
 	res.Msg.Strain = &v1.Strain{
 		Id:         strain.ID.String(),
+		GroupId:    strain.GroupID.String(),
 		Name:       strain.Name,
 		Comment:    strain.Comment,
 		Notes:      strain.Notes,
@@ -183,19 +188,22 @@ func (s *Service) GetStrains(baseCtx gocontext.Context, req *connect_go.Request[
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}
-	allowed, err := s.checker.AssertRead(ctx, req, req.Msg.GroupId)
+	// Check read access
+	groupID, err := s.checker.AssertAny(ctx,
+		req,
+		&req.Msg.GroupId,
+		authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
+		authenticationv1.GroupRole_GROUP_ROLE_READ_ONLY,
+	)
 	if err != nil {
 		return nil, err
-	}
-	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
 	}
 	// TODO: ZL | Pagination Functionality
 	var strains []models.Strain
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
 		queries := models.New(tx)
-		strains, err = queries.GetStrains(ctx)
+		strains, err = queries.GetStrains(ctx, groupID.UUID)
 		return err
 	}); err != nil {
 		return nil, err
@@ -205,6 +213,7 @@ func (s *Service) GetStrains(baseCtx gocontext.Context, req *connect_go.Request[
 	for _, strain := range strains {
 		newStrain := v1.Strain{
 			Id:         strain.ID.String(),
+			GroupId:    strain.GroupID.String(),
 			Name:       strain.Name,
 			Comment:    strain.Comment,
 			Notes:      strain.Notes,
@@ -232,6 +241,16 @@ func (s *Service) GetStrain(baseCtx gocontext.Context, req *connect_go.Request[v
 	if req.Msg == nil {
 		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
 	}
+	// Check read access
+	groupID, err := s.checker.AssertAny(ctx,
+		req,
+		&req.Msg.GroupId,
+		authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
+		authenticationv1.GroupRole_GROUP_ROLE_READ_ONLY,
+	)
+	if err != nil {
+		return nil, err
+	}
 	strainID, err := uuid.Parse(req.Msg.Id)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid strain id format: %w", err))
@@ -240,23 +259,19 @@ func (s *Service) GetStrain(baseCtx gocontext.Context, req *connect_go.Request[v
 	var strain models.Strain
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
-		strain, err = query.GetStrain(ctx, strainID)
+		params := models.GetStrainParams{
+			ID:      strainID,
+			GroupID: groupID.UUID,
+		}
+		strain, err = query.GetStrain(ctx, params)
 		return err
 	}); err != nil {
 		return nil, err
 	}
 
-	// Check permissions
-	allowed, err := s.checker.AssertRead(ctx, req, strain.GroupID.String())
-	if err != nil {
-		return nil, err
-	}
-	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
-	}
-
 	res.Msg.Strain = &v1.Strain{
 		Id:         strain.ID.String(),
+		GroupId:    strain.GroupID.String(),
 		Name:       strain.Name,
 		Comment:    strain.Comment,
 		Notes:      strain.Notes,
@@ -274,20 +289,4 @@ func (s *Service) GetStrain(baseCtx gocontext.Context, req *connect_go.Request[v
 		res.Msg.Strain.UpdatedAt = timestamppb.New(strain.UpdatedAt.Time)
 	}
 	return res, nil
-}
-
-func (s *Service) resolveStrainGroupID(ctx context.Context, strainID uuid.UUID) (uuid.UUID, error) {
-	var groupID uuid.UUID
-	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
-		queries := models.New(tx)
-		strain, err := queries.GetStrain(ctx, strainID)
-		if err != nil {
-			return err
-		}
-		groupID = strain.GroupID
-		return nil
-	}); err != nil {
-		return uuid.UUID{}, err
-	}
-	return groupID, nil
 }
