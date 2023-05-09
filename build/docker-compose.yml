@@ -1,5 +1,31 @@
 version: "3"
 
+x-clickhouse-defaults: &olm-clickhouse-defaults
+  restart: on-failure
+  image: clickhouse/clickhouse-server:22.8.8-alpine
+  tty: true
+  depends_on:
+    - olm-zookeeper-1
+  logging:
+    options:
+      max-size: 50m
+      max-file: "3"
+  healthcheck:
+    test: ["CMD", "wget", "--spider", "-q", "localhost:8123/ping"]
+    interval: 30s
+    timeout: 5s
+    retries: 3
+  ulimits:
+    nproc: 65535
+    nofile:
+      soft: 262144
+      hard: 262144
+
+x-clickhouse-depend: &olm-clickhouse-depend
+  depends_on:
+    olm-clickhouse:
+      condition: service_healthy
+
 services:
 
   init-db:
@@ -16,7 +42,8 @@ services:
       - "-e"
       - "CREATE DATABASE IF NOT EXISTS node;"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     deploy:
       restart_policy:
           condition: on-failure
@@ -33,9 +60,15 @@ services:
     environment:
       DATABASE.HOST: db
       LOGGER.LEVEL: debug
-      METRICS.JAEGERADDRESS: jaeger:14268
+      METRICS.JAEGERADDRESS: olm-otel-collector:14268
+    healthcheck:
+      test: ["CMD", "igru", "health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     depends_on:
-      - init-db
+      init-db:
+        condition: service_completed_successfully
 
   db:
     image: cockroachdb/cockroach:v22.2.8
@@ -45,8 +78,13 @@ services:
     command:
       - "start-single-node"
       - "--insecure"
+    healthcheck:
+      test: ["CMD", "curl", "-q", "http://localhost:8080/health?ready=1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     volumes:
-      - ./db-data/cockroach/://cockroach/cockroach-data
+      - ./data/cockroach/://cockroach/cockroach-data
 
   garden:
     image: igru:latest
@@ -57,12 +95,18 @@ services:
     environment:
       DATABASE.HOST: db
       LOGGER.LEVEL: debug
-      METRICS.JAEGERADDRESS: jaeger:14268
+      METRICS.JAEGERADDRESS: olm-otel-collector:14268
+    healthcheck:
+      test: ["CMD", "igru", "health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     volumes:
       - ./garden/default.yml://default.yml:ro
       - ./garden/migrations://migrations:ro
     depends_on:
-      - init-db
+      init-db:
+        condition: service_completed_successfully
 
   node:
     image: igru:latest
@@ -73,12 +117,18 @@ services:
     environment:
       DATABASE.HOST: db
       LOGGER.LEVEL: debug
-      METRICS.JAEGERADDRESS: jaeger:14268
+      METRICS.JAEGERADDRESS: olm-otel-collector:14268
+    healthcheck:
+      test: ["CMD", "igru", "health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     volumes:
       - ./node/default.yml://default.yml:ro
       - ./node/migrations://migrations:ro
     depends_on:
-      - init-db
+      init-db:
+        condition: service_completed_successfully
 
   ingress:
     image: igru:latest
@@ -88,10 +138,137 @@ services:
     ports:
       - "80:80"
     environment:
-      METRICS.JAEGERADDRESS: jaeger:14268
+      METRICS.JAEGERADDRESS: olm-otel-collector:14268
+    depends_on:
+      garden:
+        condition: service_healthy
+      authentication:
+        condition: service_healthy
+      node:
+        condition: service_healthy
 
-  jaeger:
-    image: jaegertracing/all-in-one:1.45.0
+  # OLM stuff from here
+
+  olm-zookeeper-1:
+    image: bitnami/zookeeper:3.7.1
+    container_name: olm-zookeeper-1
+    hostname: olm-zookeeper-1
+    user: root
     ports:
-      - 14268:14268 # Services
-      - 16686:16686 # Frontend
+      - "2181:2181"
+      - "2888:2888"
+      - "3888:3888"
+    volumes:
+      - ./data/olm/zookeeper-1:/bitnami/zookeeper
+    environment:
+      - ZOO_SERVER_ID=1
+      # - ZOO_SERVERS=0.0.0.0:2888:3888,zookeeper-2:2888:3888,zookeeper-3:2888:3888
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOO_AUTOPURGE_INTERVAL=1
+  olm-clickhouse:
+    <<: *olm-clickhouse-defaults
+    container_name: olm-clickhouse
+    hostname: olm-clickhouse
+    ports:
+      - "9000:9000"
+      - "8123:8123"
+      - "9181:9181"
+    volumes:
+      - ./config/olm/clickhouse-config.xml:/etc/clickhouse-server/config.xml
+      - ./config/olm/clickhouse-users.xml:/etc/clickhouse-server/users.xml
+      - ./config/olm/clickhouse-cluster.xml:/etc/clickhouse-server/config.d/cluster.xml
+      - ./config/olm/custom-function.xml:/etc/clickhouse-server/custom-function.xml
+      # - ./clickhouse-storage.xml:/etc/clickhouse-server/config.d/storage.xml
+      - ./data/olm/clickhouse/:/var/lib/clickhouse/
+      - ./config/olm/user_scripts:/var/lib/clickhouse/user_scripts/
+
+  olm-alertmanager:
+    image: signoz/alertmanager:${ALERTMANAGER_TAG:-0.23.1}
+    volumes:
+      - ./data/olm/alertmanager:/data
+    depends_on:
+      olm-query-service:
+        condition: service_healthy
+    restart: on-failure
+    command:
+      - --queryService.url=http://olm-query-service:8085
+      - --storage.path=/data
+
+  olm-query-service:
+    image: signoz/query-service:${DOCKER_TAG:-0.18.1}
+    container_name: olm-query-service
+    command: ["-config=/root/config/prometheus.yml"]
+    # ports:
+    #   - "6060:6060"     # pprof port
+    #   - "8080:8080"     # query-service port
+    volumes:
+      - ./config/olm/prometheus.yml:/root/config/prometheus.yml
+      - ./config/olm/dashboards:/root/config/dashboards
+      - ./data/olm/signoz/:/var/lib/signoz/
+    environment:
+      - ClickHouseUrl=tcp://olm-clickhouse:9000/?database=signoz_traces
+      - ALERTMANAGER_API_PREFIX=http://olm-alertmanager:9093/api/
+      - SIGNOZ_LOCAL_DB_PATH=/var/lib/signoz/signoz.db
+      - DASHBOARDS_PATH=/root/config/dashboards
+      - STORAGE=clickhouse
+      - GODEBUG=netdns=go
+      - TELEMETRY_ENABLED=true
+      - DEPLOYMENT_TYPE=docker-standalone-amd
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "localhost:8080/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    <<: *olm-clickhouse-depend
+
+  olm-frontend:
+    image: signoz/frontend:${DOCKER_TAG:-0.18.1}
+    container_name: olm-frontend
+    restart: on-failure
+    depends_on:
+      - olm-alertmanager
+      - olm-query-service
+    ports:
+      - "3301:3301"
+    volumes:
+      - ./config/olm/nginx-config.conf:/etc/nginx/conf.d/default.conf
+
+  olm-otel-collector:
+    image: signoz/signoz-otel-collector:${OTELCOL_TAG:-0.66.7}
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    user: root # required for reading docker container logs
+    volumes:
+      - ./config/olm/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=host.name=signoz-host,os.type=linux
+      - DOCKER_MULTI_NODE_CLUSTER=false
+      - LOW_CARDINAL_EXCEPTION_GROUPING=false
+    ports:
+      # - "1777:1777"     # pprof extension
+      - "4317:4317"     # OTLP gRPC receiver
+      - "4318:4318"     # OTLP HTTP receiver
+      # - "8888:8888"     # OtelCollector internal metrics
+      # - "8889:8889"     # signoz spanmetrics exposed by the agent
+      # - "9411:9411"     # Zipkin port
+      # - "13133:13133"   # health check extension
+      # - "14250:14250"   # Jaeger gRPC
+      # - "14268:14268"   # Jaeger thrift HTTP
+      # - "55678:55678"   # OpenCensus receiver
+      # - "55679:55679"   # zPages extension
+    restart: on-failure
+    <<: *olm-clickhouse-depend
+
+  olm-otel-collector-metrics:
+    image: signoz/signoz-otel-collector:${OTELCOL_TAG:-0.66.7}
+    command: ["--config=/etc/otel-collector-metrics-config.yaml"]
+    volumes:
+      - ./config/olm/otel-collector-metrics-config.yaml:/etc/otel-collector-metrics-config.yaml
+    # ports:
+    #   - "1777:1777"     # pprof extension
+    #   - "8888:8888"     # OtelCollector internal metrics
+    #   - "13133:13133"   # Health check extension
+    #   - "55679:55679"   # zPages extension
+    restart: on-failure
+    <<: *olm-clickhouse-depend

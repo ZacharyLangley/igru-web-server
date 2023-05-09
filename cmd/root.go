@@ -42,4 +42,5 @@ func init() {
 	rootCmd.AddCommand(garden.RootCmd)
 	rootCmd.AddCommand(ingress.RootCmd)
 	rootCmd.AddCommand(node.RootCmd)
+	rootCmd.AddCommand(healthCmd)
 }

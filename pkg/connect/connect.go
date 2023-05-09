@@ -26,6 +26,9 @@ func ServeMux(ctx context.Context, grpcConfig config.GRPC, services ...Service) 
 	mux.HandleFunc("*", func(w http.ResponseWriter, r *http.Request) {
 		zap.L().Info("Got something")
 	})
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
 	// Create HTTP server
 	srv := &http.Server{
 		Addr:         grpcConfig.Address,
