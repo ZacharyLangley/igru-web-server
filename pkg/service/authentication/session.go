@@ -74,12 +74,12 @@ func (s *Service) GetSessionUser(baseCtx gocontext.Context, req *connect.Request
 	sess, err := auth.DecodeToken(token)
 	if err != nil {
 		ctx.L().Error("Failed to verify session", zap.Error(err))
-		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("missing token"))
+		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrMissingToken)
 	}
 	now := time.Now()
 	if now.After(sess.ExpiredAt) {
 		ctx.L().Error("Token is Expired", zap.Error(err))
-		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("expired token"))
+		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrPermissionDenied)
 	}
 
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
@@ -95,7 +95,7 @@ func (s *Service) GetSessionUser(baseCtx gocontext.Context, req *connect.Request
 		}
 		return err
 	}); err != nil {
-		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid user id"))
+		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrPermissionDenied)
 	}
 
 	return res, nil

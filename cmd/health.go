@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -17,7 +16,6 @@ var healthCmd = &cobra.Command{
 		}
 		resp, err := cli.Get("http://localhost/health")
 		if err != nil {
-			fmt.Println(err)
 			os.Exit(2)
 		}
 		if resp.StatusCode >= 300 || resp.StatusCode < 200 {
