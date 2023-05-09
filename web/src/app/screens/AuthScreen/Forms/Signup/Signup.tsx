@@ -3,7 +3,7 @@ import React, {useCallback, useMemo, useState} from 'react';
 import AuthForm from '../../AuthForm/AuthForm';
 import SignupForm, {defaultSignupFormData} from './SignupForm/SignupForm';
 import language from '../../../../../common/language/index';
-import AuthDialog from '../../AuthDialog/AuthDialog';
+import Dialog from '../../../../../common/components/Dialog/Dialog';
 import Branding from '../../../../../common/components/Branding/Branding';
 import AuthFooter from '../../AuthFooter/AuthFooter';
 import { RoutePath } from '../../../../types/routes';
@@ -80,7 +80,7 @@ const Signup: React.FC<SignupProps> = () => {
     ) : undefined;
 
   return (
-    <AuthDialog
+    <Dialog
       header={<Branding />}
       body={<AuthForm title={formTitle} form={formBody} />}
       footer={formFooter}

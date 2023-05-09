@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type SessionServiceClient interface {
 	CreateSession(ctx context.Context, in *CreateSessionRequest, opts ...grpc.CallOption) (*CreateSessionResponse, error)
 	GetSessions(ctx context.Context, in *GetSessionsRequest, opts ...grpc.CallOption) (*GetSessionsResponse, error)
+	GetSessionUser(ctx context.Context, in *GetSessionUserRequest, opts ...grpc.CallOption) (*GetSessionUserResponse, error)
 	DeleteSession(ctx context.Context, in *DeleteSessionRequest, opts ...grpc.CallOption) (*DeleteSessionResponse, error)
 	CheckSessionPermissions(ctx context.Context, in *CheckSessionPermissionsRequest, opts ...grpc.CallOption) (*CheckSessionPermissionsResponse, error)
 }
@@ -54,6 +55,15 @@ func (c *sessionServiceClient) GetSessions(ctx context.Context, in *GetSessionsR
 	return out, nil
 }
 
+func (c *sessionServiceClient) GetSessionUser(ctx context.Context, in *GetSessionUserRequest, opts ...grpc.CallOption) (*GetSessionUserResponse, error) {
+	out := new(GetSessionUserResponse)
+	err := c.cc.Invoke(ctx, "/authentication.v1.SessionService/GetSessionUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *sessionServiceClient) DeleteSession(ctx context.Context, in *DeleteSessionRequest, opts ...grpc.CallOption) (*DeleteSessionResponse, error) {
 	out := new(DeleteSessionResponse)
 	err := c.cc.Invoke(ctx, "/authentication.v1.SessionService/DeleteSession", in, out, opts...)
@@ -78,6 +88,7 @@ func (c *sessionServiceClient) CheckSessionPermissions(ctx context.Context, in *
 type SessionServiceServer interface {
 	CreateSession(context.Context, *CreateSessionRequest) (*CreateSessionResponse, error)
 	GetSessions(context.Context, *GetSessionsRequest) (*GetSessionsResponse, error)
+	GetSessionUser(context.Context, *GetSessionUserRequest) (*GetSessionUserResponse, error)
 	DeleteSession(context.Context, *DeleteSessionRequest) (*DeleteSessionResponse, error)
 	CheckSessionPermissions(context.Context, *CheckSessionPermissionsRequest) (*CheckSessionPermissionsResponse, error)
 	mustEmbedUnimplementedSessionServiceServer()
@@ -92,6 +103,9 @@ func (UnimplementedSessionServiceServer) CreateSession(context.Context, *CreateS
 }
 func (UnimplementedSessionServiceServer) GetSessions(context.Context, *GetSessionsRequest) (*GetSessionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSessions not implemented")
+}
+func (UnimplementedSessionServiceServer) GetSessionUser(context.Context, *GetSessionUserRequest) (*GetSessionUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSessionUser not implemented")
 }
 func (UnimplementedSessionServiceServer) DeleteSession(context.Context, *DeleteSessionRequest) (*DeleteSessionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteSession not implemented")
@@ -148,6 +162,24 @@ func _SessionService_GetSessions_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SessionService_GetSessionUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSessionUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SessionServiceServer).GetSessionUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/authentication.v1.SessionService/GetSessionUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SessionServiceServer).GetSessionUser(ctx, req.(*GetSessionUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SessionService_DeleteSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteSessionRequest)
 	if err := dec(in); err != nil {
@@ -198,6 +230,10 @@ var SessionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSessions",
 			Handler:    _SessionService_GetSessions_Handler,
+		},
+		{
+			MethodName: "GetSessionUser",
+			Handler:    _SessionService_GetSessionUser_Handler,
 		},
 		{
 			MethodName: "DeleteSession",

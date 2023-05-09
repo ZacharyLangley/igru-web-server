@@ -46,6 +46,12 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 			CreatedAt: now,
 			ExpiredAt: now.Add(s.SessionDuration),
 		})
+		// Need to do a conditional here where if fullName is not submitted, then we use the email
+		res.Msg.User = &v1.User{
+			Id:       user.ID.String(),
+			Email:    user.Email,
+			FullName: user.Email,
+		}
 		return err
 	}); err != nil {
 		return nil, connect.NewError(connect.CodeUnauthenticated, errInvalidLogin)
@@ -55,6 +61,43 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	AddSessionToken(res.Header(), token)
+	return res, nil
+}
+
+func (s *Service) GetSessionUser(baseCtx gocontext.Context, req *connect.Request[v1.GetSessionUserRequest]) (*connect.Response[v1.GetSessionUserResponse], error) {
+	ctx := context.New(baseCtx)
+	res := connect.NewResponse(&v1.GetSessionUserResponse{})
+	token, err := ExtractSessionToken(req.Header())
+	if err != nil {
+		return nil, err
+	}
+	sess, err := auth.DecodeToken(token)
+	if err != nil {
+		ctx.L().Error("Failed to verify session", zap.Error(err))
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("missing token"))
+	}
+	now := time.Now()
+	if now.After(sess.ExpiredAt) {
+		ctx.L().Error("Token is Expired", zap.Error(err))
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("expired token"))
+	}
+
+	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
+		queries := models.New(tx)
+		user, err := queries.GetUser(ctx, sess.UserID)
+		if err != nil {
+			return err
+		}
+		res.Msg.User = &v1.User{
+			Id:       user.ID.String(),
+			Email:    user.Email,
+			FullName: user.Email,
+		}
+		return err
+	}); err != nil {
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid user id"))
+	}
+
 	return res, nil
 }
 
@@ -92,6 +135,7 @@ func (s *Service) GetSessions(baseCtx gocontext.Context, req *connect.Request[v1
 	for _, sess := range sessions {
 		var newSession v1.Session
 		newSession.Id = sess.ID.String()
+		newSession.UserId = sess.UserID.String()
 		newSession.CreatedAt = timestamppb.New(sess.CreatedAt)
 		newSession.ExpiredAt = timestamppb.New(sess.ExpiredAt)
 		res.Msg.Sessions = append(res.Msg.Sessions, &newSession)

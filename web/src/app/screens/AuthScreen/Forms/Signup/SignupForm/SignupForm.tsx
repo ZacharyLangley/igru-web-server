@@ -4,6 +4,7 @@ import language from '../../../../../../common/language';
 
 export interface SignInFormData {
   email?: string;
+  fullName?: string;
   password?: string;
   confirmPassword?: string;
 }
@@ -15,13 +16,16 @@ interface SignupFormProps {
 
 export const defaultSignupFormData: SignInFormData = {
   email: '',
+  fullName: '',
   password: '',
   confirmPassword: '',
 };
 
 const emailLabel = language("input.label.email");
+const fullNameLabel = language("input.label.full_name");
 const passwordLabel = language("input.label.password");
 const confirmPasswordLabel = language("input.label.confirm_password");
+const optionalLabel = language("input.label.optional");
 
 const SignupForm: React.FC<SignupFormProps> = ({formData, onChange}) => {
   const onFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -32,6 +36,17 @@ const SignupForm: React.FC<SignupFormProps> = ({formData, onChange}) => {
 
   return (
     <Form>
+      <FormGroup floating>
+        <Input
+          id={'fullName'}
+          name={'fullName'}
+          type={'text'}
+          value={formData.fullName}
+          placeholder={''}
+          onChange={onFieldChange}
+        />
+        <Label for={'fullName'}>{`${fullNameLabel} (${optionalLabel})`}</Label>
+      </FormGroup>
       <FormGroup floating>
         <Input
           id={'email'}

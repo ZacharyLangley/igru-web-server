@@ -5,8 +5,8 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3 } from "@bufbuild/protobuf";
+import { PermissionRequest, PermissionResponse, Session, User } from "./schema_pb";
 import { PaginationRequest } from "../../common/v1/pagination_pb";
-import { PermissionRequest, PermissionResponse, Session } from "./schema_pb";
 
 /**
  * @generated from message authentication.v1.CreateSessionRequest
@@ -55,6 +55,11 @@ export class CreateSessionRequest extends Message<CreateSessionRequest> {
  * @generated from message authentication.v1.CreateSessionResponse
  */
 export class CreateSessionResponse extends Message<CreateSessionResponse> {
+  /**
+   * @generated from field: authentication.v1.User user = 1;
+   */
+  user?: User;
+
   constructor(data?: PartialMessage<CreateSessionResponse>) {
     super();
     proto3.util.initPartial(data, this);
@@ -63,6 +68,7 @@ export class CreateSessionResponse extends Message<CreateSessionResponse> {
   static readonly runtime = proto3;
   static readonly typeName = "authentication.v1.CreateSessionResponse";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "user", kind: "message", T: User },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreateSessionResponse {
@@ -79,6 +85,74 @@ export class CreateSessionResponse extends Message<CreateSessionResponse> {
 
   static equals(a: CreateSessionResponse | PlainMessage<CreateSessionResponse> | undefined, b: CreateSessionResponse | PlainMessage<CreateSessionResponse> | undefined): boolean {
     return proto3.util.equals(CreateSessionResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message authentication.v1.GetSessionUserRequest
+ */
+export class GetSessionUserRequest extends Message<GetSessionUserRequest> {
+  constructor(data?: PartialMessage<GetSessionUserRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime = proto3;
+  static readonly typeName = "authentication.v1.GetSessionUserRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetSessionUserRequest {
+    return new GetSessionUserRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetSessionUserRequest {
+    return new GetSessionUserRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetSessionUserRequest {
+    return new GetSessionUserRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetSessionUserRequest | PlainMessage<GetSessionUserRequest> | undefined, b: GetSessionUserRequest | PlainMessage<GetSessionUserRequest> | undefined): boolean {
+    return proto3.util.equals(GetSessionUserRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message authentication.v1.GetSessionUserResponse
+ */
+export class GetSessionUserResponse extends Message<GetSessionUserResponse> {
+  /**
+   * @generated from field: authentication.v1.User user = 1;
+   */
+  user?: User;
+
+  constructor(data?: PartialMessage<GetSessionUserResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime = proto3;
+  static readonly typeName = "authentication.v1.GetSessionUserResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "user", kind: "message", T: User },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetSessionUserResponse {
+    return new GetSessionUserResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetSessionUserResponse {
+    return new GetSessionUserResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetSessionUserResponse {
+    return new GetSessionUserResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetSessionUserResponse | PlainMessage<GetSessionUserResponse> | undefined, b: GetSessionUserResponse | PlainMessage<GetSessionUserResponse> | undefined): boolean {
+    return proto3.util.equals(GetSessionUserResponse, a, b);
   }
 }
 

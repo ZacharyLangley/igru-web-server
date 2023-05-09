@@ -4,7 +4,7 @@ import {
     CallOptions,
 } from '@bufbuild/connect-web';
 
-import { GetSessionsRequest, GetSessionsResponse } from 'src/client/authentication/v1/session_pb';
+import { GetSessionsRequest, GetSessionUserResponse } from 'src/client/authentication/v1/session_pb';
 import { SessionService } from 'src/client/authentication/v1/session_connectweb';
 import { PaginationRequest } from 'src/client/common/v1/pagination_pb';
 
@@ -17,12 +17,12 @@ const client = createPromiseClient(
 
 export const signInRequest = async (email: string, password: string) => {
     var sessionToken = ""
-    await client.createSession({email, password}, {
+    const response = await client.createSession({email, password}, {
         onHeader: (header: Headers) => {
             const token = header.get("session")
             if (token) sessionToken = token
         }});
-    return sessionToken;
+    return {token: sessionToken, user: response.user};
 }
 
 export const validateSessionRequest = async (token: string) => {
@@ -30,7 +30,7 @@ export const validateSessionRequest = async (token: string) => {
     const pagination: PaginationRequest = {cursor: 1, length: 10};
     const request: Partial<GetSessionsRequest> = {pagination}
     const options: CallOptions = {headers: {session: token}}
-    const response: GetSessionsResponse = await client.getSessions(request, options);
+    const response: GetSessionUserResponse = await client.getSessionUser(request, options);
 
     return response;
 }

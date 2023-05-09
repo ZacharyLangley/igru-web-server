@@ -21,7 +21,7 @@
     "auth.sign_up.error.message_bottom": "Feel free to click the link below to go try again",    
     "auth.sign_up.error.button_title": "Proceed to Sign Up Form",
 
-    "navbar.dropdown.header": "Welcome to IGRU", 
+    "navbar.dropdown.header": "Welcome", 
     "navbar.dropdown.profile": "Profile",
     "navbar.dropdown.signout": "Sign Out",
 
@@ -34,6 +34,14 @@
     "sidebar.option.settings": "Settings",
 
     "input.label.email": "Email",
+    "input.label.full_name": "Name",
     "input.label.password": "Password",
-    "input.label.confirm_password": "Confirm Password"
+    "input.label.confirm_password": "Confirm Password",
+    "input.label.optional": "Optional",
+
+    "error.label.title": "An Error has Occured",
+    "error.label.message": "Something must have hit you hard to end up here. Hope I don't see the other guy.",
+    "error.label.footer.navigate.unauth": "Go to Sign In Page",
+    "error.label.footer.navigate.auth": "Go to Home Dashboard",
+    "error.label.footer.signout": "Sign Out"
 }

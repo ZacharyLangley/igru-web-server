@@ -16,4 +16,4 @@ logger:
   level: debug
 metrics:
   jaegerAddress: "localhost:14268"
-sessionDuration: 5m
+sessionDuration: 24h
