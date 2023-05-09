@@ -16,6 +16,7 @@ type Context interface {
 }
 
 type internalContext struct {
+	//nolint:containedctx
 	context.Context
 	logger *zap.Logger
 }

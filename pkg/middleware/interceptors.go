@@ -2,6 +2,7 @@ package middleware
 
 import (
 	gocontext "context"
+	"errors"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	"github.com/bufbuild/connect-go"
@@ -12,8 +13,8 @@ import (
 
 func Interceptors(serviceName string) []connect.Interceptor {
 	return []connect.Interceptor{
-		connect.UnaryInterceptorFunc(logRequest()),
-		connect.UnaryInterceptorFunc(otelInterceptor(serviceName)),
+		logRequest(),
+		otelInterceptor(serviceName),
 	}
 }
 
@@ -23,7 +24,9 @@ func otelInterceptor(serviceName string) connect.UnaryInterceptorFunc {
 			ctx, span := otel.Tracer(serviceName).Start(baseCtx, req.Spec().Procedure)
 			res, err := next(ctx, req)
 			if err != nil {
-				if cErr, ok := err.(*connect.Error); ok {
+				cErr := &connect.Error{}
+				ok := errors.As(err, &cErr)
+				if ok {
 					span.SetStatus(codes.Error, cErr.Message())
 				}
 			}
@@ -43,7 +46,9 @@ func logRequest() connect.UnaryInterceptorFunc {
 			ctx.L().Debug("start")
 			res, err := next(ctx, req)
 			if err != nil {
-				if cErr, ok := err.(*connect.Error); ok {
+				cErr := &connect.Error{}
+				ok := errors.As(err, &cErr)
+				if ok {
 					ctx.L().Error("fail processing request", zap.Error(cErr))
 				}
 			}

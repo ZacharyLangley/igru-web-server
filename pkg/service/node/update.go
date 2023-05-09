@@ -9,5 +9,7 @@ import (
 )
 
 func (s *Service) UpdateNode(gocontext.Context, *connect_go.Request[v1.UpdateNodeRequest]) (*connect_go.Response[v1.UpdateNodeResponse], error) {
+	// TODO: Fill in UpdateNode
+	//nolint: all
 	return nil, connect_go.NewError(connect_go.CodeUnimplemented, errors.New("node.v1.NodeService.UpdateNode is not implemented"))
 }

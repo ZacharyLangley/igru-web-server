@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/config"
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	"go.uber.org/zap"
 )
+
+var serverTimeout = time.Second * 30
 
 type Service interface {
 	Register(*http.ServeMux)
@@ -25,8 +28,11 @@ func ServeMux(ctx context.Context, grpcConfig config.GRPC, services ...Service) 
 	})
 	// Create HTTP server
 	srv := &http.Server{
-		Addr:    grpcConfig.Address,
-		Handler: mux,
+		Addr:         grpcConfig.Address,
+		Handler:      mux,
+		ReadTimeout:  serverTimeout,
+		WriteTimeout: serverTimeout,
+		IdleTimeout:  serverTimeout,
 	}
 	// Create TCP listener service
 	lc := net.ListenConfig{}

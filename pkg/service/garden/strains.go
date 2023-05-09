@@ -2,7 +2,6 @@ package garden
 
 import (
 	gocontext "context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -10,19 +9,19 @@ import (
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/garden"
 	authenticationv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1"
+	"github.com/ZacharyLangley/igru-web-server/pkg/service/common"
 	"github.com/bufbuild/connect-go"
-	connect_go "github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (s *Service) CreateStrain(baseCtx gocontext.Context, req *connect_go.Request[v1.CreateStrainRequest]) (*connect_go.Response[v1.CreateStrainResponse], error) {
+func (s *Service) CreateStrain(baseCtx gocontext.Context, req *connect.Request[v1.CreateStrainRequest]) (*connect.Response[v1.CreateStrainResponse], error) {
 	var err error
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.CreateStrainResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	// Check write access
 	groupID, err := s.checker.AssertAny(ctx,
@@ -81,13 +80,14 @@ func (s *Service) CreateStrain(baseCtx gocontext.Context, req *connect_go.Reques
 	return res, nil
 }
 
-func (s *Service) DeleteStrain(baseCtx gocontext.Context, req *connect_go.Request[v1.DeleteStrainRequest]) (*connect_go.Response[v1.DeleteStrainResponse], error) {
+func (s *Service) DeleteStrain(baseCtx gocontext.Context, req *connect.Request[v1.DeleteStrainRequest]) (*connect.Response[v1.DeleteStrainResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.DeleteStrainResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	// Check write access
+	var err error
 	groupID, err := s.checker.AssertAny(ctx,
 		req,
 		&req.Msg.GroupId,
@@ -113,13 +113,14 @@ func (s *Service) DeleteStrain(baseCtx gocontext.Context, req *connect_go.Reques
 	return res, nil
 }
 
-func (s *Service) UpdateStrain(baseCtx gocontext.Context, req *connect_go.Request[v1.UpdateStrainRequest]) (*connect_go.Response[v1.UpdateStrainResponse], error) {
+func (s *Service) UpdateStrain(baseCtx gocontext.Context, req *connect.Request[v1.UpdateStrainRequest]) (*connect.Response[v1.UpdateStrainResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.UpdateStrainResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	// Check write access
+	var err error
 	groupID, err := s.checker.AssertAny(ctx,
 		req,
 		&req.Msg.GroupId,
@@ -182,11 +183,11 @@ func (s *Service) UpdateStrain(baseCtx gocontext.Context, req *connect_go.Reques
 	return res, nil
 }
 
-func (s *Service) GetStrains(baseCtx gocontext.Context, req *connect_go.Request[v1.GetStrainsRequest]) (*connect_go.Response[v1.GetStrainsResponse], error) {
+func (s *Service) GetStrains(baseCtx gocontext.Context, req *connect.Request[v1.GetStrainsRequest]) (*connect.Response[v1.GetStrainsResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetStrainsResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	// Check read access
 	groupID, err := s.checker.AssertAny(ctx,
@@ -235,13 +236,14 @@ func (s *Service) GetStrains(baseCtx gocontext.Context, req *connect_go.Request[
 	return res, nil
 }
 
-func (s *Service) GetStrain(baseCtx gocontext.Context, req *connect_go.Request[v1.GetStrainRequest]) (*connect_go.Response[v1.GetStrainResponse], error) {
+func (s *Service) GetStrain(baseCtx gocontext.Context, req *connect.Request[v1.GetStrainRequest]) (*connect.Response[v1.GetStrainResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetStrainResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	// Check read access
+	var err error
 	groupID, err := s.checker.AssertAny(ctx,
 		req,
 		&req.Msg.GroupId,

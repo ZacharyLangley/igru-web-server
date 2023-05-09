@@ -2,7 +2,6 @@ package garden
 
 import (
 	gocontext "context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -10,21 +9,20 @@ import (
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/garden"
 	authenticationv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1"
+	"github.com/ZacharyLangley/igru-web-server/pkg/service/common"
 	"github.com/bufbuild/connect-go"
-	connect_go "github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (s *Service) CreatePlant(baseCtx gocontext.Context, req *connect_go.Request[v1.CreatePlantRequest]) (*connect_go.Response[v1.CreatePlantResponse], error) {
+func (s *Service) CreatePlant(baseCtx gocontext.Context, req *connect.Request[v1.CreatePlantRequest]) (*connect.Response[v1.CreatePlantResponse], error) {
 	var err error
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.CreatePlantResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
-	parentageID, err := uuid.Parse(req.Msg.Parentage)
 	// Check write access
 	groupID, err := s.checker.AssertAny(ctx,
 		req,
@@ -34,6 +32,7 @@ func (s *Service) CreatePlant(baseCtx gocontext.Context, req *connect_go.Request
 	if err != nil {
 		return nil, err
 	}
+	parentageID, err := uuid.Parse(req.Msg.Parentage)
 	var plant models.Plant
 	if err = s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
@@ -56,9 +55,9 @@ func (s *Service) CreatePlant(baseCtx gocontext.Context, req *connect_go.Request
 			AcquiredAt:      time.Now(),
 		}
 		plant, err = queries.CreatePlant(ctx, params)
-		return err
+		return fmt.Errorf("failed to create plant: %w", err)
 	}); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("transaction failure: %w", err)
 	}
 	// TODO: ZL | ADD AcquiredAt Data Point for when it was obtained vs when the data is made.
 	res.Msg.Plant = &v1.Plant{
@@ -83,13 +82,14 @@ func (s *Service) CreatePlant(baseCtx gocontext.Context, req *connect_go.Request
 	return res, nil
 }
 
-func (s *Service) DeletePlant(baseCtx gocontext.Context, req *connect_go.Request[v1.DeletePlantRequest]) (*connect_go.Response[v1.DeletePlantResponse], error) {
+func (s *Service) DeletePlant(baseCtx gocontext.Context, req *connect.Request[v1.DeletePlantRequest]) (*connect.Response[v1.DeletePlantResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.DeletePlantResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	// Check write access
+	var err error
 	groupID, err := s.checker.AssertAny(ctx,
 		req,
 		&req.Msg.GroupId,
@@ -115,13 +115,14 @@ func (s *Service) DeletePlant(baseCtx gocontext.Context, req *connect_go.Request
 	return res, nil
 }
 
-func (s *Service) UpdatePlant(baseCtx gocontext.Context, req *connect_go.Request[v1.UpdatePlantRequest]) (*connect_go.Response[v1.UpdatePlantResponse], error) {
+func (s *Service) UpdatePlant(baseCtx gocontext.Context, req *connect.Request[v1.UpdatePlantRequest]) (*connect.Response[v1.UpdatePlantResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.UpdatePlantResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	// Check write access
+	var err error
 	groupID, err := s.checker.AssertAny(ctx,
 		req,
 		&req.Msg.GroupId,
@@ -191,11 +192,11 @@ func (s *Service) UpdatePlant(baseCtx gocontext.Context, req *connect_go.Request
 	return res, nil
 }
 
-func (s *Service) GetPlants(baseCtx gocontext.Context, req *connect_go.Request[v1.GetPlantsRequest]) (*connect_go.Response[v1.GetPlantsResponse], error) {
+func (s *Service) GetPlants(baseCtx gocontext.Context, req *connect.Request[v1.GetPlantsRequest]) (*connect.Response[v1.GetPlantsResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetPlantsResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	// Check write access
 	groupID, err := s.checker.AssertAny(ctx,
@@ -246,11 +247,11 @@ func (s *Service) GetPlants(baseCtx gocontext.Context, req *connect_go.Request[v
 	return res, nil
 }
 
-func (s *Service) GetPlant(baseCtx gocontext.Context, req *connect_go.Request[v1.GetPlantRequest]) (*connect_go.Response[v1.GetPlantResponse], error) {
+func (s *Service) GetPlant(baseCtx gocontext.Context, req *connect.Request[v1.GetPlantRequest]) (*connect.Response[v1.GetPlantResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetPlantResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	plantID, err := uuid.Parse(req.Msg.Id)
 	if err != nil {

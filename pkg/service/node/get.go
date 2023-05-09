@@ -8,6 +8,7 @@ import (
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/node"
 	authenticationv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/node/v1"
+	"github.com/ZacharyLangley/igru-web-server/pkg/service/common"
 	"github.com/bufbuild/connect-go"
 	"github.com/jackc/pgx/v4"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -17,8 +18,8 @@ func (s *Service) GetNodes(baseCtx gocontext.Context, req *connect.Request[v1.Ge
 	var err error
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetNodesResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	groupID, err := s.checker.AssertAny(ctx,
 		req,
@@ -78,5 +79,7 @@ func (s *Service) GetNodes(baseCtx gocontext.Context, req *connect.Request[v1.Ge
 }
 
 func (s *Service) GetNode(gocontext.Context, *connect.Request[v1.GetNodeRequest]) (*connect.Response[v1.GetNodeResponse], error) {
+	// TODO: Fill in GetNode
+	//nolint: all
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("node.v1.NodeService.GetNode is not implemented"))
 }

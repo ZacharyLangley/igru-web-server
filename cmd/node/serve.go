@@ -38,5 +38,8 @@ func runServer(cmd *cobra.Command, args []string) error {
 	}
 	service := node.New(conn, checker)
 	// Start serving
-	return connect.ServeMux(ctx, cfg.GRPC, service)
+	if err := connect.ServeMux(ctx, cfg.GRPC, service); err != nil {
+		return fmt.Errorf("failed to server: %w", err)
+	}
+	return nil
 }

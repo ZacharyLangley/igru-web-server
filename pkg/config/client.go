@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -41,7 +42,7 @@ func NewClient() (*Client, error) {
 	v.AddConfigPath(".")
 	err = v.ReadInConfig()
 	if err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+		if ok := errors.As(err, &viper.ConfigFileNotFoundError{}); ok {
 			v.SetConfigFile(path.Join(configDir, "igru.yaml"))
 			return &Client{v: v}, nil
 		}

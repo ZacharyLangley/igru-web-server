@@ -3,7 +3,7 @@ version: "3"
 services:
 
   init-db:
-    image: cockroachdb/cockroach:v22.1.11
+    image: cockroachdb/cockroach:v22.2.8
     command:
       - "sql"
       - "--insecure"
@@ -38,7 +38,7 @@ services:
       - init-db
 
   db:
-    image: cockroachdb/cockroach:v22.1.11
+    image: cockroachdb/cockroach:v22.2.8
     ports:
       - "8888:8080" # Dashboard
       - "26257:26257"
@@ -91,7 +91,7 @@ services:
       METRICS.JAEGERADDRESS: jaeger:14268
 
   jaeger:
-    image: jaegertracing/all-in-one:1.6
+    image: jaegertracing/all-in-one:1.45.0
     ports:
       - 14268:14268 # Services
       - 16686:16686 # Frontend

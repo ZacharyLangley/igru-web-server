@@ -66,7 +66,7 @@ func login(cmd *cobra.Command, args []string) error {
 	if err := clientConfig.Set(token); err != nil {
 		zap.L().Error("failed to set token to config", zap.Error(err))
 	} else {
-		fmt.Print(token)
+		zap.L().Info("received token", zap.Any("token", token))
 	}
 	return nil
 }

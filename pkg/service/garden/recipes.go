@@ -2,7 +2,6 @@ package garden
 
 import (
 	gocontext "context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -10,19 +9,19 @@ import (
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/garden"
 	authenticationv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1"
+	"github.com/ZacharyLangley/igru-web-server/pkg/service/common"
 	"github.com/bufbuild/connect-go"
-	connect_go "github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (s *Service) CreateRecipe(baseCtx gocontext.Context, req *connect_go.Request[v1.CreateRecipeRequest]) (*connect_go.Response[v1.CreateRecipeResponse], error) {
+func (s *Service) CreateRecipe(baseCtx gocontext.Context, req *connect.Request[v1.CreateRecipeRequest]) (*connect.Response[v1.CreateRecipeResponse], error) {
 	var err error
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.CreateRecipeResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	// Check write access
 	groupID, err := s.checker.AssertAny(ctx,
@@ -69,13 +68,14 @@ func (s *Service) CreateRecipe(baseCtx gocontext.Context, req *connect_go.Reques
 	return res, nil
 }
 
-func (s *Service) DeleteRecipe(baseCtx gocontext.Context, req *connect_go.Request[v1.DeleteRecipeRequest]) (*connect_go.Response[v1.DeleteRecipeResponse], error) {
+func (s *Service) DeleteRecipe(baseCtx gocontext.Context, req *connect.Request[v1.DeleteRecipeRequest]) (*connect.Response[v1.DeleteRecipeResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.DeleteRecipeResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	// Check write access
+	var err error
 	groupID, err := s.checker.AssertAny(ctx,
 		req,
 		&req.Msg.GroupId,
@@ -101,13 +101,14 @@ func (s *Service) DeleteRecipe(baseCtx gocontext.Context, req *connect_go.Reques
 	return res, nil
 }
 
-func (s *Service) UpdateRecipe(baseCtx gocontext.Context, req *connect_go.Request[v1.UpdateRecipeRequest]) (*connect_go.Response[v1.UpdateRecipeResponse], error) {
+func (s *Service) UpdateRecipe(baseCtx gocontext.Context, req *connect.Request[v1.UpdateRecipeRequest]) (*connect.Response[v1.UpdateRecipeResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.UpdateRecipeResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	// Check write access
+	var err error
 	groupID, err := s.checker.AssertAny(ctx,
 		req,
 		&req.Msg.GroupId,
@@ -157,11 +158,11 @@ func (s *Service) UpdateRecipe(baseCtx gocontext.Context, req *connect_go.Reques
 	return res, nil
 }
 
-func (s *Service) GetRecipes(baseCtx gocontext.Context, req *connect_go.Request[v1.GetRecipesRequest]) (*connect_go.Response[v1.GetRecipesResponse], error) {
+func (s *Service) GetRecipes(baseCtx gocontext.Context, req *connect.Request[v1.GetRecipesRequest]) (*connect.Response[v1.GetRecipesResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetRecipesResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	// Check read access
 	groupID, err := s.checker.AssertAny(ctx,
@@ -206,13 +207,14 @@ func (s *Service) GetRecipes(baseCtx gocontext.Context, req *connect_go.Request[
 	return res, nil
 }
 
-func (s *Service) GetRecipe(baseCtx gocontext.Context, req *connect_go.Request[v1.GetRecipeRequest]) (*connect_go.Response[v1.GetRecipeResponse], error) {
+func (s *Service) GetRecipe(baseCtx gocontext.Context, req *connect.Request[v1.GetRecipeRequest]) (*connect.Response[v1.GetRecipeResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetRecipeResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	// Check read access
+	var err error
 	groupID, err := s.checker.AssertAny(ctx,
 		req,
 		&req.Msg.GroupId,

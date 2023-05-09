@@ -3,6 +3,7 @@ package auth
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/authentication"
@@ -19,11 +20,11 @@ type sessionFormat struct {
 func DecodeToken(token string) (*models.Session, error) {
 	jsonMessage, err := base64.URLEncoding.DecodeString(token)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed base64 decode: %w", err)
 	}
 	var message sessionFormat
 	if err := json.Unmarshal(jsonMessage, &message); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed json decode: %w", err)
 	}
 	var output models.Session
 	output.ID = message.ID
@@ -41,7 +42,7 @@ func EncodeToken(sess models.Session) (string, error) {
 		ExpiredAt: sess.ExpiredAt,
 	})
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed json encoding: %w", err)
 	}
 	return base64.URLEncoding.EncodeToString(jsonMessage), nil
 }

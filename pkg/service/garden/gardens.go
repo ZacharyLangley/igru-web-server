@@ -2,7 +2,6 @@ package garden
 
 import (
 	gocontext "context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -10,20 +9,20 @@ import (
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/garden"
 	authenticationv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1"
+	"github.com/ZacharyLangley/igru-web-server/pkg/service/common"
 	"github.com/bufbuild/connect-go"
-	connect_go "github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (s *Service) CreateGarden(baseCtx gocontext.Context, req *connect_go.Request[v1.CreateGardenRequest]) (*connect_go.Response[v1.CreateGardenResponse], error) {
+func (s *Service) CreateGarden(baseCtx gocontext.Context, req *connect.Request[v1.CreateGardenRequest]) (*connect.Response[v1.CreateGardenResponse], error) {
 	var err error
 	ctx := context.New(baseCtx)
-	res := connect.NewResponse(&v1.CreateGardenResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
+	res := connect.NewResponse(&v1.CreateGardenResponse{})
 	// Check write access
 	groupID, err := s.checker.AssertAny(ctx,
 		req,
@@ -49,9 +48,9 @@ func (s *Service) CreateGarden(baseCtx gocontext.Context, req *connect_go.Reques
 			CreatedAt:     time.Now(),
 		}
 		garden, err = queries.CreateGarden(ctx, params)
-		return err
+		return fmt.Errorf("failed to create garden: %w", err)
 	}); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("transaction failure: %w", err)
 	}
 	res.Msg.Garden = &v1.Garden{
 		Id:            garden.ID.String(),
@@ -69,11 +68,11 @@ func (s *Service) CreateGarden(baseCtx gocontext.Context, req *connect_go.Reques
 	return res, nil
 }
 
-func (s *Service) DeleteGarden(baseCtx gocontext.Context, req *connect_go.Request[v1.DeleteGardenRequest]) (*connect_go.Response[v1.DeleteGardenResponse], error) {
+func (s *Service) DeleteGarden(baseCtx gocontext.Context, req *connect.Request[v1.DeleteGardenRequest]) (*connect.Response[v1.DeleteGardenResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.DeleteGardenResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	gardenID, err := uuid.Parse(req.Msg.Id)
 	if err != nil {
@@ -97,16 +96,16 @@ func (s *Service) DeleteGarden(baseCtx gocontext.Context, req *connect_go.Reques
 		}
 		return queries.DeleteGarden(ctx, params)
 	}); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("transaction failure: %w", err)
 	}
 	return res, nil
 }
 
-func (s *Service) UpdateGarden(baseCtx gocontext.Context, req *connect_go.Request[v1.UpdateGardenRequest]) (*connect_go.Response[v1.UpdateGardenResponse], error) {
+func (s *Service) UpdateGarden(baseCtx gocontext.Context, req *connect.Request[v1.UpdateGardenRequest]) (*connect.Response[v1.UpdateGardenResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.UpdateGardenResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	gardenID, err := uuid.Parse(req.Msg.Id)
 	if err != nil {
@@ -138,9 +137,9 @@ func (s *Service) UpdateGarden(baseCtx gocontext.Context, req *connect_go.Reques
 			Tags:          req.Msg.Tags,
 		}
 		garden, err = query.UpdateGarden(ctx, params)
-		return err
+		return fmt.Errorf("failed to update garden: %w", err)
 	}); err != nil {
-		return nil, err
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("failed transaction: %w", err))
 	}
 	res.Msg.Garden = &v1.Garden{
 		Id:            garden.ID.String(),
@@ -161,11 +160,11 @@ func (s *Service) UpdateGarden(baseCtx gocontext.Context, req *connect_go.Reques
 	return res, nil
 }
 
-func (s *Service) GetGardens(baseCtx gocontext.Context, req *connect_go.Request[v1.GetGardensRequest]) (*connect_go.Response[v1.GetGardensResponse], error) {
+func (s *Service) GetGardens(baseCtx gocontext.Context, req *connect.Request[v1.GetGardensRequest]) (*connect.Response[v1.GetGardensResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetGardensResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	// Check read access
 	groupID, err := s.checker.AssertAny(ctx,
@@ -210,11 +209,11 @@ func (s *Service) GetGardens(baseCtx gocontext.Context, req *connect_go.Request[
 	return res, nil
 }
 
-func (s *Service) GetGarden(baseCtx gocontext.Context, req *connect_go.Request[v1.GetGardenRequest]) (*connect_go.Response[v1.GetGardenResponse], error) {
+func (s *Service) GetGarden(baseCtx gocontext.Context, req *connect.Request[v1.GetGardenRequest]) (*connect.Response[v1.GetGardenResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetGardenResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	gardenID, err := uuid.Parse(req.Msg.Id)
 	if err != nil {

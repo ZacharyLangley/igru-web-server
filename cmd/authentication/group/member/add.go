@@ -52,7 +52,7 @@ func createMember(cmd *cobra.Command, args []string) error {
 	})
 	_, err := userClient.AddGroupMember(ctx, req)
 	if err != nil {
-		return fmt.Errorf("Failed to add group member: %w", err)
+		return fmt.Errorf("failed to add group member: %w", err)
 	}
 	return nil
 }

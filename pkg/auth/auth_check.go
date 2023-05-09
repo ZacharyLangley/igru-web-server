@@ -35,6 +35,9 @@ type Checker struct {
 	authenticationv1connect.SessionServiceClient
 }
 
+var errInvalidGroupID = errors.New("invalid group ID")
+var errAccessDenied = errors.New("access denied")
+
 func (c Checker) AssertAny(ctx context.Context, req interface {
 	Header() http.Header
 }, groupID *string, roles ...authenticationv1.GroupRole) (uuid.NullUUID, error) {
@@ -44,10 +47,9 @@ func (c Checker) AssertAny(ctx context.Context, req interface {
 	if groupID != nil {
 		output.UUID, err = uuid.Parse(*groupID)
 		if err != nil {
-			return output, connect.NewError(connect.CodeInvalidArgument, errors.New("invalid groupID"))
-		} else {
-			output.Valid = true
+			return output, connect.NewError(connect.CodeInvalidArgument, errInvalidGroupID)
 		}
+		output.Valid = true
 	}
 	// Prep group permissions check
 	request := connect.NewRequest(&authenticationv1.CheckSessionPermissionsRequest{})
@@ -79,7 +81,7 @@ func (c Checker) AssertAny(ctx context.Context, req interface {
 			return output, nil
 		}
 	}
-	return uuid.NullUUID{}, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
+	return uuid.NullUUID{}, connect.NewError(connect.CodePermissionDenied, errAccessDenied)
 }
 
 func (c Checker) AssertRead(ctx context.Context, req interface {
