@@ -5,12 +5,13 @@ import (
 	"fmt"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
+	"github.com/ZacharyLangley/igru-web-server/pkg/database"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/authentication"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	"github.com/ZacharyLangley/igru-web-server/pkg/service/common"
 	"github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -33,9 +34,9 @@ func (s *Service) CreateGroup(baseCtx gocontext.Context, req *connect.Request[v1
 		return nil, err
 	}
 	res.Msg.Group = &v1.Group{
-		Id:        group.ID.String(),
+		Id:        uuid.UUID(group.ID.Bytes).String(),
 		Name:      group.Name,
-		CreatedAt: timestamppb.New(group.CreatedAt),
+		CreatedAt: timestamppb.New(group.CreatedAt.Time),
 	}
 	return res, nil
 }
@@ -58,7 +59,7 @@ func (s *Service) UpdateGroup(baseCtx gocontext.Context, req *connect.Request[v1
 		var err error
 		query := models.New(tx)
 		params := models.UpdateGroupParams{
-			ID:   groupID,
+			ID:   database.NewFromUUID(groupID),
 			Name: req.Msg.Group.Name,
 		}
 		group, err = query.UpdateGroup(ctx, params)
@@ -67,9 +68,9 @@ func (s *Service) UpdateGroup(baseCtx gocontext.Context, req *connect.Request[v1
 		return nil, err
 	}
 	res.Msg.Group = &v1.Group{
-		Id:        group.ID.String(),
+		Id:        uuid.UUID(group.ID.Bytes).String(),
 		Name:      group.Name,
-		CreatedAt: timestamppb.New(group.CreatedAt),
+		CreatedAt: timestamppb.New(group.CreatedAt.Time),
 	}
 	if group.UpdatedAt.Valid {
 		res.Msg.Group.UpdatedAt = timestamppb.New(group.UpdatedAt.Time)
@@ -92,7 +93,7 @@ func (s *Service) DeleteGroup(baseCtx gocontext.Context, req *connect.Request[v1
 	}
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
-		return query.DeleteGroup(ctx, groupID)
+		return query.DeleteGroup(ctx, database.NewFromUUID(groupID))
 	}); err != nil {
 		return nil, err
 	}
@@ -112,15 +113,15 @@ func (s *Service) GetGroup(baseCtx gocontext.Context, req *connect.Request[v1.Ge
 	var group models.Group
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
-		group, err = query.GetGroup(ctx, groupID)
+		group, err = query.GetGroup(ctx, database.NewFromUUID(groupID))
 		return err
 	}); err != nil {
 		return nil, err
 	}
 	res.Msg.Group = &v1.Group{
-		Id:        group.ID.String(),
+		Id:        uuid.UUID(group.ID.Bytes).String(),
 		Name:      group.Name,
-		CreatedAt: timestamppb.New(group.CreatedAt),
+		CreatedAt: timestamppb.New(group.CreatedAt.Time),
 	}
 	if group.UpdatedAt.Valid {
 		res.Msg.Group.UpdatedAt = timestamppb.New(group.UpdatedAt.Time)
@@ -146,9 +147,9 @@ func (s *Service) GetGroups(baseCtx gocontext.Context, req *connect.Request[v1.G
 		res.Msg.Groups = make([]*v1.Group, 0, len(groups))
 		for _, group := range groups {
 			newGroup := v1.Group{
-				Id:        group.ID.String(),
+				Id:        uuid.UUID(group.ID.Bytes).String(),
 				Name:      group.Name,
-				CreatedAt: timestamppb.New(group.CreatedAt),
+				CreatedAt: timestamppb.New(group.CreatedAt.Time),
 			}
 			if group.UpdatedAt.Valid {
 				newGroup.UpdatedAt = timestamppb.New(group.UpdatedAt.Time)
@@ -183,8 +184,8 @@ func (s *Service) AddGroupMember(baseCtx gocontext.Context, req *connect.Request
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
 		return query.AddGroupMember(ctx, models.AddGroupMemberParams{
-			UserID:  userID,
-			GroupID: groupID,
+			UserID:  database.NewFromUUID(userID),
+			GroupID: database.NewFromUUID(groupID),
 			Role:    int32(v1.GroupRole_GROUP_ROLE_UNSPECIFIED),
 		})
 	}); err != nil {
@@ -210,8 +211,8 @@ func (s *Service) UpdateGroupMember(baseCtx gocontext.Context, req *connect.Requ
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
 		return query.UpdateGroupMember(ctx, models.UpdateGroupMemberParams{
-			UserID:  userID,
-			GroupID: groupID,
+			UserID:  database.NewFromUUID(userID),
+			GroupID: database.NewFromUUID(groupID),
 			Role:    int32(req.Msg.Role),
 		})
 	}); err != nil {
@@ -237,8 +238,8 @@ func (s *Service) RemoveGroupMember(baseCtx gocontext.Context, req *connect.Requ
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
 		return query.DeleteGroupMember(ctx, models.DeleteGroupMemberParams{
-			UserID:  userID,
-			GroupID: groupID,
+			UserID:  database.NewFromUUID(userID),
+			GroupID: database.NewFromUUID(groupID),
 		})
 	}); err != nil {
 		return nil, err
@@ -261,7 +262,7 @@ func (s *Service) GetUserGroups(baseCtx gocontext.Context, req *connect.Request[
 		groups, err := query.GetUserGroups(ctx, models.GetUserGroupsParams{
 			Limit:  req.Msg.Pagination.Length,
 			Offset: req.Msg.Pagination.Cursor,
-			UserID: userID,
+			UserID: database.NewFromUUID(userID),
 		})
 		if err != nil {
 			return fmt.Errorf("failed to get user groups: %w", err)
@@ -269,9 +270,9 @@ func (s *Service) GetUserGroups(baseCtx gocontext.Context, req *connect.Request[
 		res.Msg.Groups = make([]*v1.Group, 0, len(groups))
 		for _, group := range groups {
 			newGroup := v1.Group{
-				Id:        group.ID.String(),
+				Id:        uuid.UUID(group.ID.Bytes).String(),
 				Name:      group.Name,
-				CreatedAt: timestamppb.New(group.CreatedAt),
+				CreatedAt: timestamppb.New(group.CreatedAt.Time),
 			}
 			if group.UpdatedAt.Valid {
 				newGroup.UpdatedAt = timestamppb.New(group.UpdatedAt.Time)

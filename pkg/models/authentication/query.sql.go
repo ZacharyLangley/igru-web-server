@@ -7,10 +7,8 @@ package authentication
 
 import (
 	"context"
-	"database/sql"
-	"time"
 
-	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const addGroupMember = `-- name: AddGroupMember :exec
@@ -22,8 +20,8 @@ INSERT INTO group_members (
 `
 
 type AddGroupMemberParams struct {
-	UserID  uuid.UUID
-	GroupID uuid.UUID
+	UserID  pgtype.UUID
+	GroupID pgtype.UUID
 	Role    int32
 }
 
@@ -38,7 +36,7 @@ FROM "group_members"
 WHERE group_id = $1
 `
 
-func (q *Queries) CountGroupMembers(ctx context.Context, groupID uuid.UUID) (int64, error) {
+func (q *Queries) CountGroupMembers(ctx context.Context, groupID pgtype.UUID) (int64, error) {
 	row := q.db.QueryRow(ctx, countGroupMembers, groupID)
 	var count int64
 	err := row.Scan(&count)
@@ -77,9 +75,9 @@ RETURNING id, user_id, created_at, expired_at
 `
 
 type CreateSessionParams struct {
-	UserID    uuid.UUID
-	CreatedAt time.Time
-	ExpiredAt time.Time
+	UserID    pgtype.UUID
+	CreatedAt pgtype.Timestamp
+	ExpiredAt pgtype.Timestamp
 }
 
 func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {
@@ -105,9 +103,9 @@ RETURNING id, email, group_id, full_name, global_role, active, salt, hash, creat
 
 type CreateUserParams struct {
 	Email      string
-	GroupID    uuid.UUID
-	FullName   sql.NullString
-	GlobalRole sql.NullInt32
+	GroupID    pgtype.UUID
+	FullName   pgtype.Text
+	GlobalRole pgtype.Int4
 	Salt       string
 	Hash       string
 }
@@ -166,7 +164,7 @@ DELETE FROM groups
 WHERE id = $1
 `
 
-func (q *Queries) DeleteGroup(ctx context.Context, id uuid.UUID) error {
+func (q *Queries) DeleteGroup(ctx context.Context, id pgtype.UUID) error {
 	_, err := q.db.Exec(ctx, deleteGroup, id)
 	return err
 }
@@ -177,8 +175,8 @@ WHERE user_id = $1 AND group_id = $2
 `
 
 type DeleteGroupMemberParams struct {
-	UserID  uuid.UUID
-	GroupID uuid.UUID
+	UserID  pgtype.UUID
+	GroupID pgtype.UUID
 }
 
 func (q *Queries) DeleteGroupMember(ctx context.Context, arg DeleteGroupMemberParams) error {
@@ -192,8 +190,8 @@ WHERE id = $1 AND user_id = $2
 `
 
 type DeleteSessionParams struct {
-	ID     uuid.UUID
-	UserID uuid.UUID
+	ID     pgtype.UUID
+	UserID pgtype.UUID
 }
 
 func (q *Queries) DeleteSession(ctx context.Context, arg DeleteSessionParams) error {
@@ -206,7 +204,7 @@ DELETE FROM users
 WHERE id = $1
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
+func (q *Queries) DeleteUser(ctx context.Context, id pgtype.UUID) error {
 	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
 }
@@ -216,7 +214,7 @@ SELECT id, name, user_group, created_at, updated_at FROM groups
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetGroup(ctx context.Context, id uuid.UUID) (Group, error) {
+func (q *Queries) GetGroup(ctx context.Context, id pgtype.UUID) (Group, error) {
 	row := q.db.QueryRow(ctx, getGroup, id)
 	var i Group
 	err := row.Scan(
@@ -240,15 +238,15 @@ OFFSET $2
 type GetGroupMembersParams struct {
 	Limit   int32
 	Offset  int32
-	GroupID uuid.UUID
+	GroupID pgtype.UUID
 }
 
 type GetGroupMembersRow struct {
-	UserID    uuid.UUID
-	FullName  sql.NullString
+	UserID    pgtype.UUID
+	FullName  pgtype.Text
 	Role      int32
-	AddedAt   time.Time
-	UpdatedAt sql.NullTime
+	AddedAt   pgtype.Timestamptz
+	UpdatedAt pgtype.Timestamptz
 }
 
 func (q *Queries) GetGroupMembers(ctx context.Context, arg GetGroupMembersParams) ([]GetGroupMembersRow, error) {
@@ -321,7 +319,7 @@ WHERE "id" = $1
 LIMIT 1
 `
 
-func (q *Queries) GetSession(ctx context.Context, id uuid.UUID) (Session, error) {
+func (q *Queries) GetSession(ctx context.Context, id pgtype.UUID) (Session, error) {
 	row := q.db.QueryRow(ctx, getSession, id)
 	var i Session
 	err := row.Scan(
@@ -344,7 +342,7 @@ OFFSET $2
 type GetSessionsParams struct {
 	Limit  int32
 	Offset int32
-	UserID uuid.UUID
+	UserID pgtype.UUID
 }
 
 func (q *Queries) GetSessions(ctx context.Context, arg GetSessionsParams) ([]Session, error) {
@@ -377,7 +375,7 @@ SELECT id, email, group_id, full_name, global_role, active, salt, hash, created_
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
+func (q *Queries) GetUser(ctx context.Context, id pgtype.UUID) (User, error) {
 	row := q.db.QueryRow(ctx, getUser, id)
 	var i User
 	err := row.Scan(
@@ -425,11 +423,11 @@ WHERE user_id = $1
 `
 
 type GetUserGroupRolesRow struct {
-	GroupID uuid.UUID
+	GroupID pgtype.UUID
 	Role    int32
 }
 
-func (q *Queries) GetUserGroupRoles(ctx context.Context, userID uuid.UUID) ([]GetUserGroupRolesRow, error) {
+func (q *Queries) GetUserGroupRoles(ctx context.Context, userID pgtype.UUID) ([]GetUserGroupRolesRow, error) {
 	rows, err := q.db.Query(ctx, getUserGroupRoles, userID)
 	if err != nil {
 		return nil, err
@@ -460,7 +458,7 @@ OFFSET $2
 type GetUserGroupsParams struct {
 	Limit  int32
 	Offset int32
-	UserID uuid.UUID
+	UserID pgtype.UUID
 }
 
 func (q *Queries) GetUserGroups(ctx context.Context, arg GetUserGroupsParams) ([]Group, error) {
@@ -537,7 +535,7 @@ RETURNING id, name, user_group, created_at, updated_at
 `
 
 type UpdateGroupParams struct {
-	ID   uuid.UUID
+	ID   pgtype.UUID
 	Name string
 }
 
@@ -561,8 +559,8 @@ WHERE user_id = $1 AND group_id = $2
 `
 
 type UpdateGroupMemberParams struct {
-	UserID  uuid.UUID
-	GroupID uuid.UUID
+	UserID  pgtype.UUID
+	GroupID pgtype.UUID
 	Role    int32
 }
 
@@ -579,8 +577,8 @@ RETURNING id, email, group_id, full_name, global_role, active, salt, hash, creat
 `
 
 type UpdateUserParams struct {
-	ID       uuid.UUID
-	FullName sql.NullString
+	ID       pgtype.UUID
+	FullName pgtype.Text
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
@@ -608,7 +606,7 @@ WHERE id=$1
 `
 
 type UpdateUserPasswordParams struct {
-	ID   uuid.UUID
+	ID   pgtype.UUID
 	Salt string
 	Hash string
 }

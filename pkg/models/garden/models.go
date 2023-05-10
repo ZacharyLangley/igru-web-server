@@ -5,15 +5,12 @@
 package garden
 
 import (
-	"database/sql"
-	"time"
-
-	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Garden struct {
-	ID            uuid.UUID
-	GroupID       uuid.UUID
+	ID            pgtype.UUID
+	GroupID       pgtype.UUID
 	Name          string
 	Comment       string
 	Location      string
@@ -22,18 +19,18 @@ type Garden struct {
 	GrowStyle     string
 	ContainerSize string
 	Tags          string
-	CreatedAt     time.Time
-	UpdatedAt     sql.NullTime
+	CreatedAt     pgtype.Timestamp
+	UpdatedAt     pgtype.Timestamp
 }
 
 type Plant struct {
-	ID              uuid.UUID
-	GroupID         uuid.UUID
+	ID              pgtype.UUID
+	GroupID         pgtype.UUID
 	Name            string
 	Comment         string
 	Notes           string
 	GrowCycleLength string
-	Parentage       uuid.UUID
+	Parentage       pgtype.UUID
 	Origin          string
 	Gender          string
 	DaysFlowering   float64
@@ -42,14 +39,14 @@ type Plant struct {
 	BudDensity      float64
 	BudPistils      bool
 	Tags            string
-	AcquiredAt      time.Time
-	CreatedAt       time.Time
-	UpdatedAt       sql.NullTime
+	AcquiredAt      pgtype.Timestamp
+	CreatedAt       pgtype.Timestamp
+	UpdatedAt       pgtype.Timestamp
 }
 
 type Recipe struct {
-	ID                  uuid.UUID
-	GroupID             uuid.UUID
+	ID                  pgtype.UUID
+	GroupID             pgtype.UUID
 	Name                string
 	Comment             string
 	Ingredients         string
@@ -57,13 +54,13 @@ type Recipe struct {
 	Ph                  float64
 	MixTimeMilliseconds float64
 	Tags                string
-	CreatedAt           time.Time
-	UpdatedAt           sql.NullTime
+	CreatedAt           pgtype.Timestamp
+	UpdatedAt           pgtype.Timestamp
 }
 
 type Strain struct {
-	ID         uuid.UUID
-	GroupID    uuid.UUID
+	ID         pgtype.UUID
+	GroupID    pgtype.UUID
 	Name       string
 	Comment    string
 	Notes      string
@@ -71,10 +68,10 @@ type Strain struct {
 	Price      float64
 	ThcPercent float64
 	CbdPercent float64
-	Parentage  uuid.UUID
+	Parentage  pgtype.UUID
 	Aroma      string
 	Taste      string
 	Tags       string
-	CreatedAt  time.Time
-	UpdatedAt  sql.NullTime
+	CreatedAt  pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
 }

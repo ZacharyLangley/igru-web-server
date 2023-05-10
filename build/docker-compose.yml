@@ -55,12 +55,10 @@ services:
       - ./authentication/default.yml://default.yml:ro
       - ./authentication/migrations://migrations:ro
     restart: always
-    ports:
-      - "8081:80"
     environment:
       DATABASE.HOST: db
       LOGGER.LEVEL: debug
-      METRICS.JAEGERADDRESS: olm-otel-collector:14268
+      METRICS.OTLPGRPCADDRESS: olm-otel-collector:4317
     healthcheck:
       test: ["CMD", "igru", "health"]
       interval: 30s
@@ -73,7 +71,7 @@ services:
   db:
     image: cockroachdb/cockroach:v22.2.8
     ports:
-      - "8888:8080" # Dashboard
+      - "8080:8080"
       - "26257:26257"
     command:
       - "start-single-node"
@@ -90,12 +88,10 @@ services:
     image: igru:latest
     command: garden serve --config default.yml --level debug
     restart: always
-    ports:
-      - "8082:80"
     environment:
       DATABASE.HOST: db
       LOGGER.LEVEL: debug
-      METRICS.JAEGERADDRESS: olm-otel-collector:14268
+      METRICS.OTLPGRPCADDRESS: olm-otel-collector:4317
     healthcheck:
       test: ["CMD", "igru", "health"]
       interval: 30s
@@ -112,12 +108,10 @@ services:
     image: igru:latest
     command: node serve --config default.yml --level debug
     restart: always
-    ports:
-      - "8083:80"
     environment:
       DATABASE.HOST: db
       LOGGER.LEVEL: debug
-      METRICS.JAEGERADDRESS: olm-otel-collector:14268
+      METRICS.OTLPGRPCADDRESS: olm-otel-collector:4317
     healthcheck:
       test: ["CMD", "igru", "health"]
       interval: 30s
@@ -138,7 +132,7 @@ services:
     ports:
       - "80:80"
     environment:
-      METRICS.JAEGERADDRESS: olm-otel-collector:14268
+      METRICS.OTLPGRPCADDRESS: olm-otel-collector:14268
     depends_on:
       garden:
         condition: service_healthy
@@ -154,10 +148,10 @@ services:
     container_name: olm-zookeeper-1
     hostname: olm-zookeeper-1
     user: root
-    ports:
-      - "2181:2181"
-      - "2888:2888"
-      - "3888:3888"
+    # ports:
+    #   - "2181:2181"
+    #   - "2888:2888"
+    #   - "3888:3888"
     volumes:
       - ./data/olm/zookeeper-1:/bitnami/zookeeper
     environment:
@@ -169,10 +163,10 @@ services:
     <<: *olm-clickhouse-defaults
     container_name: olm-clickhouse
     hostname: olm-clickhouse
-    ports:
-      - "9000:9000"
-      - "8123:8123"
-      - "9181:9181"
+    # ports:
+    #   - "9000:9000"
+    #   - "8123:8123"
+    #   - "9181:9181"
     volumes:
       - ./config/olm/clickhouse-config.xml:/etc/clickhouse-server/config.xml
       - ./config/olm/clickhouse-users.xml:/etc/clickhouse-server/users.xml
@@ -212,7 +206,7 @@ services:
       - DASHBOARDS_PATH=/root/config/dashboards
       - STORAGE=clickhouse
       - GODEBUG=netdns=go
-      - TELEMETRY_ENABLED=true
+      - TELEMETRY_ENABLED=false
       - DEPLOYMENT_TYPE=docker-standalone-amd
     restart: on-failure
     healthcheck:
@@ -254,7 +248,7 @@ services:
       # - "9411:9411"     # Zipkin port
       # - "13133:13133"   # health check extension
       # - "14250:14250"   # Jaeger gRPC
-      # - "14268:14268"   # Jaeger thrift HTTP
+      - "14268:14268"   # Jaeger thrift HTTP
       # - "55678:55678"   # OpenCensus receiver
       # - "55679:55679"   # zPages extension
     restart: on-failure

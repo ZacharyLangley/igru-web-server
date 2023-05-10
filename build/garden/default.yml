@@ -17,5 +17,5 @@ logger:
   development: false
   level: info
 metrics:
-  jaegerAddress: "localhost:14268"
+  otlpGRPCAddress: "localhost:4317"
 gcPeriod: 5s

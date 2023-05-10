@@ -2,15 +2,17 @@ package authentication
 
 import (
 	gocontext "context"
-	"database/sql"
 	"fmt"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
+	"github.com/ZacharyLangley/igru-web-server/pkg/database"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/authentication"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	"github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -38,7 +40,7 @@ func (s *Service) CreateUser(baseCtx gocontext.Context, req *connect.Request[v1.
 			Hash:    hash,
 		}
 		if req.Msg.FullName != "" {
-			params.FullName = sql.NullString{Valid: true, String: req.Msg.FullName}
+			params.FullName = pgtype.Text{Valid: true, String: req.Msg.FullName}
 		}
 		user, err = queries.CreateUser(ctx, params)
 		if err != nil {
@@ -52,11 +54,12 @@ func (s *Service) CreateUser(baseCtx gocontext.Context, req *connect.Request[v1.
 	}); err != nil {
 		return nil, err
 	}
+	ctx.L().Info("Created new user", zap.String("user_id", uuid.UUID(user.ID.Bytes).String()), zap.String("email", user.Email))
 	res.Msg.User = &v1.User{
-		Id:        user.ID.String(),
+		Id:        uuid.UUID(user.ID.Bytes).String(),
 		Email:     user.Email,
 		FullName:  user.Email,
-		CreatedAt: timestamppb.New(user.CreatedAt),
+		CreatedAt: timestamppb.New(user.CreatedAt.Time),
 	}
 	return res, nil
 }
@@ -73,7 +76,7 @@ func (s *Service) DeleteUser(baseCtx gocontext.Context, req *connect.Request[v1.
 	}
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
-		return queries.DeleteUser(ctx, userID)
+		return queries.DeleteUser(ctx, database.NewFromUUID(userID))
 	}); err != nil {
 		return nil, err
 	}
@@ -97,7 +100,7 @@ func (s *Service) ResetUserPassword(baseCtx gocontext.Context, req *connect.Requ
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		params := models.UpdateUserPasswordParams{
-			ID:   userID,
+			ID:   database.NewFromUUID(userID),
 			Salt: salt,
 			Hash: hash,
 		}
@@ -122,10 +125,10 @@ func (s *Service) UpdateUser(baseCtx gocontext.Context, req *connect.Request[v1.
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		params := models.UpdateUserParams{
-			ID: userID,
+			ID: database.NewFromUUID(userID),
 		}
 		if req.Msg.User.FullName != "" {
-			params.FullName = sql.NullString{Valid: true, String: req.Msg.User.FullName}
+			params.FullName = pgtype.Text{Valid: true, String: req.Msg.User.FullName}
 		}
 		user, err = queries.UpdateUser(ctx, params)
 		return err
@@ -133,10 +136,10 @@ func (s *Service) UpdateUser(baseCtx gocontext.Context, req *connect.Request[v1.
 		return nil, err
 	}
 	res.Msg.User = &v1.User{
-		Id:        user.ID.String(),
+		Id:        uuid.UUID(user.ID.Bytes).String(),
 		Email:     user.Email,
 		FullName:  user.Email,
-		CreatedAt: timestamppb.New(user.CreatedAt),
+		CreatedAt: timestamppb.New(user.CreatedAt.Time),
 	}
 	return res, nil
 }
@@ -163,10 +166,10 @@ func (s *Service) GetUsers(baseCtx gocontext.Context, req *connect.Request[v1.Ge
 	res.Msg.Users = make([]*v1.User, 0, len(users))
 	for _, user := range users {
 		newUser := v1.User{
-			Id:        user.ID.String(),
+			Id:        uuid.UUID(user.ID.Bytes).String(),
 			Email:     user.Email,
 			FullName:  user.Email,
-			CreatedAt: timestamppb.New(user.CreatedAt),
+			CreatedAt: timestamppb.New(user.CreatedAt.Time),
 		}
 		if user.UpdatedAt.Valid {
 			newUser.UpdatedAt = timestamppb.New(user.UpdatedAt.Time)

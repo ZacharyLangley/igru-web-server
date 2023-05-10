@@ -15,5 +15,5 @@ logger:
   development: true
   level: debug
 metrics:
-  jaegerAddress: "localhost:14268"
+  otlpGRPCAddress: "localhost:4317"
 sessionDuration: 5m

@@ -11,22 +11,28 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1/authenticationv1connect"
 	"github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func GetGroups(ctx context.Context, tx pgx.Tx, userID uuid.UUID) (map[uuid.UUID]struct{}, error) {
 	// Get user groups
 	query := models.New(tx)
 	userGroups, err := query.GetUserGroups(ctx, models.GetUserGroupsParams{
-		UserID: userID,
-		Limit:  100,
+		UserID: pgtype.UUID{
+			Bytes: userID,
+			Valid: true,
+		},
+		Limit: 100,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed getting user groups: %w", err)
 	}
 	groupIDs := make(map[uuid.UUID]struct{})
 	for _, group := range userGroups {
-		groupIDs[group.ID] = struct{}{}
+		if group.ID.Valid {
+			groupIDs[uuid.UUID(group.ID.Bytes)] = struct{}{}
+		}
 	}
 	return groupIDs, nil
 }

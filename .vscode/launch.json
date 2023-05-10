@@ -38,6 +38,7 @@
                 "DATABASE.HOST": "127.0.0.1",
                 "DATABASE.USERNAME": "root",
                 "DATABASE.PORT": "26257",
+                "METRICS.OTLPGRPCADDRESS": "localhost:4317"
             }
         },
         {
@@ -52,10 +53,11 @@
                 "--config", "${workspaceFolder}/build/gardens/default.yml"
             ],
             "env": {
-                "DATABASE.MIGRATIONPATH": "${workspaceFolder}/build/gardens/migrations",
+                "DATABASE.MIGRATIONPATH": "${workspaceFolder}/build/garden/migrations",
                 "DATABASE.HOST": "127.0.0.1",
                 "DATABASE.USERNAME": "root",
-                "DATABASE.PORT": "26257"
+                "DATABASE.PORT": "26257",
+                "METRICS.OTLPGRPCADDRESS": "localhost:4317"
             }
         },
         {
@@ -72,7 +74,8 @@
             "env": {
                 "DATABASE.HOST": "127.0.0.1",
                 "DATABASE.USERNAME": "root",
-                "DATABASE.PORT": "26257"
+                "DATABASE.PORT": "26257",
+                "METRICS.OTLPGRPCADDRESS": "localhost:4317"
             }
         },
         {
@@ -87,9 +90,12 @@
                 "--config", "${workspaceFolder}/build/node/default.yml"
             ],
             "env": {
+                "GRPC.ADDRESS": "0.0.0.0:8888",
                 "DATABASE.HOST": "127.0.0.1",
                 "DATABASE.USERNAME": "root",
-                "DATABASE.PORT": "26257"
+                "DATABASE.PORT": "26257",
+                "DATABASE.MIGRATIONPATH": "${workspaceFolder}/build/node/migrations",
+                "METRICS.OTLPGRPCADDRESS": "localhost:4317"
             }
         }
     ]

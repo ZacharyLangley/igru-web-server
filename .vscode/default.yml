@@ -1,0 +1,5 @@
+grpc:
+  address: http://localhost:8888
+logger:
+  development: true
+  level: trace

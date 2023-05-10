@@ -6,13 +6,15 @@ import (
 	"time"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
+	"github.com/ZacharyLangley/igru-web-server/pkg/database"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/garden"
 	authenticationv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1"
 	"github.com/ZacharyLangley/igru-web-server/pkg/service/common"
 	"github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -37,7 +39,7 @@ func (s *Service) CreateGarden(baseCtx gocontext.Context, req *connect.Request[v
 		queries := models.New(tx)
 		params := models.CreateGardenParams{
 			Name:          req.Msg.Name,
-			GroupID:       groupID.UUID,
+			GroupID:       database.NewFromNullableUUID(groupID),
 			Comment:       req.Msg.Comment,
 			Location:      req.Msg.Location,
 			GrowType:      req.Msg.GrowType,
@@ -45,7 +47,10 @@ func (s *Service) CreateGarden(baseCtx gocontext.Context, req *connect.Request[v
 			GrowStyle:     req.Msg.GrowStyle,
 			ContainerSize: req.Msg.ContainerSize,
 			Tags:          req.Msg.Tags,
-			CreatedAt:     time.Now(),
+			CreatedAt: pgtype.Timestamp{
+				Time:  time.Now(),
+				Valid: true,
+			},
 		}
 		garden, err = queries.CreateGarden(ctx, params)
 		return fmt.Errorf("failed to create garden: %w", err)
@@ -53,8 +58,8 @@ func (s *Service) CreateGarden(baseCtx gocontext.Context, req *connect.Request[v
 		return nil, fmt.Errorf("transaction failure: %w", err)
 	}
 	res.Msg.Garden = &v1.Garden{
-		Id:            garden.ID.String(),
-		GroupId:       garden.GroupID.String(),
+		Id:            uuid.UUID(garden.ID.Bytes).String(),
+		GroupId:       uuid.UUID(garden.GroupID.Bytes).String(),
 		Name:          garden.Name,
 		Comment:       garden.Comment,
 		Location:      garden.Location,
@@ -63,7 +68,7 @@ func (s *Service) CreateGarden(baseCtx gocontext.Context, req *connect.Request[v
 		GrowStyle:     garden.GrowStyle,
 		ContainerSize: garden.ContainerSize,
 		Tags:          garden.Tags,
-		CreatedAt:     timestamppb.New(garden.CreatedAt),
+		CreatedAt:     timestamppb.New(garden.CreatedAt.Time),
 	}
 	return res, nil
 }
@@ -91,8 +96,8 @@ func (s *Service) DeleteGarden(baseCtx gocontext.Context, req *connect.Request[v
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		params := models.DeleteGardenParams{
-			ID:      gardenID,
-			GroupID: groupID.UUID,
+			ID:      database.NewFromUUID(gardenID),
+			GroupID: database.NewFromNullableUUID(groupID),
 		}
 		return queries.DeleteGarden(ctx, params)
 	}); err != nil {
@@ -125,8 +130,8 @@ func (s *Service) UpdateGarden(baseCtx gocontext.Context, req *connect.Request[v
 		var err error
 		query := models.New(tx)
 		params := models.UpdateGardenParams{
-			ID:            gardenID,
-			GroupID:       groupID.UUID,
+			ID:            database.NewFromUUID(gardenID),
+			GroupID:       database.NewFromNullableUUID(groupID),
 			Name:          req.Msg.Name,
 			Comment:       req.Msg.Comment,
 			Location:      req.Msg.Location,
@@ -142,8 +147,8 @@ func (s *Service) UpdateGarden(baseCtx gocontext.Context, req *connect.Request[v
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("failed transaction: %w", err))
 	}
 	res.Msg.Garden = &v1.Garden{
-		Id:            garden.ID.String(),
-		GroupId:       garden.GroupID.String(),
+		Id:            uuid.UUID(garden.ID.Bytes).String(),
+		GroupId:       uuid.UUID(garden.GroupID.Bytes).String(),
 		Name:          garden.Name,
 		Comment:       garden.Comment,
 		Location:      garden.Location,
@@ -152,7 +157,7 @@ func (s *Service) UpdateGarden(baseCtx gocontext.Context, req *connect.Request[v
 		GrowStyle:     garden.GrowStyle,
 		ContainerSize: garden.ContainerSize,
 		Tags:          garden.Tags,
-		CreatedAt:     timestamppb.New(garden.CreatedAt),
+		CreatedAt:     timestamppb.New(garden.CreatedAt.Time),
 	}
 	if garden.UpdatedAt.Valid {
 		res.Msg.Garden.UpdatedAt = timestamppb.New(garden.UpdatedAt.Time)
@@ -181,7 +186,7 @@ func (s *Service) GetGardens(baseCtx gocontext.Context, req *connect.Request[v1.
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
 		queries := models.New(tx)
-		gardens, err = queries.GetGardens(ctx, groupID.UUID)
+		gardens, err = queries.GetGardens(ctx, database.NewFromNullableUUID(groupID))
 		return err
 	}); err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error: %w", err))
@@ -189,7 +194,7 @@ func (s *Service) GetGardens(baseCtx gocontext.Context, req *connect.Request[v1.
 	res.Msg.Gardens = make([]*v1.Garden, 0, len(gardens))
 	for _, garden := range gardens {
 		newGarden := v1.Garden{
-			Id:            garden.ID.String(),
+			Id:            uuid.UUID(garden.ID.Bytes).String(),
 			GroupId:       groupID.UUID.String(),
 			Name:          garden.Name,
 			Comment:       garden.Comment,
@@ -199,7 +204,7 @@ func (s *Service) GetGardens(baseCtx gocontext.Context, req *connect.Request[v1.
 			GrowStyle:     garden.GrowStyle,
 			ContainerSize: garden.ContainerSize,
 			Tags:          garden.Tags,
-			CreatedAt:     timestamppb.New(garden.CreatedAt),
+			CreatedAt:     timestamppb.New(garden.CreatedAt.Time),
 		}
 		if garden.UpdatedAt.Valid {
 			newGarden.UpdatedAt = timestamppb.New(garden.UpdatedAt.Time)
@@ -233,8 +238,8 @@ func (s *Service) GetGarden(baseCtx gocontext.Context, req *connect.Request[v1.G
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
 		params := models.GetGardenParams{
-			ID:      gardenID,
-			GroupID: groupID.UUID,
+			ID:      database.NewFromUUID(gardenID),
+			GroupID: database.NewFromNullableUUID(groupID),
 		}
 		garden, err = query.GetGarden(ctx, params)
 		return err
@@ -242,7 +247,7 @@ func (s *Service) GetGarden(baseCtx gocontext.Context, req *connect.Request[v1.G
 		return nil, err
 	}
 	res.Msg.Garden = &v1.Garden{
-		Id:            garden.ID.String(),
+		Id:            uuid.UUID(garden.ID.Bytes).String(),
 		Name:          garden.Name,
 		Comment:       garden.Comment,
 		Location:      garden.Location,
@@ -251,7 +256,7 @@ func (s *Service) GetGarden(baseCtx gocontext.Context, req *connect.Request[v1.G
 		GrowStyle:     garden.GrowStyle,
 		ContainerSize: garden.ContainerSize,
 		Tags:          garden.Tags,
-		CreatedAt:     timestamppb.New(garden.CreatedAt),
+		CreatedAt:     timestamppb.New(garden.CreatedAt.Time),
 	}
 	if garden.UpdatedAt.Valid {
 		res.Msg.Garden.UpdatedAt = timestamppb.New(garden.UpdatedAt.Time)
