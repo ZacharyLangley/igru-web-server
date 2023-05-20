@@ -35,13 +35,14 @@ type Session struct {
 }
 
 type User struct {
-	ID        uuid.UUID
-	Email     string
-	GroupID   uuid.UUID
-	FullName  sql.NullString
-	Active    sql.NullBool
-	Salt      string
-	Hash      string
-	CreatedAt time.Time
-	UpdatedAt sql.NullTime
+	ID         uuid.UUID
+	Email      string
+	GroupID    uuid.UUID
+	FullName   sql.NullString
+	GlobalRole sql.NullInt32
+	Active     sql.NullBool
+	Salt       string
+	Hash       string
+	CreatedAt  time.Time
+	UpdatedAt  sql.NullTime
 }

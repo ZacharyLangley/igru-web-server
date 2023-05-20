@@ -60,6 +60,7 @@ CREATE UNIQUE INDEX ON strains(id);
 
 CREATE TABLE IF NOT EXISTS recipes (
 	id UUID DEFAULT gen_random_uuid(),
+	group_id UUID NOT NULL,
 	name TEXT NOT NULL,
 	comment TEXT NOT NULL,
 	ingredients TEXT NOT NULL,

@@ -72,8 +72,20 @@ func (d Database) DSN() (string, error) {
 		case int:
 			parts = append(parts, fmt.Sprintf("%s=%d", key, x))
 		default:
-			return "", fmt.Errorf("unknown args type for %s: %T", key, rawValue)
+			return "", unknownArgsTypesError{
+				Key:      key,
+				RawValue: rawValue,
+			}
 		}
 	}
 	return strings.Join(parts, " "), nil
+}
+
+type unknownArgsTypesError struct {
+	Key      string
+	RawValue any
+}
+
+func (u unknownArgsTypesError) Error() string {
+	return fmt.Sprintf("unknown args type for %s: %T", u.Key, u.RawValue)
 }

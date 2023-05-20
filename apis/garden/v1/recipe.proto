@@ -15,27 +15,7 @@ service RecipeService {
 
 message CreateRecipeRequest {
     string name = 1;
-    string comment = 2;
-    string ingredients = 3;
-    string instructions = 4;
-    double ph = 5;
-    double mix_time_milliseconds = 6;
-    string tags = 7;
-}
-message CreateRecipeResponse {
-    garden.v1.Recipe recipe = 1;
-}
-
-message DeleteRecipeRequest {
-    string id = 1;
-}
-message DeleteRecipeResponse {
-    garden.v1.Recipe recipe = 1;
-}
-
-message UpdateRecipeRequest {
-    string id = 1;
-    string name = 2;
+    string group_id = 2;
     string comment = 3;
     string ingredients = 4;
     string instructions = 5;
@@ -43,17 +23,43 @@ message UpdateRecipeRequest {
     double mix_time_milliseconds = 7;
     string tags = 8;
 }
+message CreateRecipeResponse {
+    garden.v1.Recipe recipe = 1;
+}
+
+message DeleteRecipeRequest {
+    string id = 1;
+    string group_id = 2;
+}
+message DeleteRecipeResponse {
+    garden.v1.Recipe recipe = 1;
+}
+
+message UpdateRecipeRequest {
+    string id = 1;
+    string group_id = 2;
+    string name = 3;
+    string comment = 4;
+    string ingredients = 5;
+    string instructions = 6;
+    double ph = 7;
+    double mix_time_milliseconds = 8;
+    string tags = 9;
+}
 message UpdateRecipeResponse {
     garden.v1.Recipe recipe = 1;
 }
 
-message GetRecipesRequest {}
+message GetRecipesRequest {
+    string group_id = 1;
+}
 message GetRecipesResponse {
     repeated garden.v1.Recipe recipes = 1;
 }
 
 message GetRecipeRequest {
     string id = 1;
+    string group_id = 2;
 
 }
 message GetRecipeResponse {

@@ -61,12 +61,13 @@ message Strain {
 message Recipe {
     string id = 1;
     string name = 2;
-    string comment = 3;
-    string ingredients = 4;
-    string instructions = 5;
-    double ph = 6;
-    double mix_time_milliseconds = 7;
-    string tags = 8;
-    google.protobuf.Timestamp created_at = 13;
-    google.protobuf.Timestamp updated_at = 14;
+    string group_id =3;
+    string comment = 4;
+    string ingredients = 5;
+    string instructions = 6;
+    double ph = 7;
+    double mix_time_milliseconds = 8;
+    string tags = 9;
+    google.protobuf.Timestamp created_at = 10;
+    google.protobuf.Timestamp updated_at = 11;
 }

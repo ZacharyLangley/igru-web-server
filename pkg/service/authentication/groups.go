@@ -2,12 +2,12 @@ package authentication
 
 import (
 	gocontext "context"
-	"errors"
 	"fmt"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/authentication"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
+	"github.com/ZacharyLangley/igru-web-server/pkg/service/common"
 	"github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
@@ -17,8 +17,8 @@ import (
 func (s *Service) CreateGroup(baseCtx gocontext.Context, req *connect.Request[v1.CreateGroupRequest]) (*connect.Response[v1.CreateGroupResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.CreateGroupResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	if err := validateCreateGroupRequest(req.Msg); err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
@@ -43,8 +43,8 @@ func (s *Service) CreateGroup(baseCtx gocontext.Context, req *connect.Request[v1
 func (s *Service) UpdateGroup(baseCtx gocontext.Context, req *connect.Request[v1.UpdateGroupRequest]) (*connect.Response[v1.UpdateGroupResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.UpdateGroupResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	if err := validateUpdateGroupRequest(req.Msg); err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
@@ -80,8 +80,8 @@ func (s *Service) UpdateGroup(baseCtx gocontext.Context, req *connect.Request[v1
 func (s *Service) DeleteGroup(baseCtx gocontext.Context, req *connect.Request[v1.DeleteGroupRequest]) (*connect.Response[v1.DeleteGroupResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.DeleteGroupResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	if err := validateDeleteGroupRequest(req.Msg); err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
@@ -102,8 +102,8 @@ func (s *Service) DeleteGroup(baseCtx gocontext.Context, req *connect.Request[v1
 func (s *Service) GetGroup(baseCtx gocontext.Context, req *connect.Request[v1.GetGroupRequest]) (*connect.Response[v1.GetGroupResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetGroupResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	groupID, err := uuid.Parse(req.Msg.Id)
 	if err != nil {
@@ -169,8 +169,8 @@ func (s *Service) GetGroups(baseCtx gocontext.Context, req *connect.Request[v1.G
 func (s *Service) AddGroupMember(baseCtx gocontext.Context, req *connect.Request[v1.AddGroupMemberRequest]) (*connect.Response[v1.AddGroupMemberResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.AddGroupMemberResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	userID, err := uuid.Parse(req.Msg.UserId)
 	if err != nil {
@@ -196,8 +196,8 @@ func (s *Service) AddGroupMember(baseCtx gocontext.Context, req *connect.Request
 func (s *Service) UpdateGroupMember(baseCtx gocontext.Context, req *connect.Request[v1.UpdateGroupMemberRequest]) (*connect.Response[v1.UpdateGroupMemberResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.UpdateGroupMemberResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	userID, err := uuid.Parse(req.Msg.UserId)
 	if err != nil {
@@ -223,8 +223,8 @@ func (s *Service) UpdateGroupMember(baseCtx gocontext.Context, req *connect.Requ
 func (s *Service) RemoveGroupMember(baseCtx gocontext.Context, req *connect.Request[v1.RemoveGroupMemberRequest]) (*connect.Response[v1.RemoveGroupMemberResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.RemoveGroupMemberResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	userID, err := uuid.Parse(req.Msg.UserId)
 	if err != nil {

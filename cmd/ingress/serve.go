@@ -2,17 +2,20 @@ package ingress
 
 import (
 	"embed"
+	"errors"
 	"fmt"
 	"io/fs"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/config"
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1/authenticationv1connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1/gardenv1connect"
+	"github.com/ZacharyLangley/igru-web-server/pkg/proto/node/v1/nodev1connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proxy"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
@@ -27,6 +30,7 @@ type Config struct {
 	Clients struct {
 		Authentication config.GRPC `mapstructure:"authentication"`
 		Garden         config.GRPC `mapstructure:"garden"`
+		Node           config.GRPC `mapstructure:"node"`
 	} `mapstructure:"clients"`
 	WebProxyAddress string      `mapstructure:"webProxyAddress"`
 	GRPC            config.GRPC `mapstructure:"grpc"`
@@ -38,6 +42,8 @@ var serveCmd = &cobra.Command{
 	PreRunE: config.SetupCobraLogger,
 	RunE:    runServer,
 }
+
+var errWebContentNotFound = errors.New("web content not found")
 
 func runServer(cmd *cobra.Command, args []string) error {
 	var cfg Config
@@ -77,11 +83,14 @@ func runServer(cmd *cobra.Command, args []string) error {
 	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.RecipeServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy: %w", err)
 	}
+	if err := proxy.RegisterProxy(r, cfg.Clients.Node, nodev1connect.NodeServiceName); err != nil {
+		return fmt.Errorf("failed to register node proxy: %w", err)
+	}
 
 	// Attach embedded frontend
 	webContent, err := fs.Sub(content, "public")
 	if err != nil {
-		return fmt.Errorf("failed to find web content")
+		return errWebContentNotFound
 	}
 	if cfg.WebProxyAddress == "" {
 		zap.L().Info("Using FS server")
@@ -94,7 +103,7 @@ func runServer(cmd *cobra.Command, args []string) error {
 			fmt.Fprintln(os.Stderr, "failed parse proxy url", err)
 			os.Exit(-1)
 		}
-		r.Methods("GET").Handler(proxy.HTTP{URL: proxyURL})
+		r.Methods("GET").Handler(proxy.NewTunnel("http", proxyURL))
 	}
 	// Create TCP listener service
 	lc := net.ListenConfig{}
@@ -104,11 +113,19 @@ func runServer(cmd *cobra.Command, args []string) error {
 	}
 	ctx.L().Info("listening", zap.String("address", listener.Addr().String()))
 	// Start serving HTTP services
-	if err := http.Serve(listener, r); err != nil {
+	httpServer := http.Server{
+		Handler:      r,
+		ReadTimeout:  requestTimeout,
+		WriteTimeout: requestTimeout,
+		IdleTimeout:  requestTimeout,
+	}
+	if err := httpServer.Serve(listener); err != nil {
 		return fmt.Errorf("failed to serve: %w", err)
 	}
 	return nil
 }
+
+var requestTimeout = time.Second * 30
 
 func errorHandler(message string) http.Handler {
 	logger := zap.L()

@@ -8,8 +8,9 @@ message User {
   string id = 1;
   string email = 2;
   string full_name = 3;
-  google.protobuf.Timestamp created_at = 4;
-  google.protobuf.Timestamp updated_at = 5;
+  GroupRole global_role = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
 }
 
 message Session {
@@ -49,6 +50,6 @@ message PermissionResponse {
 }
 
 message PermissionRequest {
-  string group_id = 1;
-  GroupRole role = 2;
+  optional string group_id = 1; // GroupID that of permission scope. If this is left empty, then this defaults to global scoped.
+  GroupRole role = 2; // Either group role or global role to be checked.
 }

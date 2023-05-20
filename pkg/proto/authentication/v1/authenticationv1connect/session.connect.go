@@ -25,31 +25,6 @@ const (
 	SessionServiceName = "authentication.v1.SessionService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
-//
-// Note that these are different from the fully-qualified method names used by
-// google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
-// reflection-formatted method names, remove the leading slash and convert the remaining slash to a
-// period.
-const (
-	// SessionServiceCreateSessionProcedure is the fully-qualified name of the SessionService's
-	// CreateSession RPC.
-	SessionServiceCreateSessionProcedure = "/authentication.v1.SessionService/CreateSession"
-	// SessionServiceGetSessionsProcedure is the fully-qualified name of the SessionService's
-	// GetSessions RPC.
-	SessionServiceGetSessionsProcedure = "/authentication.v1.SessionService/GetSessions"
-	// SessionServiceGetSessionUserProcedure is the fully-qualified name of the SessionService's
-	// GetSessionUser RPC.
-	SessionServiceGetSessionUserProcedure = "/authentication.v1.SessionService/GetSessionUser"
-	// SessionServiceDeleteSessionProcedure is the fully-qualified name of the SessionService's
-	// DeleteSession RPC.
-	SessionServiceDeleteSessionProcedure = "/authentication.v1.SessionService/DeleteSession"
-	// SessionServiceCheckSessionPermissionsProcedure is the fully-qualified name of the
-	// SessionService's CheckSessionPermissions RPC.
-	SessionServiceCheckSessionPermissionsProcedure = "/authentication.v1.SessionService/CheckSessionPermissions"
-)
-
 // SessionServiceClient is a client for the authentication.v1.SessionService service.
 type SessionServiceClient interface {
 	CreateSession(context.Context, *connect_go.Request[v1.CreateSessionRequest]) (*connect_go.Response[v1.CreateSessionResponse], error)
@@ -71,27 +46,27 @@ func NewSessionServiceClient(httpClient connect_go.HTTPClient, baseURL string, o
 	return &sessionServiceClient{
 		createSession: connect_go.NewClient[v1.CreateSessionRequest, v1.CreateSessionResponse](
 			httpClient,
-			baseURL+SessionServiceCreateSessionProcedure,
+			baseURL+"/authentication.v1.SessionService/CreateSession",
 			opts...,
 		),
 		getSessions: connect_go.NewClient[v1.GetSessionsRequest, v1.GetSessionsResponse](
 			httpClient,
-			baseURL+SessionServiceGetSessionsProcedure,
+			baseURL+"/authentication.v1.SessionService/GetSessions",
 			opts...,
 		),
 		getSessionUser: connect_go.NewClient[v1.GetSessionUserRequest, v1.GetSessionUserResponse](
 			httpClient,
-			baseURL+SessionServiceGetSessionUserProcedure,
+			baseURL+"/authentication.v1.SessionService/GetSessionUser",
 			opts...,
 		),
 		deleteSession: connect_go.NewClient[v1.DeleteSessionRequest, v1.DeleteSessionResponse](
 			httpClient,
-			baseURL+SessionServiceDeleteSessionProcedure,
+			baseURL+"/authentication.v1.SessionService/DeleteSession",
 			opts...,
 		),
 		checkSessionPermissions: connect_go.NewClient[v1.CheckSessionPermissionsRequest, v1.CheckSessionPermissionsResponse](
 			httpClient,
-			baseURL+SessionServiceCheckSessionPermissionsProcedure,
+			baseURL+"/authentication.v1.SessionService/CheckSessionPermissions",
 			opts...,
 		),
 	}
@@ -147,28 +122,28 @@ type SessionServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewSessionServiceHandler(svc SessionServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle(SessionServiceCreateSessionProcedure, connect_go.NewUnaryHandler(
-		SessionServiceCreateSessionProcedure,
+	mux.Handle("/authentication.v1.SessionService/CreateSession", connect_go.NewUnaryHandler(
+		"/authentication.v1.SessionService/CreateSession",
 		svc.CreateSession,
 		opts...,
 	))
-	mux.Handle(SessionServiceGetSessionsProcedure, connect_go.NewUnaryHandler(
-		SessionServiceGetSessionsProcedure,
+	mux.Handle("/authentication.v1.SessionService/GetSessions", connect_go.NewUnaryHandler(
+		"/authentication.v1.SessionService/GetSessions",
 		svc.GetSessions,
 		opts...,
 	))
-	mux.Handle(SessionServiceGetSessionUserProcedure, connect_go.NewUnaryHandler(
-		SessionServiceGetSessionUserProcedure,
+	mux.Handle("/authentication.v1.SessionService/GetSessionUser", connect_go.NewUnaryHandler(
+		"/authentication.v1.SessionService/GetSessionUser",
 		svc.GetSessionUser,
 		opts...,
 	))
-	mux.Handle(SessionServiceDeleteSessionProcedure, connect_go.NewUnaryHandler(
-		SessionServiceDeleteSessionProcedure,
+	mux.Handle("/authentication.v1.SessionService/DeleteSession", connect_go.NewUnaryHandler(
+		"/authentication.v1.SessionService/DeleteSession",
 		svc.DeleteSession,
 		opts...,
 	))
-	mux.Handle(SessionServiceCheckSessionPermissionsProcedure, connect_go.NewUnaryHandler(
-		SessionServiceCheckSessionPermissionsProcedure,
+	mux.Handle("/authentication.v1.SessionService/CheckSessionPermissions", connect_go.NewUnaryHandler(
+		"/authentication.v1.SessionService/CheckSessionPermissions",
 		svc.CheckSessionPermissions,
 		opts...,
 	))

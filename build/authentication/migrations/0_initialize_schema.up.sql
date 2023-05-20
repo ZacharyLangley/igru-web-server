@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
 	email TEXT NOT NULL,
 	group_id UUID NOT NULL,
 	full_name TEXT,
+	global_role INTEGER,
 	active BOOL DEFAULT TRUE,
 	salt TEXT NOT NULL,
 	hash TEXT NOT NULL,

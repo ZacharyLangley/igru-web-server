@@ -3,6 +3,7 @@ syntax = "proto3";
 package node.v1;
 
 import "node/v1/schema.proto";
+import "common/v1/pagination.proto";
 
 service NodeService {
     rpc UpdateNode(UpdateNodeRequest) returns (UpdateNodeResponse) {}
@@ -21,19 +22,24 @@ message UpdateNodeResponse {
 }
 
 message DeleteNodeRequest {
-    string mac_address = 1;
+    optional string group_id = 1;
+    string mac_address = 2;
 }
 
 message DeleteNodeResponse {}
 
-message GetNodesRequest {}
+message GetNodesRequest {
+    common.v1.PaginationRequest pagination = 1;
+    optional string group_id = 2;
+}
 
 message GetNodesResponse {
     repeated node.v1.Node nodes = 1;
 }
 
 message GetNodeRequest {
-    string mac_address = 1;
+    optional string group_id = 1;
+    string mac_address = 2;
 }
 message GetNodeResponse {
     node.v1.Node node = 1;

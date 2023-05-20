@@ -48,8 +48,8 @@ func createGroup(cmd *cobra.Command, args []string) error {
 	})
 	resp, err := userClient.CreateGroup(ctx, req)
 	if err != nil {
-		return fmt.Errorf("Failed to add group: %w", err)
+		return fmt.Errorf("failed to add group: %w", err)
 	}
-	zap.L().Info("Created group", zap.Any("group", resp.Msg.Group))
+	zap.L().Info("created group", zap.Any("group", resp.Msg.Group))
 	return nil
 }

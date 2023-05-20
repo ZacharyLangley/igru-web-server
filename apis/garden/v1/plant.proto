@@ -36,6 +36,7 @@ message CreatePlantResponse {
 
 message DeletePlantRequest {
     string id = 1;
+    string group_id = 2;
 }
 message DeletePlantResponse {
     garden.v1.Plant plant = 1;
@@ -43,20 +44,21 @@ message DeletePlantResponse {
 
 message UpdatePlantRequest {
     string id = 1;
-    string name = 2;
-    string comment = 3;
-    string notes = 4;
-    string grow_cycle_length = 5;
-    string parentage = 6;
-    string origin = 7;
-    string gender = 8;
-    double days_flowering = 9;
-    double days_cured = 10;
-    string harvested_weight = 11;
-    double bud_density = 12;
-    bool bud_pistils = 13;
-    string tags = 14;
-    google.protobuf.Timestamp acquired_at = 15;
+    string group_id = 2;
+    string name = 3;
+    string comment = 4;
+    string notes = 5;
+    string grow_cycle_length = 6;
+    string parentage = 7;
+    string origin = 8;
+    string gender = 9;
+    double days_flowering = 10;
+    double days_cured = 11;
+    string harvested_weight = 12;
+    double bud_density = 13;
+    bool bud_pistils = 14;
+    string tags = 15;
+    google.protobuf.Timestamp acquired_at = 16;
 }
 message UpdatePlantResponse {
     garden.v1.Plant plant = 1;
@@ -71,6 +73,7 @@ message GetPlantsResponse {
 
 message GetPlantRequest {
     string id = 1;
+    string group_id = 2;
 
 }
 message GetPlantResponse {

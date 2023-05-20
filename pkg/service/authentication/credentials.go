@@ -18,6 +18,7 @@ func generateCred(password string) (string, string, error) {
 		return "", "", err
 	}
 	salt := base64.StdEncoding.EncodeToString(rawSalt)
+	//nolint:gocritic, makezero
 	digest := append(rawSalt, []byte(password)...)
 	rawHash, err := bcrypt.GenerateFromPassword(digest, 0)
 	if err != nil {
@@ -32,6 +33,7 @@ func checkHash(user models.User, password string) bool {
 	if err != nil {
 		return false
 	}
+	//nolint:gocritic
 	userDigest := append(salt, []byte(password)...)
 	hashDigest, err := base64.StdEncoding.DecodeString(user.Hash)
 	if err != nil {

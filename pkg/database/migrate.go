@@ -9,11 +9,8 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/cockroachdb"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
-	_ "github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
-	_ "github.com/jackc/pgx/v4/stdlib"
 	"go.uber.org/zap"
 )
 
@@ -68,6 +65,14 @@ func Open(ctx context.Context, cfg config.Database) (*Pool, error) {
 	return &Pool{pool}, nil
 }
 
+type recoveredTransactionError struct {
+	recovered any
+}
+
+func (r recoveredTransactionError) Error() string {
+	return fmt.Sprintf("recovered transaction panic: %#v", r.recovered)
+}
+
 func (p *Pool) RunTransaction(ctx context.Context, f func(context.Context, pgx.Tx) error) error {
 	// Acquire DB connection from pool
 	db, err := p.Acquire(ctx)
@@ -85,7 +90,7 @@ func (p *Pool) RunTransaction(ctx context.Context, f func(context.Context, pgx.T
 	func() {
 		defer func() {
 			if r := recover(); r != nil {
-				pErr = fmt.Errorf("Recovered tx: %#v", r)
+				pErr = recoveredTransactionError{recovered: r}
 			}
 		}()
 		fErr = f(ctx, tx)

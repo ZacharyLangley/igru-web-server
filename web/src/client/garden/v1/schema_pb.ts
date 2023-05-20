@@ -384,42 +384,47 @@ export class Recipe extends Message<Recipe> {
   name = "";
 
   /**
-   * @generated from field: string comment = 3;
+   * @generated from field: string group_id = 3;
+   */
+  groupId = "";
+
+  /**
+   * @generated from field: string comment = 4;
    */
   comment = "";
 
   /**
-   * @generated from field: string ingredients = 4;
+   * @generated from field: string ingredients = 5;
    */
   ingredients = "";
 
   /**
-   * @generated from field: string instructions = 5;
+   * @generated from field: string instructions = 6;
    */
   instructions = "";
 
   /**
-   * @generated from field: double ph = 6;
+   * @generated from field: double ph = 7;
    */
   ph = 0;
 
   /**
-   * @generated from field: double mix_time_milliseconds = 7;
+   * @generated from field: double mix_time_milliseconds = 8;
    */
   mixTimeMilliseconds = 0;
 
   /**
-   * @generated from field: string tags = 8;
+   * @generated from field: string tags = 9;
    */
   tags = "";
 
   /**
-   * @generated from field: google.protobuf.Timestamp created_at = 13;
+   * @generated from field: google.protobuf.Timestamp created_at = 10;
    */
   createdAt?: Timestamp;
 
   /**
-   * @generated from field: google.protobuf.Timestamp updated_at = 14;
+   * @generated from field: google.protobuf.Timestamp updated_at = 11;
    */
   updatedAt?: Timestamp;
 
@@ -433,14 +438,15 @@ export class Recipe extends Message<Recipe> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "comment", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "ingredients", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "instructions", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 6, name: "ph", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 7, name: "mix_time_milliseconds", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 8, name: "tags", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 13, name: "created_at", kind: "message", T: Timestamp },
-    { no: 14, name: "updated_at", kind: "message", T: Timestamp },
+    { no: 3, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "comment", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "ingredients", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "instructions", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "ph", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 8, name: "mix_time_milliseconds", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 9, name: "tags", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 10, name: "created_at", kind: "message", T: Timestamp },
+    { no: 11, name: "updated_at", kind: "message", T: Timestamp },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Recipe {

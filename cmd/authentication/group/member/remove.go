@@ -53,7 +53,7 @@ func removeMember(cmd *cobra.Command, args []string) error {
 	})
 	_, err := userClient.RemoveGroupMember(ctx, req)
 	if err != nil {
-		return fmt.Errorf("Failed to remove group member: %w", err)
+		return fmt.Errorf("failed to remove group member: %w", err)
 	}
 	return nil
 }

@@ -49,6 +49,7 @@ type Plant struct {
 
 type Recipe struct {
 	ID                  uuid.UUID
+	GroupID             uuid.UUID
 	Name                string
 	Comment             string
 	Ingredients         string

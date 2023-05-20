@@ -2,33 +2,35 @@ package garden
 
 import (
 	gocontext "context"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/garden"
+	authenticationv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1"
+	"github.com/ZacharyLangley/igru-web-server/pkg/service/common"
 	"github.com/bufbuild/connect-go"
-	connect_go "github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (s *Service) CreatePlant(baseCtx gocontext.Context, req *connect_go.Request[v1.CreatePlantRequest]) (*connect_go.Response[v1.CreatePlantResponse], error) {
+func (s *Service) CreatePlant(baseCtx gocontext.Context, req *connect.Request[v1.CreatePlantRequest]) (*connect.Response[v1.CreatePlantResponse], error) {
 	var err error
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.CreatePlantResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
-	}
-	allowed, err := s.checker.AssertWrite(ctx, req, req.Msg.GroupId)
-	if err != nil {
+	if err := common.CheckMessage(req); err != nil {
 		return nil, err
 	}
-	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
+	// Check write access
+	groupID, err := s.checker.AssertAny(ctx,
+		req,
+		&req.Msg.GroupId,
+		authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
+	)
+	if err != nil {
+		return nil, err
 	}
 	parentageID, err := uuid.Parse(req.Msg.Parentage)
 	var plant models.Plant
@@ -37,6 +39,7 @@ func (s *Service) CreatePlant(baseCtx gocontext.Context, req *connect_go.Request
 		// TODO: ZL | ADD AcquiredAt Data Point for when it was obtained vs when the data is made.
 		params := models.CreatePlantParams{
 			Name:            req.Msg.Name,
+			GroupID:         groupID.UUID,
 			Comment:         req.Msg.Comment,
 			Notes:           req.Msg.Notes,
 			GrowCycleLength: req.Msg.GrowCycleLength,
@@ -50,16 +53,16 @@ func (s *Service) CreatePlant(baseCtx gocontext.Context, req *connect_go.Request
 			BudPistils:      req.Msg.BudPistils,
 			Tags:            req.Msg.Tags,
 			AcquiredAt:      time.Now(),
-			CreatedAt:       time.Now(),
 		}
 		plant, err = queries.CreatePlant(ctx, params)
-		return err
+		return fmt.Errorf("failed to create plant: %w", err)
 	}); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("transaction failure: %w", err)
 	}
 	// TODO: ZL | ADD AcquiredAt Data Point for when it was obtained vs when the data is made.
 	res.Msg.Plant = &v1.Plant{
 		Id:              plant.ID.String(),
+		GroupId:         plant.GroupID.String(),
 		Name:            plant.Name,
 		Comment:         plant.Comment,
 		Notes:           plant.Notes,
@@ -79,41 +82,54 @@ func (s *Service) CreatePlant(baseCtx gocontext.Context, req *connect_go.Request
 	return res, nil
 }
 
-func (s *Service) DeletePlant(baseCtx gocontext.Context, req *connect_go.Request[v1.DeletePlantRequest]) (*connect_go.Response[v1.DeletePlantResponse], error) {
+func (s *Service) DeletePlant(baseCtx gocontext.Context, req *connect.Request[v1.DeletePlantRequest]) (*connect.Response[v1.DeletePlantResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.DeletePlantResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
+	}
+	// Check write access
+	var err error
+	groupID, err := s.checker.AssertAny(ctx,
+		req,
+		&req.Msg.GroupId,
+		authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
+	)
+	if err != nil {
+		return nil, err
 	}
 	plantID, err := uuid.Parse(req.Msg.Id)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid plant id format: %w", err))
 	}
-	groupID, err := s.resolvePlantGroupID(ctx, plantID)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid plant id: %w", err))
-	}
-	allowed, err := s.checker.AssertWrite(ctx, req, groupID.String())
-	if err != nil {
-		return nil, err
-	}
-	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
-	}
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
-		return queries.DeletePlant(ctx, plantID)
+		params := models.DeletePlantParams{
+			ID:      plantID,
+			GroupID: groupID.UUID,
+		}
+		return queries.DeletePlant(ctx, params)
 	}); err != nil {
 		return nil, err
 	}
 	return res, nil
 }
 
-func (s *Service) UpdatePlant(baseCtx gocontext.Context, req *connect_go.Request[v1.UpdatePlantRequest]) (*connect_go.Response[v1.UpdatePlantResponse], error) {
+func (s *Service) UpdatePlant(baseCtx gocontext.Context, req *connect.Request[v1.UpdatePlantRequest]) (*connect.Response[v1.UpdatePlantResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.UpdatePlantResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
+	}
+	// Check write access
+	var err error
+	groupID, err := s.checker.AssertAny(ctx,
+		req,
+		&req.Msg.GroupId,
+		authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
+	)
+	if err != nil {
+		return nil, err
 	}
 	// TODO: Create validation function
 	plantID, err := uuid.Parse(req.Msg.Id)
@@ -124,17 +140,6 @@ func (s *Service) UpdatePlant(baseCtx gocontext.Context, req *connect_go.Request
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid parentage id format: %w", err))
 	}
-	groupID, err := s.resolvePlantGroupID(ctx, plantID)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid group id: %w", err))
-	}
-	allowed, err := s.checker.AssertWrite(ctx, req, groupID.String())
-	if err != nil {
-		return nil, err
-	}
-	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
-	}
 	var plant models.Plant
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
@@ -142,6 +147,7 @@ func (s *Service) UpdatePlant(baseCtx gocontext.Context, req *connect_go.Request
 		// TODO: ZL | ADD AcquiredAt Data Point for when it was obtained vs when the data is made.
 		params := models.UpdatePlantParams{
 			ID:              plantID,
+			GroupID:         groupID.UUID,
 			Name:            req.Msg.Name,
 			Comment:         req.Msg.Comment,
 			Notes:           req.Msg.Notes,
@@ -164,6 +170,7 @@ func (s *Service) UpdatePlant(baseCtx gocontext.Context, req *connect_go.Request
 	// TODO: ZL | ADD AcquiredAt Data Point for when it was obtained vs when the data is made.
 	res.Msg.Plant = &v1.Plant{
 		Id:              plant.ID.String(),
+		GroupId:         plant.GroupID.String(),
 		Name:            plant.Name,
 		Comment:         plant.Comment,
 		Notes:           plant.Notes,
@@ -185,25 +192,28 @@ func (s *Service) UpdatePlant(baseCtx gocontext.Context, req *connect_go.Request
 	return res, nil
 }
 
-func (s *Service) GetPlants(baseCtx gocontext.Context, req *connect_go.Request[v1.GetPlantsRequest]) (*connect_go.Response[v1.GetPlantsResponse], error) {
+func (s *Service) GetPlants(baseCtx gocontext.Context, req *connect.Request[v1.GetPlantsRequest]) (*connect.Response[v1.GetPlantsResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetPlantsResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
-	}
-	allowed, err := s.checker.AssertRead(ctx, req, req.Msg.GroupId)
-	if err != nil {
+	if err := common.CheckMessage(req); err != nil {
 		return nil, err
 	}
-	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
+	// Check write access
+	groupID, err := s.checker.AssertAny(ctx,
+		req,
+		&req.Msg.GroupId,
+		authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
+		authenticationv1.GroupRole_GROUP_ROLE_READ_ONLY,
+	)
+	if err != nil {
+		return nil, err
 	}
 	// TODO: ZL | Pagination Functionality
 	var plants []models.Plant
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
 		queries := models.New(tx)
-		plants, err = queries.GetPlants(ctx)
+		plants, err = queries.GetPlants(ctx, groupID.UUID)
 		return err
 	}); err != nil {
 		return nil, err
@@ -213,6 +223,7 @@ func (s *Service) GetPlants(baseCtx gocontext.Context, req *connect_go.Request[v
 	for _, plant := range plants {
 		newPlant := v1.Plant{
 			Id:              plant.ID.String(),
+			GroupId:         plant.GroupID.String(),
 			Name:            plant.Name,
 			Comment:         plant.Comment,
 			Notes:           plant.Notes,
@@ -236,35 +247,41 @@ func (s *Service) GetPlants(baseCtx gocontext.Context, req *connect_go.Request[v
 	return res, nil
 }
 
-func (s *Service) GetPlant(baseCtx gocontext.Context, req *connect_go.Request[v1.GetPlantRequest]) (*connect_go.Response[v1.GetPlantResponse], error) {
+func (s *Service) GetPlant(baseCtx gocontext.Context, req *connect.Request[v1.GetPlantRequest]) (*connect.Response[v1.GetPlantResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetPlantResponse{})
-	if req.Msg == nil {
-		return nil, connect.NewError(connect.CodeInternal, errors.New("missing request body"))
+	if err := common.CheckMessage(req); err != nil {
+		return nil, err
 	}
 	plantID, err := uuid.Parse(req.Msg.Id)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid plant id format: %w", err))
 	}
-
+	// Check write access
+	groupID, err := s.checker.AssertAny(ctx,
+		req,
+		&req.Msg.GroupId,
+		authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
+	)
+	if err != nil {
+		return nil, err
+	}
 	var plant models.Plant
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
-		plant, err = query.GetPlant(ctx, plantID)
+		params := models.GetPlantParams{
+			ID:      plantID,
+			GroupID: groupID.UUID,
+		}
+		plant, err = query.GetPlant(ctx, params)
 		return err
 	}); err != nil {
 		return nil, err
 	}
-	allowed, err := s.checker.AssertWrite(ctx, req, plant.GroupID.String())
-	if err != nil {
-		return nil, err
-	}
-	if !allowed {
-		return nil, connect.NewError(connect.CodePermissionDenied, errors.New("access denied"))
-	}
 	// TODO: ZL | ADD AcquiredAt Data Point for when it was obtained vs when the data is made.
 	res.Msg.Plant = &v1.Plant{
 		Id:              plant.ID.String(),
+		GroupId:         plant.GroupID.String(),
 		Name:            plant.Name,
 		Comment:         plant.Comment,
 		Notes:           plant.Notes,
@@ -285,20 +302,4 @@ func (s *Service) GetPlant(baseCtx gocontext.Context, req *connect_go.Request[v1
 		res.Msg.Plant.UpdatedAt = timestamppb.New(plant.UpdatedAt.Time)
 	}
 	return res, nil
-}
-
-func (s *Service) resolvePlantGroupID(ctx context.Context, plantID uuid.UUID) (uuid.UUID, error) {
-	var groupID uuid.UUID
-	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
-		queries := models.New(tx)
-		plant, err := queries.GetPlant(ctx, plantID)
-		if err != nil {
-			return err
-		}
-		groupID = plant.GroupID
-		return nil
-	}); err != nil {
-		return uuid.UUID{}, err
-	}
-	return groupID, nil
 }

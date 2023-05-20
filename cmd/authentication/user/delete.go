@@ -8,6 +8,7 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	authenticationv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1/authenticationv1connect"
+	"github.com/ZacharyLangley/igru-web-server/pkg/service/authentication"
 	"github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
@@ -40,7 +41,9 @@ var deleteCmd = &cobra.Command{
 		for _, arg := range args {
 			_, err := uuid.Parse(arg)
 			if err != nil {
-				return fmt.Errorf("invalid user ID specified: %s", arg)
+				return authentication.InvalidUserIDError{
+					UserID: arg,
+				}
 			}
 		}
 		return nil

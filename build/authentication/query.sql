@@ -11,9 +11,9 @@ SELECT * FROM users LIMIT $1 OFFSET $2;
 
 -- name: CreateUser :one
 INSERT INTO users (
-  email, group_id, full_name, salt, hash
+  email, group_id, full_name, global_role, salt, hash
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4, $5, $6
 )
 RETURNING *;
 

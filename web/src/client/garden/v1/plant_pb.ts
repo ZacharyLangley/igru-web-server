@@ -174,6 +174,11 @@ export class DeletePlantRequest extends Message<DeletePlantRequest> {
    */
   id = "";
 
+  /**
+   * @generated from field: string group_id = 2;
+   */
+  groupId = "";
+
   constructor(data?: PartialMessage<DeletePlantRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -183,6 +188,7 @@ export class DeletePlantRequest extends Message<DeletePlantRequest> {
   static readonly typeName = "garden.v1.DeletePlantRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeletePlantRequest {
@@ -249,72 +255,77 @@ export class UpdatePlantRequest extends Message<UpdatePlantRequest> {
   id = "";
 
   /**
-   * @generated from field: string name = 2;
+   * @generated from field: string group_id = 2;
+   */
+  groupId = "";
+
+  /**
+   * @generated from field: string name = 3;
    */
   name = "";
 
   /**
-   * @generated from field: string comment = 3;
+   * @generated from field: string comment = 4;
    */
   comment = "";
 
   /**
-   * @generated from field: string notes = 4;
+   * @generated from field: string notes = 5;
    */
   notes = "";
 
   /**
-   * @generated from field: string grow_cycle_length = 5;
+   * @generated from field: string grow_cycle_length = 6;
    */
   growCycleLength = "";
 
   /**
-   * @generated from field: string parentage = 6;
+   * @generated from field: string parentage = 7;
    */
   parentage = "";
 
   /**
-   * @generated from field: string origin = 7;
+   * @generated from field: string origin = 8;
    */
   origin = "";
 
   /**
-   * @generated from field: string gender = 8;
+   * @generated from field: string gender = 9;
    */
   gender = "";
 
   /**
-   * @generated from field: double days_flowering = 9;
+   * @generated from field: double days_flowering = 10;
    */
   daysFlowering = 0;
 
   /**
-   * @generated from field: double days_cured = 10;
+   * @generated from field: double days_cured = 11;
    */
   daysCured = 0;
 
   /**
-   * @generated from field: string harvested_weight = 11;
+   * @generated from field: string harvested_weight = 12;
    */
   harvestedWeight = "";
 
   /**
-   * @generated from field: double bud_density = 12;
+   * @generated from field: double bud_density = 13;
    */
   budDensity = 0;
 
   /**
-   * @generated from field: bool bud_pistils = 13;
+   * @generated from field: bool bud_pistils = 14;
    */
   budPistils = false;
 
   /**
-   * @generated from field: string tags = 14;
+   * @generated from field: string tags = 15;
    */
   tags = "";
 
   /**
-   * @generated from field: google.protobuf.Timestamp acquired_at = 15;
+   * @generated from field: google.protobuf.Timestamp acquired_at = 16;
    */
   acquiredAt?: Timestamp;
 
@@ -327,20 +338,21 @@ export class UpdatePlantRequest extends Message<UpdatePlantRequest> {
   static readonly typeName = "garden.v1.UpdatePlantRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "comment", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "notes", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "grow_cycle_length", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 6, name: "parentage", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 7, name: "origin", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 8, name: "gender", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 9, name: "days_flowering", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 10, name: "days_cured", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 11, name: "harvested_weight", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 12, name: "bud_density", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 13, name: "bud_pistils", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
-    { no: 14, name: "tags", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 15, name: "acquired_at", kind: "message", T: Timestamp },
+    { no: 2, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "comment", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "notes", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "grow_cycle_length", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "parentage", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 8, name: "origin", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 9, name: "gender", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 10, name: "days_flowering", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 11, name: "days_cured", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 12, name: "harvested_weight", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 13, name: "bud_density", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 14, name: "bud_pistils", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 15, name: "tags", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 16, name: "acquired_at", kind: "message", T: Timestamp },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UpdatePlantRequest {
@@ -480,6 +492,11 @@ export class GetPlantRequest extends Message<GetPlantRequest> {
    */
   id = "";
 
+  /**
+   * @generated from field: string group_id = 2;
+   */
+  groupId = "";
+
   constructor(data?: PartialMessage<GetPlantRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -489,6 +506,7 @@ export class GetPlantRequest extends Message<GetPlantRequest> {
   static readonly typeName = "garden.v1.GetPlantRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetPlantRequest {

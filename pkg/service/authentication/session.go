@@ -17,6 +17,10 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+var errInactiveUser = errors.New("inactive user")
+var errInvalidPassword = errors.New("invalid password")
+var errInvalidLogin = errors.New("invalid email/password")
+
 func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[v1.CreateSessionRequest]) (*connect.Response[v1.CreateSessionResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.CreateSessionResponse{})
@@ -32,10 +36,10 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 			return err
 		}
 		if user.Active.Valid && !user.Active.Bool {
-			return errors.New("inactive user")
+			return errInactiveUser
 		}
 		if !checkHash(user, req.Msg.Password) {
-			return errors.New("invalid password")
+			return errInvalidPassword
 		}
 		sess, err = queries.CreateSession(ctx, models.CreateSessionParams{
 			UserID:    user.ID,
@@ -50,7 +54,7 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 		}
 		return err
 	}); err != nil {
-		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid email/password"))
+		return nil, connect.NewError(connect.CodeUnauthenticated, errInvalidLogin)
 	}
 	token, err := auth.EncodeToken(sess)
 	if err != nil {
@@ -70,12 +74,12 @@ func (s *Service) GetSessionUser(baseCtx gocontext.Context, req *connect.Request
 	sess, err := auth.DecodeToken(token)
 	if err != nil {
 		ctx.L().Error("Failed to verify session", zap.Error(err))
-		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("missing token"))
+		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrMissingToken)
 	}
 	now := time.Now()
 	if now.After(sess.ExpiredAt) {
 		ctx.L().Error("Token is Expired", zap.Error(err))
-		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("expired token"))
+		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrPermissionDenied)
 	}
 
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
@@ -91,7 +95,7 @@ func (s *Service) GetSessionUser(baseCtx gocontext.Context, req *connect.Request
 		}
 		return err
 	}); err != nil {
-		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid user id"))
+		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrPermissionDenied)
 	}
 
 	return res, nil
@@ -108,7 +112,7 @@ func (s *Service) GetSessions(baseCtx gocontext.Context, req *connect.Request[v1
 	sess, err := auth.DecodeToken(token)
 	if err != nil {
 		ctx.L().Error("Failed to verify session", zap.Error(err))
-		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("missing token"))
+		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrMissingToken)
 	}
 	var sessions []models.Session
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
@@ -163,11 +167,11 @@ func (s *Service) DeleteSession(baseCtx gocontext.Context, req *connect.Request[
 	sess, err := auth.DecodeToken(token)
 	if err != nil {
 		ctx.L().Error("Failed to verify session", zap.Error(err))
-		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("missing token"))
+		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrMissingToken)
 	}
 	// Only the target user ID can delete their own sessions
 	if sess.UserID != uuid.MustParse(req.Msg.UserId) {
-		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("permission denied"))
+		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrPermissionDenied)
 	}
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
@@ -196,12 +200,16 @@ func (s *Service) CheckSessionPermissions(baseCtx gocontext.Context, req *connec
 	sess, err := auth.DecodeToken(token)
 	if err != nil {
 		ctx.L().Error("Failed to verify session", zap.Error(err))
-		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("missing token"))
+		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrMissingToken)
 	}
 	res.Msg.Responses = make([]*v1.PermissionResponse, len(req.Msg.Requests))
 
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
+		user, err := queries.GetUser(ctx, sess.UserID)
+		if err != nil {
+			return err
+		}
 		rawRoles, err := queries.GetUserGroupRoles(ctx, sess.UserID)
 		if err != nil {
 			return err
@@ -211,10 +219,20 @@ func (s *Service) CheckSessionPermissions(baseCtx gocontext.Context, req *connec
 			roles[role.GroupID.String()] = v1.GroupRole(role.Role)
 		}
 		for i, permissionRequest := range req.Msg.Requests {
-			grantedRole, ok := roles[permissionRequest.GroupId]
-			res.Msg.Responses[i] = &v1.PermissionResponse{
-				Request: permissionRequest,
-				Allowed: ok && grantedRole == permissionRequest.Role,
+			if permissionRequest.GroupId != nil {
+				// Check group role
+				grantedRole, ok := roles[*permissionRequest.GroupId]
+				res.Msg.Responses[i] = &v1.PermissionResponse{
+					Request: permissionRequest,
+					Allowed: ok && grantedRole == permissionRequest.Role,
+				}
+			} else {
+				// Check global role
+				ok := user.GlobalRole.Valid
+				res.Msg.Responses[i] = &v1.PermissionResponse{
+					Request: permissionRequest,
+					Allowed: ok && v1.GroupRole(user.GlobalRole.Int32) == permissionRequest.Role,
+				}
 			}
 		}
 		return err

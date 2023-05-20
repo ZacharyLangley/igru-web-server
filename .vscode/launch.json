@@ -74,6 +74,23 @@
                 "DATABASE.USERNAME": "root",
                 "DATABASE.PORT": "26257"
             }
+        },
+        {
+            "name": "Node",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}",
+            "args":[
+                "node", "serve",
+                "--level", "debug",
+                "--config", "${workspaceFolder}/build/node/default.yml"
+            ],
+            "env": {
+                "DATABASE.HOST": "127.0.0.1",
+                "DATABASE.USERNAME": "root",
+                "DATABASE.PORT": "26257"
+            }
         }
     ]
 }

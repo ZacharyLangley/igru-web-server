@@ -1,3 +1,5 @@
+build: vet build-web
+
 vet: buf generate
 	$(BUF) lint
 	go vet ./...
@@ -12,8 +14,6 @@ generate: sqlc buf web/node_module
 
 build-web: web/node_module
 	docker build -f build/Dockerfile -t igru:latest .
-
-build: build-web
 
 test-env:
 	@echo "Creating Mock Database..."

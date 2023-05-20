@@ -14,7 +14,7 @@ WHERE owned_by = $1 LIMIT $2 OFFSET $3;
 
 -- name: GetUnadoptedNodes :many
 SELECT * FROM nodes
-WHERE owned_by IS NULL  LIMIT $2 OFFSET $3;
+WHERE owned_by IS NULL LIMIT $1 OFFSET $2;
 
 -- name: AdoptNode :one
 UPDATE nodes
@@ -48,14 +48,14 @@ RETURNING *;
 
 -- name: CreateNode :one
 INSERT INTO nodes (
-  mac_address, name, location, created_at
+  mac_address, name, created_at
 ) VALUES (
-  $1, $2, $3, CURRENT_TIMESTAMP
+  $1, $2, CURRENT_TIMESTAMP
 )
 RETURNING *;
 
 -- name: AddNodeSensor :one
-INSERT INTO nodes (
+INSERT INTO sensors (
   node_id, name, model, category
 ) VALUES (
   $1, $2, $3, $4

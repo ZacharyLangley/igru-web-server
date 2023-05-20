@@ -17,32 +17,37 @@ export class CreateRecipeRequest extends Message<CreateRecipeRequest> {
   name = "";
 
   /**
-   * @generated from field: string comment = 2;
+   * @generated from field: string group_id = 2;
+   */
+  groupId = "";
+
+  /**
+   * @generated from field: string comment = 3;
    */
   comment = "";
 
   /**
-   * @generated from field: string ingredients = 3;
+   * @generated from field: string ingredients = 4;
    */
   ingredients = "";
 
   /**
-   * @generated from field: string instructions = 4;
+   * @generated from field: string instructions = 5;
    */
   instructions = "";
 
   /**
-   * @generated from field: double ph = 5;
+   * @generated from field: double ph = 6;
    */
   ph = 0;
 
   /**
-   * @generated from field: double mix_time_milliseconds = 6;
+   * @generated from field: double mix_time_milliseconds = 7;
    */
   mixTimeMilliseconds = 0;
 
   /**
-   * @generated from field: string tags = 7;
+   * @generated from field: string tags = 8;
    */
   tags = "";
 
@@ -55,12 +60,13 @@ export class CreateRecipeRequest extends Message<CreateRecipeRequest> {
   static readonly typeName = "garden.v1.CreateRecipeRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "comment", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "ingredients", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "instructions", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "ph", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 6, name: "mix_time_milliseconds", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 7, name: "tags", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "comment", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "ingredients", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "instructions", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "ph", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 7, name: "mix_time_milliseconds", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 8, name: "tags", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreateRecipeRequest {
@@ -126,6 +132,11 @@ export class DeleteRecipeRequest extends Message<DeleteRecipeRequest> {
    */
   id = "";
 
+  /**
+   * @generated from field: string group_id = 2;
+   */
+  groupId = "";
+
   constructor(data?: PartialMessage<DeleteRecipeRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -135,6 +146,7 @@ export class DeleteRecipeRequest extends Message<DeleteRecipeRequest> {
   static readonly typeName = "garden.v1.DeleteRecipeRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeleteRecipeRequest {
@@ -201,37 +213,42 @@ export class UpdateRecipeRequest extends Message<UpdateRecipeRequest> {
   id = "";
 
   /**
-   * @generated from field: string name = 2;
+   * @generated from field: string group_id = 2;
+   */
+  groupId = "";
+
+  /**
+   * @generated from field: string name = 3;
    */
   name = "";
 
   /**
-   * @generated from field: string comment = 3;
+   * @generated from field: string comment = 4;
    */
   comment = "";
 
   /**
-   * @generated from field: string ingredients = 4;
+   * @generated from field: string ingredients = 5;
    */
   ingredients = "";
 
   /**
-   * @generated from field: string instructions = 5;
+   * @generated from field: string instructions = 6;
    */
   instructions = "";
 
   /**
-   * @generated from field: double ph = 6;
+   * @generated from field: double ph = 7;
    */
   ph = 0;
 
   /**
-   * @generated from field: double mix_time_milliseconds = 7;
+   * @generated from field: double mix_time_milliseconds = 8;
    */
   mixTimeMilliseconds = 0;
 
   /**
-   * @generated from field: string tags = 8;
+   * @generated from field: string tags = 9;
    */
   tags = "";
 
@@ -244,13 +261,14 @@ export class UpdateRecipeRequest extends Message<UpdateRecipeRequest> {
   static readonly typeName = "garden.v1.UpdateRecipeRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "comment", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "ingredients", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "instructions", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 6, name: "ph", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 7, name: "mix_time_milliseconds", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 8, name: "tags", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "comment", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "ingredients", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "instructions", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "ph", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 8, name: "mix_time_milliseconds", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 9, name: "tags", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UpdateRecipeRequest {
@@ -311,6 +329,11 @@ export class UpdateRecipeResponse extends Message<UpdateRecipeResponse> {
  * @generated from message garden.v1.GetRecipesRequest
  */
 export class GetRecipesRequest extends Message<GetRecipesRequest> {
+  /**
+   * @generated from field: string group_id = 1;
+   */
+  groupId = "";
+
   constructor(data?: PartialMessage<GetRecipesRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -319,6 +342,7 @@ export class GetRecipesRequest extends Message<GetRecipesRequest> {
   static readonly runtime = proto3;
   static readonly typeName = "garden.v1.GetRecipesRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetRecipesRequest {
@@ -384,6 +408,11 @@ export class GetRecipeRequest extends Message<GetRecipeRequest> {
    */
   id = "";
 
+  /**
+   * @generated from field: string group_id = 2;
+   */
+  groupId = "";
+
   constructor(data?: PartialMessage<GetRecipeRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -393,6 +422,7 @@ export class GetRecipeRequest extends Message<GetRecipeRequest> {
   static readonly typeName = "garden.v1.GetRecipeRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "group_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetRecipeRequest {
