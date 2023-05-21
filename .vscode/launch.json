@@ -13,7 +13,7 @@
             "args":[
                 "ingress", "serve",
                 "--level", "debug",
-                "--config", "${workspaceFolder}/build/ingress/local.yml"
+                "--config", "${workspaceFolder}/build/ingress/default.yml"
             ],
             "env": {
                 "CLIENTS.AUTHENTICATION.ADDRESS": "http://127.0.0.1:8081",

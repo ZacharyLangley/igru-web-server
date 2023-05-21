@@ -13,12 +13,14 @@ import (
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/config"
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
+	"github.com/ZacharyLangley/igru-web-server/pkg/middleware"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1/authenticationv1connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1/gardenv1connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/node/v1/nodev1connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proxy"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	"go.uber.org/zap"
 )
 
@@ -58,9 +60,8 @@ func runServer(cmd *cobra.Command, args []string) error {
 	// Create and populate Mux
 	zap.L().Info("Setting up router")
 	r := mux.NewRouter()
-	r.MethodNotAllowedHandler = errorHandler("method not fucking allowed")
-	r.NotFoundHandler = errorHandler("not fucking found")
-	r.Use(loggingMiddleware)
+	r.Use(otelmux.Middleware("ingress"))
+	r.Use(middleware.HTTPLoggingMiddleware)
 	// Attach services
 	if err := proxy.RegisterProxy(r, cfg.Clients.Authentication, authenticationv1connect.UserServiceName); err != nil {
 		return fmt.Errorf("failed to register authentication proxy: %w", err)
@@ -126,24 +127,3 @@ func runServer(cmd *cobra.Command, args []string) error {
 }
 
 var requestTimeout = time.Second * 30
-
-func errorHandler(message string) http.Handler {
-	logger := zap.L()
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Do stuff here
-		logger.Debug(message,
-			zap.String("requestURI", r.RequestURI))
-	})
-}
-
-func loggingMiddleware(next http.Handler) http.Handler {
-	logger := zap.L()
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Do stuff here
-		logger.Debug("processing request",
-			zap.String("requestURI", r.RequestURI))
-		// Call the next handler, which can be another middleware in the chain, or the final handler.
-		next.ServeHTTP(w, r)
-		logger.Debug("processed request")
-	})
-}

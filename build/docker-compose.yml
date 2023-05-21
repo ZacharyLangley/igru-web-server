@@ -132,7 +132,7 @@ services:
     ports:
       - "80:80"
     environment:
-      METRICS.OTLPGRPCADDRESS: olm-otel-collector:14268
+      METRICS.OTLPGRPCADDRESS: olm-otel-collector:4317
     depends_on:
       garden:
         condition: service_healthy
