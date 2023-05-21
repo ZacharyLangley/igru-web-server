@@ -26,10 +26,15 @@ func logRequest() connect.UnaryInterceptorFunc {
 			).WithTrace()
 			res, err := next(ctx, req)
 			if err != nil {
-				cErr := &connect.Error{}
+				var cErr *connect.Error
 				ok := errors.As(err, &cErr)
 				if ok {
-					ctx.L().Error("fail processing request", zap.Error(cErr))
+					ctx.L().Error("failed processing request",
+						zap.Error(cErr),
+						zap.Int("status_code", int(cErr.Code())),
+						zap.String("status", cErr.Code().String()),
+						zap.String("error_message", cErr.Message()),
+					)
 				}
 			}
 			return res, err

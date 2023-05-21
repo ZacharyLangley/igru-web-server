@@ -66,6 +66,16 @@ func (c Core) start(ctx context.Context, client collpb.LogsServiceClient, buffer
 					},
 				},
 			})
+			for _, l := range logs {
+				if l.TraceId != nil {
+					if l.SpanId != nil {
+						log.Print("TraceID", string(l.TraceId), "SpanID", string(l.SpanId), l.Body.GetStringValue())
+					} else {
+						log.Print("TraceID", string(l.TraceId), l.Body.GetStringValue())
+					}
+				}
+				log.Print(l.Body.GetStringValue())
+			}
 			if err != nil {
 				log.Printf("Failed to send logs: %#v %#v", resp, err)
 			}
@@ -136,6 +146,10 @@ func (c Core) Write(ent zapcore.Entry, fields []zapcore.Field) error {
 			case zapcore.Uint64Type:
 				value.Value = &v1.AnyValue_IntValue{
 					IntValue: field.Integer,
+				}
+			case zapcore.ErrorType:
+				value.Value = &v1.AnyValue_StringValue{
+					StringValue: field.String,
 				}
 			default:
 				value.Value = &v1.AnyValue_StringValue{
