@@ -71,7 +71,6 @@ services:
   db:
     image: cockroachdb/cockroach:v22.2.8
     ports:
-      - "8080:8080"
       - "26257:26257"
     command:
       - "start-single-node"

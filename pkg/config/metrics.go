@@ -63,8 +63,9 @@ func tracerProvider(serviceName, url string) (*sdktrace.TracerProvider, error) {
 		panic(err)
 	}
 	meterProvider := metric.NewMeterProvider(metric.WithReader(metric.NewPeriodicReader(exp)))
-	core := otlplogs.NewOTELCore(context.Background(), conn, otlplogs.WithResource(res))
-	core.Level = zap.L().Level()
+	otelCore := otlplogs.NewOTELCore(context.Background(), conn, otlplogs.WithResource(res))
+	otelCore.Level = zap.L().Level()
+	core := NewZapFork(otelCore, zap.L().Core())
 	logger := zap.New(core)
 	zap.ReplaceGlobals(logger)
 	// Register the trace exporter with a TracerProvider, using a batch

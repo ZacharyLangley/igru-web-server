@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
+	"go.opentelemetry.io/otel/propagation"
 	"go.uber.org/zap"
 )
 
@@ -25,8 +26,17 @@ func HTTPLoggingMiddleware(next http.Handler) http.Handler {
 func HTTPErrorHandler(message string) http.Handler {
 	logger := zap.L()
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Do stuff here
 		logger.Debug(message,
 			zap.String("request_uri", r.RequestURI))
+	})
+}
+
+func HTTPInjectSpan(next http.Handler) http.Handler {
+	prop := propagation.TraceContext{}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		carrier := propagation.HeaderCarrier(r.Header)
+		prop.Inject(ctx, carrier)
+		next.ServeHTTP(w, r)
 	})
 }

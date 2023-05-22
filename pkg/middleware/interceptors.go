@@ -7,12 +7,16 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
 	"github.com/bufbuild/connect-go"
 	otelconnect "github.com/bufbuild/connect-opentelemetry-go"
+	"go.opentelemetry.io/otel/propagation"
 	"go.uber.org/zap"
 )
 
 func Interceptors(serviceName string) []connect.Interceptor {
 	return []connect.Interceptor{
-		otelconnect.NewInterceptor(),
+		otelconnect.NewInterceptor(
+			otelconnect.WithTrustRemote(),
+			otelconnect.WithPropagator(propagation.TraceContext{}),
+		),
 		logRequest(),
 	}
 }

@@ -29,6 +29,7 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 	if err := validateCreateSessionRequest(req.Msg); err != nil {
 		return nil, err
 	}
+	ctx.AddStringAttribute("email", req.Msg.Email)
 	var sess models.Session
 	now := time.Now()
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {

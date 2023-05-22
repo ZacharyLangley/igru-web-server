@@ -60,31 +60,33 @@ func runServer(cmd *cobra.Command, args []string) error {
 	// Create and populate Mux
 	zap.L().Info("Setting up router")
 	r := mux.NewRouter()
-	r.Use(otelmux.Middleware("ingress"))
-	r.Use(middleware.HTTPLoggingMiddleware)
+	apiRouter := r.NewRoute().Subrouter()
+	apiRouter.Use(otelmux.Middleware("ingress"))
+	apiRouter.Use(middleware.HTTPLoggingMiddleware)
+	apiRouter.Use(middleware.HTTPInjectSpan)
 	// Attach services
-	if err := proxy.RegisterProxy(r, cfg.Clients.Authentication, authenticationv1connect.UserServiceName); err != nil {
+	if err := proxy.RegisterProxy(apiRouter, cfg.Clients.Authentication, authenticationv1connect.UserServiceName); err != nil {
 		return fmt.Errorf("failed to register authentication proxy: %w", err)
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Authentication, authenticationv1connect.GroupServiceName); err != nil {
+	if err := proxy.RegisterProxy(apiRouter, cfg.Clients.Authentication, authenticationv1connect.GroupServiceName); err != nil {
 		return fmt.Errorf("failed to register authentication proxy: %w", err)
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Authentication, authenticationv1connect.SessionServiceName); err != nil {
+	if err := proxy.RegisterProxy(apiRouter, cfg.Clients.Authentication, authenticationv1connect.SessionServiceName); err != nil {
 		return fmt.Errorf("failed to register authentication proxy: %w", err)
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.GardenServiceName); err != nil {
+	if err := proxy.RegisterProxy(apiRouter, cfg.Clients.Garden, gardenv1connect.GardenServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy: %w", err)
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.PlantServiceName); err != nil {
+	if err := proxy.RegisterProxy(apiRouter, cfg.Clients.Garden, gardenv1connect.PlantServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy: %w", err)
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.StrainServiceName); err != nil {
+	if err := proxy.RegisterProxy(apiRouter, cfg.Clients.Garden, gardenv1connect.StrainServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy: %w", err)
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.RecipeServiceName); err != nil {
+	if err := proxy.RegisterProxy(apiRouter, cfg.Clients.Garden, gardenv1connect.RecipeServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy: %w", err)
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Node, nodev1connect.NodeServiceName); err != nil {
+	if err := proxy.RegisterProxy(apiRouter, cfg.Clients.Node, nodev1connect.NodeServiceName); err != nil {
 		return fmt.Errorf("failed to register node proxy: %w", err)
 	}
 
