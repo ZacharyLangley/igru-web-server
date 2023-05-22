@@ -100,22 +100,28 @@ func (c Core) Write(ent zapcore.Entry, fields []zapcore.Field) error {
 		},
 	}
 	for _, field := range append(c.additionalFields, fields...) {
-		if field.Key == SpanIDFieldName {
+		switch field.Key {
+		case SpanIDFieldName:
+			//nolint: forcetypeassert
 			record.SpanId = field.Interface.([]byte)
-		} else if field.Key == TraceIDFieldName {
+		case TraceIDFieldName:
+			//nolint: forcetypeassert
 			record.TraceId = field.Interface.([]byte)
-		} else {
+		default:
 			var value v1.AnyValue
 			switch field.Type {
 			case zapcore.BoolType:
+				//nolint: forcetypeassert
 				value.Value = &v1.AnyValue_BoolValue{
 					BoolValue: field.Interface.(bool),
 				}
 			case zapcore.Float32Type:
+				//nolint: forcetypeassert
 				value.Value = &v1.AnyValue_DoubleValue{
 					DoubleValue: float64(field.Interface.(float32)),
 				}
 			case zapcore.Float64Type:
+				//nolint: forcetypeassert
 				value.Value = &v1.AnyValue_DoubleValue{
 					DoubleValue: field.Interface.(float64),
 				}
@@ -168,11 +174,20 @@ func (c Core) Write(ent zapcore.Entry, fields []zapcore.Field) error {
 	case zapcore.WarnLevel:
 		record.SeverityNumber = lpb.SeverityNumber_SEVERITY_NUMBER_WARN
 	default:
-		return fmt.Errorf("invalid severity level: %s", ent.Level)
+		return invalidSecurityLevelError{ent.Level}
 	}
 	c.inputBuffer <- &record
 	return nil
 }
+
+type invalidSecurityLevelError struct {
+	Level zapcore.Level
+}
+
+func (i invalidSecurityLevelError) Error() string {
+	return fmt.Sprintf("invalid severity level: %s", i.Level)
+}
+
 func (c Core) Sync() error {
 	c.syncChan <- struct{}{}
 	return nil
@@ -182,14 +197,8 @@ func (c *Core) clone() *Core {
 	return &Core{
 		Level:            c.Level,
 		resource:         c.resource,
-		additionalFields: c.additionalFields[:],
+		additionalFields: c.additionalFields,
 		syncChan:         c.syncChan,
 		inputBuffer:      c.inputBuffer,
-	}
-}
-
-func addFields(enc zapcore.ObjectEncoder, fields []zapcore.Field) {
-	for i := range fields {
-		fields[i].AddTo(enc)
 	}
 }
