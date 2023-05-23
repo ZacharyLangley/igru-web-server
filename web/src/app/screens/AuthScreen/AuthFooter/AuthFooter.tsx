@@ -1,6 +1,6 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
-import PrimaryButton from '../../../../common/components/Button/PrimaryButton/PrimaryButton';
+import Button from '../../../../common/components/Button/Button';
 
 import './styles.scss';
 
@@ -32,7 +32,7 @@ const AuthFooter: React.FC<AuthFooterProps> = ({
         </Link>
       </div>
       <div className={'footer-button-container'}>
-        <PrimaryButton title={buttonTitle} onClick={onButtonClick} disable={disableButton} />
+        <Button title={buttonTitle} onClick={onButtonClick} disable={disableButton} />
       </div>
     </div>
   );

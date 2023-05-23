@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button} from 'reactstrap';
+import {Button as RSButton} from 'reactstrap';
 
 import './styles.scss';
 
@@ -7,20 +7,22 @@ interface PrimaryButtonProps {
   testID?: string;
   title?: string;
   onClick?: () => void;
+  color?: string;
   disable?: boolean;
 }
 
-const PrimaryButton: React.FC<PrimaryButtonProps> = ({
+const Button: React.FC<PrimaryButtonProps> = ({
   testID = 'primary-button',
   title,
+  color = 'primary',
   onClick,
   disable,
 }) => {
   return (
-    <Button id={testID} color={'primary'} size={'sm'} block onClick={onClick} disabled={disable}>
+    <RSButton id={testID} color={color} size={'sm'} block onClick={onClick} disabled={disable}>
       {title}
-    </Button>
+    </RSButton>
   );
 };
 
-export default PrimaryButton;
+export default Button;
