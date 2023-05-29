@@ -50,6 +50,61 @@ const GardenForm: React.FC<GardenFormProps> = ({formData, onChange}) => {
                         />
                         <Label for={'location'}>{'Location'}</Label>
                 </FormGroup>
+                <FormGroup floating>
+                    <Input
+                        id={'growType'}
+                        name={'growType'}
+                        type={'text'}
+                        value={formData.growType}
+                        placeholder={''}
+                        onChange={onFieldChange}
+                        />
+                        <Label for={'growType'}>{'Grow Type'}</Label>
+                </FormGroup>
+                <FormGroup floating>
+                    <Input
+                        id={'growType'}
+                        name={'growType'}
+                        type={'text'}
+                        value={formData.growType}
+                        placeholder={''}
+                        onChange={onFieldChange}
+                        />
+                        <Label for={'growType'}>{'Grow Type'}</Label>
+                </FormGroup>
+                <FormGroup floating>
+                    <Input
+                        id={'growSize'}
+                        name={'growSize'}
+                        type={'text'}
+                        value={formData.growSize}
+                        placeholder={''}
+                        onChange={onFieldChange}
+                        />
+                        <Label for={'growSize'}>{'Grow Size'}</Label>
+                </FormGroup>
+                <FormGroup floating>
+                    <Input
+                        id={'containerSize'}
+                        name={'containerSize'}
+                        type={'text'}
+                        value={formData.containerSize}
+                        placeholder={''}
+                        onChange={onFieldChange}
+                        />
+                        <Label for={'containerSize'}>{'Container Size'}</Label>
+                </FormGroup>
+                <FormGroup floating>
+                    <Input
+                        id={'tags'}
+                        name={'tags'}
+                        type={'text'}
+                        value={formData.tags}
+                        placeholder={''}
+                        onChange={onFieldChange}
+                        />
+                        <Label for={'tags'}>{'Tags'}</Label>
+                </FormGroup>
             </Form>
         </div>
     );

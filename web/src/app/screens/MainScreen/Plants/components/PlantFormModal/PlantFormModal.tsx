@@ -1,25 +1,30 @@
 import React, { useState } from 'react';
 import { Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import Button from '../../../../../../common/components/Button/Button';
-import GardenForm from '../GardenForm/GardenForm';
+import PlantForm from '../PlantForm/PlantForm';
 import './styles.scss';
 
-interface GardenFormModalProps {
+interface PlantFormModalProps {
     isOpen?: boolean;
     toggle?: () => void;
 }
 
 
-const GardenFormModal: React.FC<GardenFormModalProps> = ({isOpen = false, toggle}) => {
+const PlantFormModal: React.FC<PlantFormModalProps> = ({isOpen = false, toggle}) => {
     const [formData, setFormData] = useState({
-        name:          undefined,
-		comment:       'Garden Mock Comment',
-		location:      'OUTSIDE',
-		growType:      'SOILLESS',
-		growSize:      '{\'value\':\'7.15\',\'metric\':\'sq. ft.\'}',
-		growStyle:     'HYDROPONIC',
-		containerSize: '{\'value\':\'7.15\',\'metric\':\'sq. ft.\'}',
-		tags:          '[\'Tag A\', \'Tag B\']',
+        name: undefined,
+        comment: 'Mock Plant Comment',
+        notes: 'Mock Plant Notes',
+		growCycleLength: '{\'value\':\'28\',\'metric\':\'days\'}',
+		parentage: 'Mock Parent Strain',
+		origin: 'Clone',
+		gender: 'Feminized',
+		daysFlowering: 2.4,
+		daysCured: 1.2,
+		harvestedWeight: '{\'value\':\'1.05\',\'metric\':\'lbs.\'}',
+		budDensity: 0.7,
+		budPistils: false,
+		tags: '[\'Tag A\', \'Tag B\']',
     });
 
     const updateFormData = (key: string, value: number | string) => {
@@ -39,9 +44,9 @@ const GardenFormModal: React.FC<GardenFormModalProps> = ({isOpen = false, toggle
 
     return (
         <Modal isOpen={true} toggle={toggle}>
-            <ModalHeader toggle={toggle}>{'Add Garden'}</ModalHeader>
+            <ModalHeader toggle={toggle}>{'Add Plant'}</ModalHeader>
             <ModalBody>
-                <GardenForm formData={formData} onChange={updateFormData}/>
+                <PlantForm formData={formData} onChange={updateFormData}/>
             </ModalBody>
             <ModalFooter>
                 <div className='modal-actions'>
@@ -54,4 +59,4 @@ const GardenFormModal: React.FC<GardenFormModalProps> = ({isOpen = false, toggle
     );
 }
 
-export default GardenFormModal;
+export default PlantFormModal;

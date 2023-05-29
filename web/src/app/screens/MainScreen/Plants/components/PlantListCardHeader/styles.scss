@@ -1,0 +1,17 @@
+.plant-list-card-header {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    height: 32px;
+    margin-bottom: 16px;
+    align-items: center;
+
+    .header-title {
+        flex: 1;
+        font-size: 18px;
+        font-weight: 500;
+    }    
+    .header-actions {
+        flex: 1;
+    }
+}
