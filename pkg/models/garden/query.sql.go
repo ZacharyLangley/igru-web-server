@@ -7,9 +7,8 @@ package garden
 
 import (
 	"context"
-	"time"
 
-	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createGarden = `-- name: CreateGarden :one
@@ -23,7 +22,7 @@ RETURNING id, group_id, name, comment, location, grow_type, grow_size, grow_styl
 
 type CreateGardenParams struct {
 	Name          string
-	GroupID       uuid.UUID
+	GroupID       pgtype.UUID
 	Comment       string
 	Location      string
 	GrowType      string
@@ -31,7 +30,7 @@ type CreateGardenParams struct {
 	GrowStyle     string
 	ContainerSize string
 	Tags          string
-	CreatedAt     time.Time
+	CreatedAt     pgtype.Timestamp
 }
 
 func (q *Queries) CreateGarden(ctx context.Context, arg CreateGardenParams) (Garden, error) {
@@ -76,11 +75,11 @@ RETURNING id, group_id, name, comment, notes, grow_cycle_length, parentage, orig
 
 type CreatePlantParams struct {
 	Name            string
-	GroupID         uuid.UUID
+	GroupID         pgtype.UUID
 	Comment         string
 	Notes           string
 	GrowCycleLength string
-	Parentage       uuid.UUID
+	Parentage       pgtype.UUID
 	Origin          string
 	Gender          string
 	DaysFlowering   float64
@@ -89,7 +88,7 @@ type CreatePlantParams struct {
 	BudDensity      float64
 	BudPistils      bool
 	Tags            string
-	AcquiredAt      time.Time
+	AcquiredAt      pgtype.Timestamp
 }
 
 func (q *Queries) CreatePlant(ctx context.Context, arg CreatePlantParams) (Plant, error) {
@@ -145,14 +144,14 @@ RETURNING id, group_id, name, comment, ingredients, instructions, ph, mix_time_m
 
 type CreateRecipeParams struct {
 	Name                string
-	GroupID             uuid.UUID
+	GroupID             pgtype.UUID
 	Comment             string
 	Ingredients         string
 	Instructions        string
 	Ph                  float64
 	MixTimeMilliseconds float64
 	Tags                string
-	CreatedAt           time.Time
+	CreatedAt           pgtype.Timestamp
 }
 
 func (q *Queries) CreateRecipe(ctx context.Context, arg CreateRecipeParams) (Recipe, error) {
@@ -195,18 +194,18 @@ RETURNING id, group_id, name, comment, notes, type, price, thc_percent, cbd_perc
 
 type CreateStrainParams struct {
 	Name       string
-	GroupID    uuid.UUID
+	GroupID    pgtype.UUID
 	Comment    string
 	Notes      string
 	Type       string
 	Price      float64
 	ThcPercent float64
 	CbdPercent float64
-	Parentage  uuid.UUID
+	Parentage  pgtype.UUID
 	Aroma      string
 	Taste      string
 	Tags       string
-	CreatedAt  time.Time
+	CreatedAt  pgtype.Timestamp
 }
 
 func (q *Queries) CreateStrain(ctx context.Context, arg CreateStrainParams) (Strain, error) {
@@ -252,8 +251,8 @@ WHERE id = $1 AND group_id = $2
 `
 
 type DeleteGardenParams struct {
-	ID      uuid.UUID
-	GroupID uuid.UUID
+	ID      pgtype.UUID
+	GroupID pgtype.UUID
 }
 
 func (q *Queries) DeleteGarden(ctx context.Context, arg DeleteGardenParams) error {
@@ -267,8 +266,8 @@ WHERE id = $1 AND group_id = $2
 `
 
 type DeletePlantParams struct {
-	ID      uuid.UUID
-	GroupID uuid.UUID
+	ID      pgtype.UUID
+	GroupID pgtype.UUID
 }
 
 func (q *Queries) DeletePlant(ctx context.Context, arg DeletePlantParams) error {
@@ -282,8 +281,8 @@ WHERE id = $1 AND group_id = $2
 `
 
 type DeleteRecipeParams struct {
-	ID      uuid.UUID
-	GroupID uuid.UUID
+	ID      pgtype.UUID
+	GroupID pgtype.UUID
 }
 
 func (q *Queries) DeleteRecipe(ctx context.Context, arg DeleteRecipeParams) error {
@@ -297,8 +296,8 @@ WHERE id = $1 AND group_id = $2
 `
 
 type DeleteStrainParams struct {
-	ID      uuid.UUID
-	GroupID uuid.UUID
+	ID      pgtype.UUID
+	GroupID pgtype.UUID
 }
 
 func (q *Queries) DeleteStrain(ctx context.Context, arg DeleteStrainParams) error {
@@ -312,8 +311,8 @@ WHERE id = $1 AND group_id = $2 LIMIT 1
 `
 
 type GetGardenParams struct {
-	ID      uuid.UUID
-	GroupID uuid.UUID
+	ID      pgtype.UUID
+	GroupID pgtype.UUID
 }
 
 func (q *Queries) GetGarden(ctx context.Context, arg GetGardenParams) (Garden, error) {
@@ -341,7 +340,7 @@ SELECT id, group_id, name, comment, location, grow_type, grow_size, grow_style, 
 WHERE group_id = $1
 `
 
-func (q *Queries) GetGardens(ctx context.Context, groupID uuid.UUID) ([]Garden, error) {
+func (q *Queries) GetGardens(ctx context.Context, groupID pgtype.UUID) ([]Garden, error) {
 	rows, err := q.db.Query(ctx, getGardens, groupID)
 	if err != nil {
 		return nil, err
@@ -380,8 +379,8 @@ WHERE id = $1 AND group_id = $2 LIMIT 1
 `
 
 type GetPlantParams struct {
-	ID      uuid.UUID
-	GroupID uuid.UUID
+	ID      pgtype.UUID
+	GroupID pgtype.UUID
 }
 
 func (q *Queries) GetPlant(ctx context.Context, arg GetPlantParams) (Plant, error) {
@@ -415,7 +414,7 @@ SELECT id, group_id, name, comment, notes, grow_cycle_length, parentage, origin,
 WHERE group_id = $1
 `
 
-func (q *Queries) GetPlants(ctx context.Context, groupID uuid.UUID) ([]Plant, error) {
+func (q *Queries) GetPlants(ctx context.Context, groupID pgtype.UUID) ([]Plant, error) {
 	rows, err := q.db.Query(ctx, getPlants, groupID)
 	if err != nil {
 		return nil, err
@@ -460,8 +459,8 @@ WHERE id = $1 AND group_id = $2 LIMIT 1
 `
 
 type GetRecipeParams struct {
-	ID      uuid.UUID
-	GroupID uuid.UUID
+	ID      pgtype.UUID
+	GroupID pgtype.UUID
 }
 
 func (q *Queries) GetRecipe(ctx context.Context, arg GetRecipeParams) (Recipe, error) {
@@ -488,7 +487,7 @@ SELECT id, group_id, name, comment, ingredients, instructions, ph, mix_time_mill
 WHERE group_id = $1
 `
 
-func (q *Queries) GetRecipes(ctx context.Context, groupID uuid.UUID) ([]Recipe, error) {
+func (q *Queries) GetRecipes(ctx context.Context, groupID pgtype.UUID) ([]Recipe, error) {
 	rows, err := q.db.Query(ctx, getRecipes, groupID)
 	if err != nil {
 		return nil, err
@@ -526,8 +525,8 @@ WHERE id = $1 AND group_id = $2 LIMIT 1
 `
 
 type GetStrainParams struct {
-	ID      uuid.UUID
-	GroupID uuid.UUID
+	ID      pgtype.UUID
+	GroupID pgtype.UUID
 }
 
 func (q *Queries) GetStrain(ctx context.Context, arg GetStrainParams) (Strain, error) {
@@ -558,7 +557,7 @@ SELECT id, group_id, name, comment, notes, type, price, thc_percent, cbd_percent
 WHERE group_id = $1
 `
 
-func (q *Queries) GetStrains(ctx context.Context, groupID uuid.UUID) ([]Strain, error) {
+func (q *Queries) GetStrains(ctx context.Context, groupID pgtype.UUID) ([]Strain, error) {
 	rows, err := q.db.Query(ctx, getStrains, groupID)
 	if err != nil {
 		return nil, err
@@ -602,8 +601,8 @@ RETURNING id, group_id, name, comment, location, grow_type, grow_size, grow_styl
 `
 
 type UpdateGardenParams struct {
-	ID            uuid.UUID
-	GroupID       uuid.UUID
+	ID            pgtype.UUID
+	GroupID       pgtype.UUID
 	Name          string
 	Comment       string
 	Location      string
@@ -612,7 +611,7 @@ type UpdateGardenParams struct {
 	GrowStyle     string
 	ContainerSize string
 	Tags          string
-	CreatedAt     time.Time
+	CreatedAt     pgtype.Timestamp
 }
 
 func (q *Queries) UpdateGarden(ctx context.Context, arg UpdateGardenParams) (Garden, error) {
@@ -655,13 +654,13 @@ RETURNING id, group_id, name, comment, notes, grow_cycle_length, parentage, orig
 `
 
 type UpdatePlantParams struct {
-	ID              uuid.UUID
-	GroupID         uuid.UUID
+	ID              pgtype.UUID
+	GroupID         pgtype.UUID
 	Name            string
 	Comment         string
 	Notes           string
 	GrowCycleLength string
-	Parentage       uuid.UUID
+	Parentage       pgtype.UUID
 	Origin          string
 	Gender          string
 	DaysFlowering   float64
@@ -670,7 +669,7 @@ type UpdatePlantParams struct {
 	BudDensity      float64
 	BudPistils      bool
 	Tags            string
-	AcquiredAt      time.Time
+	AcquiredAt      pgtype.Timestamp
 }
 
 func (q *Queries) UpdatePlant(ctx context.Context, arg UpdatePlantParams) (Plant, error) {
@@ -724,8 +723,8 @@ RETURNING id, group_id, name, comment, ingredients, instructions, ph, mix_time_m
 `
 
 type UpdateRecipeParams struct {
-	ID                  uuid.UUID
-	GroupID             uuid.UUID
+	ID                  pgtype.UUID
+	GroupID             pgtype.UUID
 	Name                string
 	Comment             string
 	Ingredients         string
@@ -733,7 +732,7 @@ type UpdateRecipeParams struct {
 	Ph                  float64
 	MixTimeMilliseconds float64
 	Tags                string
-	CreatedAt           time.Time
+	CreatedAt           pgtype.Timestamp
 }
 
 func (q *Queries) UpdateRecipe(ctx context.Context, arg UpdateRecipeParams) (Recipe, error) {
@@ -774,8 +773,8 @@ RETURNING id, group_id, name, comment, notes, type, price, thc_percent, cbd_perc
 `
 
 type UpdateStrainParams struct {
-	ID         uuid.UUID
-	GroupID    uuid.UUID
+	ID         pgtype.UUID
+	GroupID    pgtype.UUID
 	Name       string
 	Comment    string
 	Notes      string
@@ -783,11 +782,11 @@ type UpdateStrainParams struct {
 	Price      float64
 	ThcPercent float64
 	CbdPercent float64
-	Parentage  uuid.UUID
+	Parentage  pgtype.UUID
 	Aroma      string
 	Taste      string
 	Tags       string
-	CreatedAt  time.Time
+	CreatedAt  pgtype.Timestamp
 }
 
 func (q *Queries) UpdateStrain(ctx context.Context, arg UpdateStrainParams) (Strain, error) {

@@ -6,13 +6,15 @@ import (
 	"time"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
+	"github.com/ZacharyLangley/igru-web-server/pkg/database"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/garden"
 	authenticationv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1"
 	"github.com/ZacharyLangley/igru-web-server/pkg/service/common"
 	"github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -42,18 +44,21 @@ func (s *Service) CreateStrain(baseCtx gocontext.Context, req *connect.Request[v
 		queries := models.New(tx)
 		params := models.CreateStrainParams{
 			Name:       req.Msg.Name,
-			GroupID:    groupID.UUID,
+			GroupID:    database.NewFromNullableUUID(groupID),
 			Comment:    req.Msg.Comment,
 			Notes:      req.Msg.Notes,
 			Type:       req.Msg.Type,
 			Price:      req.Msg.Price,
 			ThcPercent: req.Msg.ThcPercent,
 			CbdPercent: req.Msg.CbdPercent,
-			Parentage:  parentageID,
+			Parentage:  database.NewFromUUID(parentageID),
 			Aroma:      req.Msg.Aroma,
 			Taste:      req.Msg.Taste,
 			Tags:       req.Msg.Tags,
-			CreatedAt:  time.Now(),
+			CreatedAt: pgtype.Timestamp{
+				Time:  time.Now(),
+				Valid: true,
+			},
 		}
 		strain, err = queries.CreateStrain(ctx, params)
 		return err
@@ -62,8 +67,8 @@ func (s *Service) CreateStrain(baseCtx gocontext.Context, req *connect.Request[v
 	}
 
 	res.Msg.Strain = &v1.Strain{
-		Id:         strain.ID.String(),
-		GroupId:    strain.GroupID.String(),
+		Id:         uuid.UUID(strain.ID.Bytes).String(),
+		GroupId:    uuid.UUID(strain.GroupID.Bytes).String(),
 		Name:       strain.Name,
 		Comment:    strain.Comment,
 		Notes:      strain.Notes,
@@ -71,11 +76,11 @@ func (s *Service) CreateStrain(baseCtx gocontext.Context, req *connect.Request[v
 		Price:      strain.Price,
 		ThcPercent: strain.ThcPercent,
 		CbdPercent: strain.CbdPercent,
-		Parentage:  strain.Parentage.String(),
+		Parentage:  uuid.UUID(strain.Parentage.Bytes).String(),
 		Aroma:      strain.Aroma,
 		Taste:      strain.Taste,
 		Tags:       strain.Tags,
-		CreatedAt:  timestamppb.New(strain.CreatedAt),
+		CreatedAt:  timestamppb.New(strain.CreatedAt.Time),
 	}
 	return res, nil
 }
@@ -103,8 +108,8 @@ func (s *Service) DeleteStrain(baseCtx gocontext.Context, req *connect.Request[v
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		params := models.DeleteStrainParams{
-			ID:      strainID,
-			GroupID: groupID.UUID,
+			ID:      database.NewFromUUID(strainID),
+			GroupID: database.NewFromNullableUUID(groupID),
 		}
 		return queries.DeleteStrain(ctx, params)
 	}); err != nil {
@@ -143,8 +148,8 @@ func (s *Service) UpdateStrain(baseCtx gocontext.Context, req *connect.Request[v
 		var err error
 		query := models.New(tx)
 		params := models.UpdateStrainParams{
-			ID:         strainID,
-			GroupID:    groupID.UUID,
+			ID:         database.NewFromUUID(strainID),
+			GroupID:    database.NewFromNullableUUID(groupID),
 			Name:       req.Msg.Name,
 			Comment:    req.Msg.Comment,
 			Notes:      req.Msg.Notes,
@@ -152,7 +157,7 @@ func (s *Service) UpdateStrain(baseCtx gocontext.Context, req *connect.Request[v
 			Price:      req.Msg.Price,
 			ThcPercent: req.Msg.ThcPercent,
 			CbdPercent: req.Msg.CbdPercent,
-			Parentage:  parentageID,
+			Parentage:  database.NewFromUUID(parentageID),
 			Aroma:      req.Msg.Aroma,
 			Taste:      req.Msg.Taste,
 			Tags:       req.Msg.Tags,
@@ -163,8 +168,8 @@ func (s *Service) UpdateStrain(baseCtx gocontext.Context, req *connect.Request[v
 		return nil, err
 	}
 	res.Msg.Strain = &v1.Strain{
-		Id:         strain.ID.String(),
-		GroupId:    strain.GroupID.String(),
+		Id:         uuid.UUID(strain.ID.Bytes).String(),
+		GroupId:    uuid.UUID(strain.GroupID.Bytes).String(),
 		Name:       strain.Name,
 		Comment:    strain.Comment,
 		Notes:      strain.Notes,
@@ -172,7 +177,7 @@ func (s *Service) UpdateStrain(baseCtx gocontext.Context, req *connect.Request[v
 		Price:      strain.Price,
 		ThcPercent: strain.ThcPercent,
 		CbdPercent: strain.CbdPercent,
-		Parentage:  strain.Parentage.String(),
+		Parentage:  uuid.UUID(strain.Parentage.Bytes).String(),
 		Aroma:      strain.Aroma,
 		Taste:      strain.Taste,
 		Tags:       strain.Tags,
@@ -204,7 +209,7 @@ func (s *Service) GetStrains(baseCtx gocontext.Context, req *connect.Request[v1.
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
 		queries := models.New(tx)
-		strains, err = queries.GetStrains(ctx, groupID.UUID)
+		strains, err = queries.GetStrains(ctx, database.NewFromNullableUUID(groupID))
 		return err
 	}); err != nil {
 		return nil, err
@@ -213,8 +218,8 @@ func (s *Service) GetStrains(baseCtx gocontext.Context, req *connect.Request[v1.
 	res.Msg.Strains = make([]*v1.Strain, 0, len(strains))
 	for _, strain := range strains {
 		newStrain := v1.Strain{
-			Id:         strain.ID.String(),
-			GroupId:    strain.GroupID.String(),
+			Id:         uuid.UUID(strain.ID.Bytes).String(),
+			GroupId:    uuid.UUID(strain.GroupID.Bytes).String(),
 			Name:       strain.Name,
 			Comment:    strain.Comment,
 			Notes:      strain.Notes,
@@ -222,11 +227,11 @@ func (s *Service) GetStrains(baseCtx gocontext.Context, req *connect.Request[v1.
 			Price:      strain.Price,
 			ThcPercent: strain.ThcPercent,
 			CbdPercent: strain.CbdPercent,
-			Parentage:  strain.Parentage.String(),
+			Parentage:  uuid.UUID(strain.Parentage.Bytes).String(),
 			Aroma:      strain.Aroma,
 			Taste:      strain.Taste,
 			Tags:       strain.Tags,
-			CreatedAt:  timestamppb.New(strain.CreatedAt),
+			CreatedAt:  timestamppb.New(strain.CreatedAt.Time),
 		}
 		if strain.UpdatedAt.Valid {
 			newStrain.UpdatedAt = timestamppb.New(strain.UpdatedAt.Time)
@@ -262,8 +267,8 @@ func (s *Service) GetStrain(baseCtx gocontext.Context, req *connect.Request[v1.G
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
 		params := models.GetStrainParams{
-			ID:      strainID,
-			GroupID: groupID.UUID,
+			ID:      database.NewFromUUID(strainID),
+			GroupID: database.NewFromNullableUUID(groupID),
 		}
 		strain, err = query.GetStrain(ctx, params)
 		return err
@@ -272,8 +277,8 @@ func (s *Service) GetStrain(baseCtx gocontext.Context, req *connect.Request[v1.G
 	}
 
 	res.Msg.Strain = &v1.Strain{
-		Id:         strain.ID.String(),
-		GroupId:    strain.GroupID.String(),
+		Id:         uuid.UUID(strain.ID.Bytes).String(),
+		GroupId:    uuid.UUID(strain.GroupID.Bytes).String(),
 		Name:       strain.Name,
 		Comment:    strain.Comment,
 		Notes:      strain.Notes,
@@ -281,11 +286,11 @@ func (s *Service) GetStrain(baseCtx gocontext.Context, req *connect.Request[v1.G
 		Price:      strain.Price,
 		ThcPercent: strain.ThcPercent,
 		CbdPercent: strain.CbdPercent,
-		Parentage:  strain.Parentage.String(),
+		Parentage:  uuid.UUID(strain.Parentage.Bytes).String(),
 		Aroma:      strain.Aroma,
 		Taste:      strain.Taste,
 		Tags:       strain.Tags,
-		CreatedAt:  timestamppb.New(strain.CreatedAt),
+		CreatedAt:  timestamppb.New(strain.CreatedAt.Time),
 	}
 	if strain.UpdatedAt.Valid {
 		res.Msg.Strain.UpdatedAt = timestamppb.New(strain.UpdatedAt.Time)

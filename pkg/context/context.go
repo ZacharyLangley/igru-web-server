@@ -3,6 +3,8 @@ package context
 import (
 	"context"
 
+	"github.com/ZacharyLangley/igru-web-server/pkg/config/otlplogs"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
@@ -12,7 +14,9 @@ type Context interface {
 	L() *zap.Logger
 	Named(name string) Context
 	WithFields(fields ...zap.Field) Context
+	WithTrace() Context
 	AddEvent(string)
+	AddStringAttribute(key, value string)
 }
 
 type internalContext struct {
@@ -35,9 +39,28 @@ func (c *internalContext) WithFields(fields ...zap.Field) Context {
 	}
 }
 
+func (c *internalContext) WithTrace() Context {
+	if spanCtx := trace.SpanContextFromContext(c); spanCtx.IsValid() {
+		tID := spanCtx.TraceID()
+		sID := spanCtx.SpanID()
+		return c.WithFields(
+			zap.Binary(otlplogs.SpanIDFieldName, sID[:]),
+			zap.Binary(otlplogs.TraceIDFieldName, tID[:]),
+		)
+	}
+	zap.L().Warn("Could not find trace for logger")
+	return c
+}
+
 func (c *internalContext) AddEvent(msg string) {
 	if span := trace.SpanFromContext(c); span != nil {
 		span.AddEvent(msg)
+	}
+}
+
+func (c *internalContext) AddStringAttribute(key, value string) {
+	if span := trace.SpanFromContext(c); span != nil {
+		span.SetAttributes(attribute.String(key, value))
 	}
 }
 

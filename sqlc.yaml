@@ -7,7 +7,7 @@ sql:
     go:
       package: "authentication"
       out: "pkg/models/authentication"
-      sql_package: pgx/v4
+      sql_package: pgx/v5
 - schema: "build/garden/schema.sql"
   queries: "build/garden/query.sql"
   engine: "postgresql"
@@ -15,7 +15,7 @@ sql:
     go:
       package: "garden"
       out: "pkg/models/garden"
-      sql_package: pgx/v4
+      sql_package: pgx/v5
 - schema: "build/node/schema.sql"
   queries: "build/node/query.sql"
   engine: "postgresql"
@@ -23,4 +23,4 @@ sql:
     go:
       package: "node"
       out: "pkg/models/node"
-      sql_package: pgx/v4
+      sql_package: pgx/v5

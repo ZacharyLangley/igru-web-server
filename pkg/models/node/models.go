@@ -5,27 +5,23 @@
 package node
 
 import (
-	"database/sql"
-	"time"
-
-	"github.com/google/uuid"
-	"github.com/jackc/pgtype"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Node struct {
 	MacAddress   string
 	Name         string
-	OwnedBy      uuid.NullUUID
-	CustomLabels pgtype.JSONB
-	CreatedAt    time.Time
-	UpdatedAt    sql.NullTime
-	AdoptedAt    sql.NullTime
+	OwnedBy      pgtype.UUID
+	CustomLabels []byte
+	CreatedAt    pgtype.Timestamp
+	UpdatedAt    pgtype.Timestamp
+	AdoptedAt    pgtype.Timestamp
 }
 
 type Sensor struct {
-	ID       uuid.UUID
+	ID       pgtype.UUID
 	Name     string
 	NodeID   string
-	Model    sql.NullString
-	Category sql.NullInt32
+	Model    pgtype.Text
+	Category pgtype.Int4
 }

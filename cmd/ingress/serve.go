@@ -13,12 +13,14 @@ import (
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/config"
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
+	"github.com/ZacharyLangley/igru-web-server/pkg/middleware"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1/authenticationv1connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1/gardenv1connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/node/v1/nodev1connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proxy"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	"go.uber.org/zap"
 )
 
@@ -58,32 +60,33 @@ func runServer(cmd *cobra.Command, args []string) error {
 	// Create and populate Mux
 	zap.L().Info("Setting up router")
 	r := mux.NewRouter()
-	r.MethodNotAllowedHandler = errorHandler("method not fucking allowed")
-	r.NotFoundHandler = errorHandler("not fucking found")
-	r.Use(loggingMiddleware)
+	apiRouter := r.NewRoute().Subrouter()
+	apiRouter.Use(otelmux.Middleware("ingress"))
+	apiRouter.Use(middleware.HTTPLoggingMiddleware)
+	apiRouter.Use(middleware.HTTPInjectSpan)
 	// Attach services
-	if err := proxy.RegisterProxy(r, cfg.Clients.Authentication, authenticationv1connect.UserServiceName); err != nil {
+	if err := proxy.RegisterProxy(apiRouter, cfg.Clients.Authentication, authenticationv1connect.UserServiceName); err != nil {
 		return fmt.Errorf("failed to register authentication proxy: %w", err)
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Authentication, authenticationv1connect.GroupServiceName); err != nil {
+	if err := proxy.RegisterProxy(apiRouter, cfg.Clients.Authentication, authenticationv1connect.GroupServiceName); err != nil {
 		return fmt.Errorf("failed to register authentication proxy: %w", err)
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Authentication, authenticationv1connect.SessionServiceName); err != nil {
+	if err := proxy.RegisterProxy(apiRouter, cfg.Clients.Authentication, authenticationv1connect.SessionServiceName); err != nil {
 		return fmt.Errorf("failed to register authentication proxy: %w", err)
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.GardenServiceName); err != nil {
+	if err := proxy.RegisterProxy(apiRouter, cfg.Clients.Garden, gardenv1connect.GardenServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy: %w", err)
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.PlantServiceName); err != nil {
+	if err := proxy.RegisterProxy(apiRouter, cfg.Clients.Garden, gardenv1connect.PlantServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy: %w", err)
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.StrainServiceName); err != nil {
+	if err := proxy.RegisterProxy(apiRouter, cfg.Clients.Garden, gardenv1connect.StrainServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy: %w", err)
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Garden, gardenv1connect.RecipeServiceName); err != nil {
+	if err := proxy.RegisterProxy(apiRouter, cfg.Clients.Garden, gardenv1connect.RecipeServiceName); err != nil {
 		return fmt.Errorf("failed to register gardens proxy: %w", err)
 	}
-	if err := proxy.RegisterProxy(r, cfg.Clients.Node, nodev1connect.NodeServiceName); err != nil {
+	if err := proxy.RegisterProxy(apiRouter, cfg.Clients.Node, nodev1connect.NodeServiceName); err != nil {
 		return fmt.Errorf("failed to register node proxy: %w", err)
 	}
 
@@ -126,24 +129,3 @@ func runServer(cmd *cobra.Command, args []string) error {
 }
 
 var requestTimeout = time.Second * 30
-
-func errorHandler(message string) http.Handler {
-	logger := zap.L()
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Do stuff here
-		logger.Debug(message,
-			zap.String("requestURI", r.RequestURI))
-	})
-}
-
-func loggingMiddleware(next http.Handler) http.Handler {
-	logger := zap.L()
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Do stuff here
-		logger.Debug("processing request",
-			zap.String("requestURI", r.RequestURI))
-		// Call the next handler, which can be another middleware in the chain, or the final handler.
-		next.ServeHTTP(w, r)
-		logger.Debug("processed request")
-	})
-}

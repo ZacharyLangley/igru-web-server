@@ -7,10 +7,8 @@ package node
 
 import (
 	"context"
-	"database/sql"
 
-	"github.com/google/uuid"
-	"github.com/jackc/pgtype"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const addNodeSensor = `-- name: AddNodeSensor :one
@@ -25,8 +23,8 @@ RETURNING id, name, node_id, model, category
 type AddNodeSensorParams struct {
 	NodeID   string
 	Name     string
-	Model    sql.NullString
-	Category sql.NullInt32
+	Model    pgtype.Text
+	Category pgtype.Int4
 }
 
 func (q *Queries) AddNodeSensor(ctx context.Context, arg AddNodeSensorParams) (Sensor, error) {
@@ -56,7 +54,7 @@ RETURNING mac_address, name, owned_by, custom_labels, created_at, updated_at, ad
 
 type AdoptNodeParams struct {
 	MacAddress string
-	OwnedBy    uuid.NullUUID
+	OwnedBy    pgtype.UUID
 }
 
 func (q *Queries) AdoptNode(ctx context.Context, arg AdoptNodeParams) (Node, error) {
@@ -174,7 +172,7 @@ WHERE owned_by = $1 LIMIT $2 OFFSET $3
 `
 
 type GetNodesParams struct {
-	OwnedBy uuid.NullUUID
+	OwnedBy pgtype.UUID
 	Limit   int32
 	Offset  int32
 }
@@ -277,7 +275,7 @@ RETURNING mac_address, name, owned_by, custom_labels, created_at, updated_at, ad
 type UpdateNodeParams struct {
 	MacAddress   string
 	Name         string
-	CustomLabels pgtype.JSONB
+	CustomLabels []byte
 }
 
 func (q *Queries) UpdateNode(ctx context.Context, arg UpdateNodeParams) (Node, error) {
@@ -305,8 +303,8 @@ RETURNING id, name, node_id, model, category
 type UpdateNodeSensorParams struct {
 	NodeID   string
 	Name     string
-	Model    sql.NullString
-	Category sql.NullInt32
+	Model    pgtype.Text
+	Category pgtype.Int4
 }
 
 func (q *Queries) UpdateNodeSensor(ctx context.Context, arg UpdateNodeSensorParams) (Sensor, error) {

@@ -11,7 +11,10 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/pkg/database"
 	"github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1/authenticationv1connect"
 	"github.com/ZacharyLangley/igru-web-server/pkg/service/garden"
+	connect_go "github.com/bufbuild/connect-go"
+	otelconnect "github.com/bufbuild/connect-opentelemetry-go"
 	"github.com/spf13/cobra"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 type Config struct {
@@ -49,6 +52,12 @@ func runServer(cmd *cobra.Command, args []string) error {
 		SessionServiceClient: authenticationv1connect.NewSessionServiceClient(
 			http.DefaultClient,
 			cfg.Authentication.Address,
+			connect_go.WithInterceptors(
+				otelconnect.NewInterceptor(
+					otelconnect.WithTrustRemote(),
+					otelconnect.WithPropagator(propagation.TraceContext{}),
+				),
+			),
 		),
 	}
 	// Start serving

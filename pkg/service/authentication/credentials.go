@@ -1,13 +1,14 @@
 package authentication
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
 	"net/http"
 
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/authentication"
-	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/crypto/argon2"
 )
 
 var errUnauthorizedUser = errors.New("could not authenticate user")
@@ -18,32 +19,22 @@ func generateCred(password string) (string, string, error) {
 		return "", "", err
 	}
 	salt := base64.StdEncoding.EncodeToString(rawSalt)
-	//nolint:gocritic, makezero
-	digest := append(rawSalt, []byte(password)...)
-	rawHash, err := bcrypt.GenerateFromPassword(digest, 0)
-	if err != nil {
-		return "", "", err
-	}
+	rawHash := argon2.IDKey([]byte(password), rawSalt, 1, 64*1024, 4, 32)
 	hash := base64.StdEncoding.EncodeToString(rawHash)
 	return hash, salt, nil
 }
 
 func checkHash(user models.User, password string) bool {
-	salt, err := base64.StdEncoding.DecodeString(user.Salt)
+	rawSalt, err := base64.StdEncoding.DecodeString(user.Salt)
 	if err != nil {
 		return false
 	}
-	//nolint:gocritic
-	userDigest := append(salt, []byte(password)...)
 	hashDigest, err := base64.StdEncoding.DecodeString(user.Hash)
 	if err != nil {
 		return false
 	}
-	if err := bcrypt.CompareHashAndPassword(hashDigest, userDigest); err != nil {
-		// TODO check for non-mismatched errors
-		return false
-	}
-	return true
+	rawHash := argon2.IDKey([]byte(password), rawSalt, 1, 64*1024, 4, 32)
+	return bytes.Equal(hashDigest, rawHash)
 }
 
 func AddSessionToken(h http.Header, token string) {

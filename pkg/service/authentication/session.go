@@ -7,12 +7,14 @@ import (
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/auth"
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
+	"github.com/ZacharyLangley/igru-web-server/pkg/database"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/authentication"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	commonv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/common/v1"
 	"github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -27,6 +29,7 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 	if err := validateCreateSessionRequest(req.Msg); err != nil {
 		return nil, err
 	}
+	ctx.AddStringAttribute("email", req.Msg.Email)
 	var sess models.Session
 	now := time.Now()
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
@@ -42,13 +45,19 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 			return errInvalidPassword
 		}
 		sess, err = queries.CreateSession(ctx, models.CreateSessionParams{
-			UserID:    user.ID,
-			CreatedAt: now,
-			ExpiredAt: now.Add(s.SessionDuration),
+			UserID: user.ID,
+			CreatedAt: pgtype.Timestamp{
+				Time:  now,
+				Valid: true,
+			},
+			ExpiredAt: pgtype.Timestamp{
+				Time:  now.Add(s.SessionDuration),
+				Valid: true,
+			},
 		})
 		// Need to do a conditional here where if fullName is not submitted, then we use the email
 		res.Msg.User = &v1.User{
-			Id:       user.ID.String(),
+			Id:       uuid.UUID(user.ID.Bytes).String(),
 			Email:    user.Email,
 			FullName: user.Email,
 		}
@@ -60,6 +69,7 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
+	ctx.L().Info("Started new user session", zap.String("user_id", uuid.UUID(sess.UserID.Bytes).String()), zap.String("session_id", uuid.UUID(sess.ID.Bytes).String()))
 	AddSessionToken(res.Header(), token)
 	return res, nil
 }
@@ -77,7 +87,7 @@ func (s *Service) GetSessionUser(baseCtx gocontext.Context, req *connect.Request
 		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrMissingToken)
 	}
 	now := time.Now()
-	if now.After(sess.ExpiredAt) {
+	if !sess.ExpiredAt.Valid || now.After(sess.ExpiredAt.Time) {
 		ctx.L().Error("Token is Expired", zap.Error(err))
 		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrPermissionDenied)
 	}
@@ -89,7 +99,7 @@ func (s *Service) GetSessionUser(baseCtx gocontext.Context, req *connect.Request
 			return err
 		}
 		res.Msg.User = &v1.User{
-			Id:       user.ID.String(),
+			Id:       uuid.UUID(user.ID.Bytes).String(),
 			Email:    user.Email,
 			FullName: user.Email,
 		}
@@ -97,6 +107,7 @@ func (s *Service) GetSessionUser(baseCtx gocontext.Context, req *connect.Request
 	}); err != nil {
 		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrPermissionDenied)
 	}
+	ctx.L().Info("Retrieved session information", zap.String("user_id", uuid.UUID(sess.UserID.Bytes).String()), zap.String("session_id", uuid.UUID(sess.ID.Bytes).String()))
 
 	return res, nil
 }
@@ -134,10 +145,10 @@ func (s *Service) GetSessions(baseCtx gocontext.Context, req *connect.Request[v1
 	res.Msg.Sessions = make([]*v1.Session, 0, len(sessions))
 	for _, sess := range sessions {
 		var newSession v1.Session
-		newSession.Id = sess.ID.String()
-		newSession.UserId = sess.UserID.String()
-		newSession.CreatedAt = timestamppb.New(sess.CreatedAt)
-		newSession.ExpiredAt = timestamppb.New(sess.ExpiredAt)
+		newSession.Id = uuid.UUID(sess.ID.Bytes).String()
+		newSession.UserId = uuid.UUID(sess.UserID.Bytes).String()
+		newSession.CreatedAt = timestamppb.New(sess.CreatedAt.Time)
+		newSession.ExpiredAt = timestamppb.New(sess.ExpiredAt.Time)
 		res.Msg.Sessions = append(res.Msg.Sessions, &newSession)
 	}
 	return res, nil
@@ -170,14 +181,14 @@ func (s *Service) DeleteSession(baseCtx gocontext.Context, req *connect.Request[
 		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrMissingToken)
 	}
 	// Only the target user ID can delete their own sessions
-	if sess.UserID != uuid.MustParse(req.Msg.UserId) {
+	if uuid.UUID(sess.UserID.Bytes) != uuid.MustParse(req.Msg.UserId) {
 		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrPermissionDenied)
 	}
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		err = queries.DeleteSession(ctx, models.DeleteSessionParams{
-			ID:     uuid.MustParse(req.Msg.Id),
-			UserID: uuid.MustParse(req.Msg.UserId),
+			ID:     database.NewFromUUID(uuid.MustParse(req.Msg.Id)),
+			UserID: database.NewFromUUID(uuid.MustParse(req.Msg.UserId)),
 		})
 		if err != nil {
 			return err
@@ -216,7 +227,9 @@ func (s *Service) CheckSessionPermissions(baseCtx gocontext.Context, req *connec
 		}
 		roles := make(map[string]v1.GroupRole)
 		for _, role := range rawRoles {
-			roles[role.GroupID.String()] = v1.GroupRole(role.Role)
+			if role.GroupID.Valid {
+				roles[uuid.UUID(role.GroupID.Bytes).String()] = v1.GroupRole(role.Role)
+			}
 		}
 		for i, permissionRequest := range req.Msg.Requests {
 			if permissionRequest.GroupId != nil {

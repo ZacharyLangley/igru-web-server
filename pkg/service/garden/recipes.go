@@ -6,13 +6,15 @@ import (
 	"time"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
+	"github.com/ZacharyLangley/igru-web-server/pkg/database"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/garden"
 	authenticationv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/garden/v1"
 	"github.com/ZacharyLangley/igru-web-server/pkg/service/common"
 	"github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -38,14 +40,17 @@ func (s *Service) CreateRecipe(baseCtx gocontext.Context, req *connect.Request[v
 		queries := models.New(tx)
 		params := models.CreateRecipeParams{
 			Name:                req.Msg.Name,
-			GroupID:             groupID.UUID,
+			GroupID:             database.NewFromNullableUUID(groupID),
 			Comment:             req.Msg.Comment,
 			Ingredients:         req.Msg.Ingredients,
 			Instructions:        req.Msg.Instructions,
 			Ph:                  req.Msg.Ph,
 			MixTimeMilliseconds: req.Msg.MixTimeMilliseconds,
 			Tags:                req.Msg.Tags,
-			CreatedAt:           time.Now(),
+			CreatedAt: pgtype.Timestamp{
+				Time:  time.Now(),
+				Valid: true,
+			},
 		}
 		recipe, err = queries.CreateRecipe(ctx, params)
 		return err
@@ -54,8 +59,8 @@ func (s *Service) CreateRecipe(baseCtx gocontext.Context, req *connect.Request[v
 	}
 
 	res.Msg.Recipe = &v1.Recipe{
-		Id:                  recipe.ID.String(),
-		GroupId:             recipe.GroupID.String(),
+		Id:                  uuid.UUID(recipe.ID.Bytes).String(),
+		GroupId:             uuid.UUID(recipe.GroupID.Bytes).String(),
 		Name:                recipe.Name,
 		Comment:             recipe.Comment,
 		Ingredients:         recipe.Ingredients,
@@ -63,7 +68,7 @@ func (s *Service) CreateRecipe(baseCtx gocontext.Context, req *connect.Request[v
 		Ph:                  recipe.Ph,
 		MixTimeMilliseconds: recipe.MixTimeMilliseconds,
 		Tags:                recipe.Tags,
-		CreatedAt:           timestamppb.New(recipe.CreatedAt),
+		CreatedAt:           timestamppb.New(recipe.CreatedAt.Time),
 	}
 	return res, nil
 }
@@ -91,8 +96,8 @@ func (s *Service) DeleteRecipe(baseCtx gocontext.Context, req *connect.Request[v
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		params := models.DeleteRecipeParams{
-			ID:      recipeID,
-			GroupID: groupID.UUID,
+			ID:      database.NewFromUUID(recipeID),
+			GroupID: database.NewFromNullableUUID(groupID),
 		}
 		return queries.DeleteRecipe(ctx, params)
 	}); err != nil {
@@ -126,8 +131,8 @@ func (s *Service) UpdateRecipe(baseCtx gocontext.Context, req *connect.Request[v
 		var err error
 		query := models.New(tx)
 		params := models.UpdateRecipeParams{
-			ID:                  recipeID,
-			GroupID:             groupID.UUID,
+			ID:                  database.NewFromUUID(recipeID),
+			GroupID:             database.NewFromNullableUUID(groupID),
 			Name:                req.Msg.Name,
 			Comment:             req.Msg.Comment,
 			Ingredients:         req.Msg.Ingredients,
@@ -142,8 +147,8 @@ func (s *Service) UpdateRecipe(baseCtx gocontext.Context, req *connect.Request[v
 		return nil, err
 	}
 	res.Msg.Recipe = &v1.Recipe{
-		Id:                  recipe.ID.String(),
-		GroupId:             recipe.GroupID.String(),
+		Id:                  uuid.UUID(recipe.ID.Bytes).String(),
+		GroupId:             uuid.UUID(recipe.GroupID.Bytes).String(),
 		Name:                recipe.Name,
 		Comment:             recipe.Comment,
 		Ingredients:         recipe.Ingredients,
@@ -179,7 +184,7 @@ func (s *Service) GetRecipes(baseCtx gocontext.Context, req *connect.Request[v1.
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
 		queries := models.New(tx)
-		recipes, err = queries.GetRecipes(ctx, groupID.UUID)
+		recipes, err = queries.GetRecipes(ctx, database.NewFromNullableUUID(groupID))
 		return err
 	}); err != nil {
 		return nil, err
@@ -188,8 +193,8 @@ func (s *Service) GetRecipes(baseCtx gocontext.Context, req *connect.Request[v1.
 	res.Msg.Recipes = make([]*v1.Recipe, 0, len(recipes))
 	for _, recipe := range recipes {
 		newRecipe := v1.Recipe{
-			Id:                  recipe.ID.String(),
-			GroupId:             recipe.GroupID.String(),
+			Id:                  uuid.UUID(recipe.ID.Bytes).String(),
+			GroupId:             uuid.UUID(recipe.GroupID.Bytes).String(),
 			Name:                recipe.Name,
 			Comment:             recipe.Comment,
 			Ingredients:         recipe.Ingredients,
@@ -197,7 +202,7 @@ func (s *Service) GetRecipes(baseCtx gocontext.Context, req *connect.Request[v1.
 			Ph:                  recipe.Ph,
 			MixTimeMilliseconds: recipe.MixTimeMilliseconds,
 			Tags:                recipe.Tags,
-			CreatedAt:           timestamppb.New(recipe.CreatedAt),
+			CreatedAt:           timestamppb.New(recipe.CreatedAt.Time),
 		}
 		if recipe.UpdatedAt.Valid {
 			newRecipe.UpdatedAt = timestamppb.New(recipe.UpdatedAt.Time)
@@ -233,8 +238,8 @@ func (s *Service) GetRecipe(baseCtx gocontext.Context, req *connect.Request[v1.G
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
 		params := models.GetRecipeParams{
-			ID:      recipeID,
-			GroupID: groupID.UUID,
+			ID:      database.NewFromUUID(recipeID),
+			GroupID: database.NewFromNullableUUID(groupID),
 		}
 		recipe, err = query.GetRecipe(ctx, params)
 		return err
@@ -243,7 +248,8 @@ func (s *Service) GetRecipe(baseCtx gocontext.Context, req *connect.Request[v1.G
 	}
 
 	res.Msg.Recipe = &v1.Recipe{
-		Id:                  recipe.ID.String(),
+		Id:                  uuid.UUID(recipe.ID.Bytes).String(),
+		GroupId:             uuid.UUID(recipe.GroupID.Bytes).String(),
 		Name:                recipe.Name,
 		Comment:             recipe.Comment,
 		Ingredients:         recipe.Ingredients,
@@ -251,7 +257,7 @@ func (s *Service) GetRecipe(baseCtx gocontext.Context, req *connect.Request[v1.G
 		Ph:                  recipe.Ph,
 		MixTimeMilliseconds: recipe.MixTimeMilliseconds,
 		Tags:                recipe.Tags,
-		CreatedAt:           timestamppb.New(recipe.CreatedAt),
+		CreatedAt:           timestamppb.New(recipe.CreatedAt.Time),
 	}
 	if recipe.UpdatedAt.Valid {
 		res.Msg.Recipe.UpdatedAt = timestamppb.New(recipe.UpdatedAt.Time)

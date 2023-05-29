@@ -27,18 +27,25 @@ func RegisterProxy(r *mux.Router, cfg config.GRPC, serviceName string) error {
 
 func NewTunnel(name string, protocol *url.URL) *Tunnel {
 	return &Tunnel{
-		protocol:  name,
-		targetURL: protocol,
+		protocol:     name,
+		enableTraces: true,
+		targetURL:    protocol,
 	}
 }
 
 type Tunnel struct {
-	protocol  string
-	targetURL *url.URL
+	protocol     string
+	enableTraces bool
+	targetURL    *url.URL
 }
 
 func (t Tunnel) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	zap.L().Debug("proxying", zap.String("protocol", t.protocol), zap.String("host", t.targetURL.Host), zap.String("scheme", t.targetURL.Scheme))
+	zap.L().Debug("proxying",
+		zap.String("protocol", t.protocol),
+		zap.String("host", t.targetURL.Host),
+		zap.String("scheme", t.targetURL.Scheme),
+		zap.String("path", r.URL.Path),
+	)
 	if r.Method == http.MethodConnect {
 		t.handleTunneling(w, r)
 	} else {

@@ -1,6 +1,11 @@
 grpc:
   address: :80
 webProxyAddress: ""
+logger:
+  development: true
+  level: debug
+metrics:
+  otlpGRPCAddress: "localhost:4317"
 clients:
   authentication:
     address: http://authentication

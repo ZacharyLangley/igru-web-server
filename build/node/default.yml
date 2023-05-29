@@ -1,5 +1,7 @@
 grpc:
   address: :80
+authentication:
+  address: http://authentication
 database:
   host: localhost
   port: 26257
@@ -15,5 +17,5 @@ logger:
   development: true
   level: debug
 metrics:
-  jaegerAddress: "localhost:14268"
+  otlpGRPCAddress: "localhost:4317"
 sessionDuration: 5m

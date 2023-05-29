@@ -2,7 +2,6 @@ package authentication
 
 import (
 	"crypto/rand"
-	"database/sql"
 	"encoding/base64"
 	"errors"
 
@@ -10,7 +9,8 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/pkg/database"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/authentication"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"go.uber.org/zap"
 )
 
@@ -58,8 +58,8 @@ func CreateAdmin(ctx context.Context, conn *database.Pool) error {
 		params := models.CreateUserParams{
 			GroupID:    group.ID,
 			Email:      adminEmail,
-			FullName:   sql.NullString{Valid: true, String: adminName},
-			GlobalRole: sql.NullInt32{Valid: true, Int32: int32(v1.GroupRole_GROUP_ROLE_ADMIN)},
+			FullName:   pgtype.Text{Valid: true, String: adminName},
+			GlobalRole: pgtype.Int4{Valid: true, Int32: int32(v1.GroupRole_GROUP_ROLE_ADMIN)},
 			Salt:       salt,
 			Hash:       hash,
 		}

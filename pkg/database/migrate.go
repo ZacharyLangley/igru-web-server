@@ -7,10 +7,11 @@ import (
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/config"
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
+	"github.com/exaring/otelpgx"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/cockroachdb"
-	"github.com/jackc/pgx/v4"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
 
@@ -25,9 +26,15 @@ func Open(ctx context.Context, cfg config.Database) (*Pool, error) {
 	}
 	ctx = ctx.WithFields(zap.String("dsn", cfg.SecureDSN()))
 	// Connect to DB Pool
-	pool, err := pgxpool.Connect(ctx, dsn)
+	pgxCfg, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("create connection pool: %w", err)
+	}
+
+	pgxCfg.ConnConfig.Tracer = otelpgx.NewTracer()
+	pool, err := pgxpool.NewWithConfig(ctx, pgxCfg)
+	if err != nil {
+		return nil, fmt.Errorf("connect to database: %w", err)
 	}
 	ctx.L().Debug("Opening connection to DB")
 	db, err := sql.Open("pgx", dsn)

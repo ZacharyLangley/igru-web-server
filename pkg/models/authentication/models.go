@@ -5,44 +5,41 @@
 package authentication
 
 import (
-	"database/sql"
-	"time"
-
-	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Group struct {
-	ID        uuid.UUID
+	ID        pgtype.UUID
 	Name      string
 	UserGroup bool
-	CreatedAt time.Time
-	UpdatedAt sql.NullTime
+	CreatedAt pgtype.Timestamptz
+	UpdatedAt pgtype.Timestamptz
 }
 
 type GroupMember struct {
-	UserID    uuid.UUID
-	GroupID   uuid.UUID
+	UserID    pgtype.UUID
+	GroupID   pgtype.UUID
 	Role      int32
-	CreatedAt time.Time
-	UpdatedAt sql.NullTime
+	CreatedAt pgtype.Timestamptz
+	UpdatedAt pgtype.Timestamptz
 }
 
 type Session struct {
-	ID        uuid.UUID
-	UserID    uuid.UUID
-	CreatedAt time.Time
-	ExpiredAt time.Time
+	ID        pgtype.UUID
+	UserID    pgtype.UUID
+	CreatedAt pgtype.Timestamp
+	ExpiredAt pgtype.Timestamp
 }
 
 type User struct {
-	ID         uuid.UUID
+	ID         pgtype.UUID
 	Email      string
-	GroupID    uuid.UUID
-	FullName   sql.NullString
-	GlobalRole sql.NullInt32
-	Active     sql.NullBool
+	GroupID    pgtype.UUID
+	FullName   pgtype.Text
+	GlobalRole pgtype.Int4
+	Active     pgtype.Bool
 	Salt       string
 	Hash       string
-	CreatedAt  time.Time
-	UpdatedAt  sql.NullTime
+	CreatedAt  pgtype.Timestamptz
+	UpdatedAt  pgtype.Timestamptz
 }

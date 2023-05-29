@@ -2,15 +2,18 @@ package node
 
 import (
 	gocontext "context"
+	"encoding/json"
 	"errors"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
+	"github.com/ZacharyLangley/igru-web-server/pkg/database"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/node"
 	authenticationv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/node/v1"
 	"github.com/ZacharyLangley/igru-web-server/pkg/service/common"
 	"github.com/bufbuild/connect-go"
-	"github.com/jackc/pgx/v4"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -36,7 +39,7 @@ func (s *Service) GetNodes(baseCtx gocontext.Context, req *connect.Request[v1.Ge
 		var err error
 		queries := models.New(tx)
 		params := models.GetNodesParams{
-			OwnedBy: groupID,
+			OwnedBy: database.NewFromNullableUUID(groupID),
 			Limit:   req.Msg.Pagination.Length,
 			Offset:  req.Msg.Pagination.Cursor,
 		}
@@ -59,12 +62,13 @@ func (s *Service) GetNodes(baseCtx gocontext.Context, req *connect.Request[v1.Ge
 		newNode := v1.Node{
 			MacAddress: node.MacAddress,
 			Name:       node.Name,
-			CreatedAt:  timestamppb.New(node.CreatedAt),
+			CreatedAt:  timestamppb.New(node.CreatedAt.Time),
 		}
 		if node.OwnedBy.Valid {
-			newNode.OwnedBy = node.OwnedBy.UUID.String()
+			newNode.OwnedBy = uuid.UUID(node.OwnedBy.Bytes).String()
 		}
-		if err := node.CustomLabels.AssignTo(newNode.CustomLabels); err != nil {
+		node.CustomLabels, err = json.Marshal(newNode.CustomLabels)
+		if err != nil {
 			return nil, connect.NewError(connect.CodeInternal, err)
 		}
 		if node.UpdatedAt.Valid {
