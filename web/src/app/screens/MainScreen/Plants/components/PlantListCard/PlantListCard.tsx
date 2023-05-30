@@ -9,7 +9,7 @@ interface PlantListCardProps {
 }
 
 const PlantListCard: React.FC<PlantListCardProps> = ({
-  testID = 'Plant-list-card',
+  testID = 'plant-list-card',
   onAddPlant,
 }) => {
   return (
