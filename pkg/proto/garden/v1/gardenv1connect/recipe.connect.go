@@ -25,6 +25,30 @@ const (
 	RecipeServiceName = "garden.v1.RecipeService"
 )
 
+// These constants are the fully-qualified names of the RPCs defined in this package. They're
+// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+//
+// Note that these are different from the fully-qualified method names used by
+// google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
+// reflection-formatted method names, remove the leading slash and convert the remaining slash to a
+// period.
+const (
+	// RecipeServiceCreateRecipeProcedure is the fully-qualified name of the RecipeService's
+	// CreateRecipe RPC.
+	RecipeServiceCreateRecipeProcedure = "/garden.v1.RecipeService/CreateRecipe"
+	// RecipeServiceDeleteRecipeProcedure is the fully-qualified name of the RecipeService's
+	// DeleteRecipe RPC.
+	RecipeServiceDeleteRecipeProcedure = "/garden.v1.RecipeService/DeleteRecipe"
+	// RecipeServiceUpdateRecipeProcedure is the fully-qualified name of the RecipeService's
+	// UpdateRecipe RPC.
+	RecipeServiceUpdateRecipeProcedure = "/garden.v1.RecipeService/UpdateRecipe"
+	// RecipeServiceGetRecipesProcedure is the fully-qualified name of the RecipeService's GetRecipes
+	// RPC.
+	RecipeServiceGetRecipesProcedure = "/garden.v1.RecipeService/GetRecipes"
+	// RecipeServiceGetRecipeProcedure is the fully-qualified name of the RecipeService's GetRecipe RPC.
+	RecipeServiceGetRecipeProcedure = "/garden.v1.RecipeService/GetRecipe"
+)
+
 // RecipeServiceClient is a client for the garden.v1.RecipeService service.
 type RecipeServiceClient interface {
 	CreateRecipe(context.Context, *connect_go.Request[v1.CreateRecipeRequest]) (*connect_go.Response[v1.CreateRecipeResponse], error)
@@ -46,27 +70,27 @@ func NewRecipeServiceClient(httpClient connect_go.HTTPClient, baseURL string, op
 	return &recipeServiceClient{
 		createRecipe: connect_go.NewClient[v1.CreateRecipeRequest, v1.CreateRecipeResponse](
 			httpClient,
-			baseURL+"/garden.v1.RecipeService/CreateRecipe",
+			baseURL+RecipeServiceCreateRecipeProcedure,
 			opts...,
 		),
 		deleteRecipe: connect_go.NewClient[v1.DeleteRecipeRequest, v1.DeleteRecipeResponse](
 			httpClient,
-			baseURL+"/garden.v1.RecipeService/DeleteRecipe",
+			baseURL+RecipeServiceDeleteRecipeProcedure,
 			opts...,
 		),
 		updateRecipe: connect_go.NewClient[v1.UpdateRecipeRequest, v1.UpdateRecipeResponse](
 			httpClient,
-			baseURL+"/garden.v1.RecipeService/UpdateRecipe",
+			baseURL+RecipeServiceUpdateRecipeProcedure,
 			opts...,
 		),
 		getRecipes: connect_go.NewClient[v1.GetRecipesRequest, v1.GetRecipesResponse](
 			httpClient,
-			baseURL+"/garden.v1.RecipeService/GetRecipes",
+			baseURL+RecipeServiceGetRecipesProcedure,
 			opts...,
 		),
 		getRecipe: connect_go.NewClient[v1.GetRecipeRequest, v1.GetRecipeResponse](
 			httpClient,
-			baseURL+"/garden.v1.RecipeService/GetRecipe",
+			baseURL+RecipeServiceGetRecipeProcedure,
 			opts...,
 		),
 	}
@@ -122,28 +146,28 @@ type RecipeServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewRecipeServiceHandler(svc RecipeServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle("/garden.v1.RecipeService/CreateRecipe", connect_go.NewUnaryHandler(
-		"/garden.v1.RecipeService/CreateRecipe",
+	mux.Handle(RecipeServiceCreateRecipeProcedure, connect_go.NewUnaryHandler(
+		RecipeServiceCreateRecipeProcedure,
 		svc.CreateRecipe,
 		opts...,
 	))
-	mux.Handle("/garden.v1.RecipeService/DeleteRecipe", connect_go.NewUnaryHandler(
-		"/garden.v1.RecipeService/DeleteRecipe",
+	mux.Handle(RecipeServiceDeleteRecipeProcedure, connect_go.NewUnaryHandler(
+		RecipeServiceDeleteRecipeProcedure,
 		svc.DeleteRecipe,
 		opts...,
 	))
-	mux.Handle("/garden.v1.RecipeService/UpdateRecipe", connect_go.NewUnaryHandler(
-		"/garden.v1.RecipeService/UpdateRecipe",
+	mux.Handle(RecipeServiceUpdateRecipeProcedure, connect_go.NewUnaryHandler(
+		RecipeServiceUpdateRecipeProcedure,
 		svc.UpdateRecipe,
 		opts...,
 	))
-	mux.Handle("/garden.v1.RecipeService/GetRecipes", connect_go.NewUnaryHandler(
-		"/garden.v1.RecipeService/GetRecipes",
+	mux.Handle(RecipeServiceGetRecipesProcedure, connect_go.NewUnaryHandler(
+		RecipeServiceGetRecipesProcedure,
 		svc.GetRecipes,
 		opts...,
 	))
-	mux.Handle("/garden.v1.RecipeService/GetRecipe", connect_go.NewUnaryHandler(
-		"/garden.v1.RecipeService/GetRecipe",
+	mux.Handle(RecipeServiceGetRecipeProcedure, connect_go.NewUnaryHandler(
+		RecipeServiceGetRecipeProcedure,
 		svc.GetRecipe,
 		opts...,
 	))

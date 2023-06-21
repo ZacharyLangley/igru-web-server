@@ -11,6 +11,7 @@ const client = createPromiseClient(GroupService, createConnectTransport({ baseUr
 
 export const createGroupRequest = async (name: string) => {
     if (!name) return;
+    // @ts-ignore
     return await client.createGroup({name});
 }
 

@@ -1,18 +1,15 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 
-import DashboardLayout from '../../../../common/components/Screen/Body/Layouts/Dashboard/DashboardLayout'
+import './styles.scss';
+import CreateGroup from './components/groups/CreateGroup/CreateGroup';
 
 export interface AdminProps {}
 
 const Admin: React.FC<AdminProps> = () => {
-  const [isModalOpen, setModalOpen] = useState<boolean>(false)
-
-  const toggleModal = useCallback(() => setModalOpen(!isModalOpen), [isModalOpen])
-
   return (
-    <>
-      <DashboardLayout />
-    </>
+    <div className="admin-screen-container">
+      <CreateGroup />
+    </div>
   );
 };
 

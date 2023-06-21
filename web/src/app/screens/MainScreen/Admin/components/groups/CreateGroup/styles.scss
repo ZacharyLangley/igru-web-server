@@ -1,0 +1,11 @@
+.create-group-container {
+    width: 400px;
+    .create-group-actions {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        .spacer {
+            width: 18px;
+        }
+    }
+}

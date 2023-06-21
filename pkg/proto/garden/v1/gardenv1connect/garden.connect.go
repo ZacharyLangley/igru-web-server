@@ -25,6 +25,30 @@ const (
 	GardenServiceName = "garden.v1.GardenService"
 )
 
+// These constants are the fully-qualified names of the RPCs defined in this package. They're
+// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+//
+// Note that these are different from the fully-qualified method names used by
+// google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
+// reflection-formatted method names, remove the leading slash and convert the remaining slash to a
+// period.
+const (
+	// GardenServiceCreateGardenProcedure is the fully-qualified name of the GardenService's
+	// CreateGarden RPC.
+	GardenServiceCreateGardenProcedure = "/garden.v1.GardenService/CreateGarden"
+	// GardenServiceDeleteGardenProcedure is the fully-qualified name of the GardenService's
+	// DeleteGarden RPC.
+	GardenServiceDeleteGardenProcedure = "/garden.v1.GardenService/DeleteGarden"
+	// GardenServiceUpdateGardenProcedure is the fully-qualified name of the GardenService's
+	// UpdateGarden RPC.
+	GardenServiceUpdateGardenProcedure = "/garden.v1.GardenService/UpdateGarden"
+	// GardenServiceGetGardensProcedure is the fully-qualified name of the GardenService's GetGardens
+	// RPC.
+	GardenServiceGetGardensProcedure = "/garden.v1.GardenService/GetGardens"
+	// GardenServiceGetGardenProcedure is the fully-qualified name of the GardenService's GetGarden RPC.
+	GardenServiceGetGardenProcedure = "/garden.v1.GardenService/GetGarden"
+)
+
 // GardenServiceClient is a client for the garden.v1.GardenService service.
 type GardenServiceClient interface {
 	CreateGarden(context.Context, *connect_go.Request[v1.CreateGardenRequest]) (*connect_go.Response[v1.CreateGardenResponse], error)
@@ -46,27 +70,27 @@ func NewGardenServiceClient(httpClient connect_go.HTTPClient, baseURL string, op
 	return &gardenServiceClient{
 		createGarden: connect_go.NewClient[v1.CreateGardenRequest, v1.CreateGardenResponse](
 			httpClient,
-			baseURL+"/garden.v1.GardenService/CreateGarden",
+			baseURL+GardenServiceCreateGardenProcedure,
 			opts...,
 		),
 		deleteGarden: connect_go.NewClient[v1.DeleteGardenRequest, v1.DeleteGardenResponse](
 			httpClient,
-			baseURL+"/garden.v1.GardenService/DeleteGarden",
+			baseURL+GardenServiceDeleteGardenProcedure,
 			opts...,
 		),
 		updateGarden: connect_go.NewClient[v1.UpdateGardenRequest, v1.UpdateGardenResponse](
 			httpClient,
-			baseURL+"/garden.v1.GardenService/UpdateGarden",
+			baseURL+GardenServiceUpdateGardenProcedure,
 			opts...,
 		),
 		getGardens: connect_go.NewClient[v1.GetGardensRequest, v1.GetGardensResponse](
 			httpClient,
-			baseURL+"/garden.v1.GardenService/GetGardens",
+			baseURL+GardenServiceGetGardensProcedure,
 			opts...,
 		),
 		getGarden: connect_go.NewClient[v1.GetGardenRequest, v1.GetGardenResponse](
 			httpClient,
-			baseURL+"/garden.v1.GardenService/GetGarden",
+			baseURL+GardenServiceGetGardenProcedure,
 			opts...,
 		),
 	}
@@ -122,28 +146,28 @@ type GardenServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewGardenServiceHandler(svc GardenServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle("/garden.v1.GardenService/CreateGarden", connect_go.NewUnaryHandler(
-		"/garden.v1.GardenService/CreateGarden",
+	mux.Handle(GardenServiceCreateGardenProcedure, connect_go.NewUnaryHandler(
+		GardenServiceCreateGardenProcedure,
 		svc.CreateGarden,
 		opts...,
 	))
-	mux.Handle("/garden.v1.GardenService/DeleteGarden", connect_go.NewUnaryHandler(
-		"/garden.v1.GardenService/DeleteGarden",
+	mux.Handle(GardenServiceDeleteGardenProcedure, connect_go.NewUnaryHandler(
+		GardenServiceDeleteGardenProcedure,
 		svc.DeleteGarden,
 		opts...,
 	))
-	mux.Handle("/garden.v1.GardenService/UpdateGarden", connect_go.NewUnaryHandler(
-		"/garden.v1.GardenService/UpdateGarden",
+	mux.Handle(GardenServiceUpdateGardenProcedure, connect_go.NewUnaryHandler(
+		GardenServiceUpdateGardenProcedure,
 		svc.UpdateGarden,
 		opts...,
 	))
-	mux.Handle("/garden.v1.GardenService/GetGardens", connect_go.NewUnaryHandler(
-		"/garden.v1.GardenService/GetGardens",
+	mux.Handle(GardenServiceGetGardensProcedure, connect_go.NewUnaryHandler(
+		GardenServiceGetGardensProcedure,
 		svc.GetGardens,
 		opts...,
 	))
-	mux.Handle("/garden.v1.GardenService/GetGarden", connect_go.NewUnaryHandler(
-		"/garden.v1.GardenService/GetGarden",
+	mux.Handle(GardenServiceGetGardenProcedure, connect_go.NewUnaryHandler(
+		GardenServiceGetGardenProcedure,
 		svc.GetGarden,
 		opts...,
 	))
