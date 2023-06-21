@@ -19,7 +19,7 @@
                 "CLIENTS.AUTHENTICATION.ADDRESS": "http://127.0.0.1:8081",
                 "CLIENTS.GARDEN.ADDRESS": "http://127.0.0.1:8082",
                 "CLIENTS.NODE.ADDRESS": "http://127.0.0.1:8083",
-                "WEBPROXYADDRESS": "127.0.0.1:80",
+                "WEBPROXYADDRESS": "127.0.0.1:3000",
                 "GRPC.ADDRESS": ":8080",
                 "METRICS.OTLPGRPCADDRESS": "localhost:4317"
             }

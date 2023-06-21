@@ -12,16 +12,16 @@ type Group struct {
 	ID        pgtype.UUID
 	Name      string
 	UserGroup bool
-	CreatedAt pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
 }
 
 type GroupMember struct {
 	UserID    pgtype.UUID
 	GroupID   pgtype.UUID
 	Role      int32
-	CreatedAt pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
 }
 
 type Session struct {
@@ -40,6 +40,6 @@ type User struct {
 	Active     pgtype.Bool
 	Salt       string
 	Hash       string
-	CreatedAt  pgtype.Timestamptz
-	UpdatedAt  pgtype.Timestamptz
+	CreatedAt  pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
 }

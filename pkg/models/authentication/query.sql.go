@@ -245,8 +245,8 @@ type GetGroupMembersRow struct {
 	UserID    pgtype.UUID
 	FullName  pgtype.Text
 	Role      int32
-	AddedAt   pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	AddedAt   pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
 }
 
 func (q *Queries) GetGroupMembers(ctx context.Context, arg GetGroupMembersParams) ([]GetGroupMembersRow, error) {
