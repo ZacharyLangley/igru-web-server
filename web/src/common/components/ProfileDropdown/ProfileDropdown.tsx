@@ -12,7 +12,7 @@ import useUser from 'src/store/useUser/useUser';
 const welcomeLabel = language('navbar.dropdown.header');
 const profileLabel = language('navbar.dropdown.profile');
 const signOutLabel = language('navbar.dropdown.signout');
-
+const adminLabel = 'Admin'
 interface ProfileDropdownProps {}
 
 const dropdownToggleStyle = {backgroundColor: 'transparent', borderWidth: 0, borderRadius: 50};
@@ -31,6 +31,11 @@ export const ProfileDropdown:React.FC<ProfileDropdownProps>  = () => {
 
     const toggle = () => setDropdownOpen((prevState) => !prevState);
     const name = useMemo(() => formatUserName(user?.fullName || user?.email), [user])
+    
+    const onAdminClick = useCallback(() => {
+        navigate(RoutePath.ADMIN)
+    }, [navigate]);
+    
     const onSignOutClick = useCallback(() => {
         signOut();
         navigate(RoutePath.HOME);
@@ -44,6 +49,7 @@ export const ProfileDropdown:React.FC<ProfileDropdownProps>  = () => {
                 </DropdownToggle>
                 <DropdownMenu container="body">
                     <DropdownItem header>{`${welcomeLabel}, ${name}`}</DropdownItem>
+                    <DropdownItem onClick={onAdminClick}>{adminLabel}</DropdownItem>
                     <DropdownItem>{profileLabel}</DropdownItem>
                     <DropdownItem divider />
                     <DropdownItem onClick={onSignOutClick}>{signOutLabel}</DropdownItem>
