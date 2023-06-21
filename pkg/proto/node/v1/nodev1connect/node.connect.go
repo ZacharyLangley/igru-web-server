@@ -25,24 +25,6 @@ const (
 	NodeServiceName = "node.v1.NodeService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
-//
-// Note that these are different from the fully-qualified method names used by
-// google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
-// reflection-formatted method names, remove the leading slash and convert the remaining slash to a
-// period.
-const (
-	// NodeServiceUpdateNodeProcedure is the fully-qualified name of the NodeService's UpdateNode RPC.
-	NodeServiceUpdateNodeProcedure = "/node.v1.NodeService/UpdateNode"
-	// NodeServiceDeleteNodeProcedure is the fully-qualified name of the NodeService's DeleteNode RPC.
-	NodeServiceDeleteNodeProcedure = "/node.v1.NodeService/DeleteNode"
-	// NodeServiceGetNodesProcedure is the fully-qualified name of the NodeService's GetNodes RPC.
-	NodeServiceGetNodesProcedure = "/node.v1.NodeService/GetNodes"
-	// NodeServiceGetNodeProcedure is the fully-qualified name of the NodeService's GetNode RPC.
-	NodeServiceGetNodeProcedure = "/node.v1.NodeService/GetNode"
-)
-
 // NodeServiceClient is a client for the node.v1.NodeService service.
 type NodeServiceClient interface {
 	UpdateNode(context.Context, *connect_go.Request[v1.UpdateNodeRequest]) (*connect_go.Response[v1.UpdateNodeResponse], error)
@@ -63,22 +45,22 @@ func NewNodeServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts
 	return &nodeServiceClient{
 		updateNode: connect_go.NewClient[v1.UpdateNodeRequest, v1.UpdateNodeResponse](
 			httpClient,
-			baseURL+NodeServiceUpdateNodeProcedure,
+			baseURL+"/node.v1.NodeService/UpdateNode",
 			opts...,
 		),
 		deleteNode: connect_go.NewClient[v1.DeleteNodeRequest, v1.DeleteNodeResponse](
 			httpClient,
-			baseURL+NodeServiceDeleteNodeProcedure,
+			baseURL+"/node.v1.NodeService/DeleteNode",
 			opts...,
 		),
 		getNodes: connect_go.NewClient[v1.GetNodesRequest, v1.GetNodesResponse](
 			httpClient,
-			baseURL+NodeServiceGetNodesProcedure,
+			baseURL+"/node.v1.NodeService/GetNodes",
 			opts...,
 		),
 		getNode: connect_go.NewClient[v1.GetNodeRequest, v1.GetNodeResponse](
 			httpClient,
-			baseURL+NodeServiceGetNodeProcedure,
+			baseURL+"/node.v1.NodeService/GetNode",
 			opts...,
 		),
 	}
@@ -127,23 +109,23 @@ type NodeServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewNodeServiceHandler(svc NodeServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
 	mux := http.NewServeMux()
-	mux.Handle(NodeServiceUpdateNodeProcedure, connect_go.NewUnaryHandler(
-		NodeServiceUpdateNodeProcedure,
+	mux.Handle("/node.v1.NodeService/UpdateNode", connect_go.NewUnaryHandler(
+		"/node.v1.NodeService/UpdateNode",
 		svc.UpdateNode,
 		opts...,
 	))
-	mux.Handle(NodeServiceDeleteNodeProcedure, connect_go.NewUnaryHandler(
-		NodeServiceDeleteNodeProcedure,
+	mux.Handle("/node.v1.NodeService/DeleteNode", connect_go.NewUnaryHandler(
+		"/node.v1.NodeService/DeleteNode",
 		svc.DeleteNode,
 		opts...,
 	))
-	mux.Handle(NodeServiceGetNodesProcedure, connect_go.NewUnaryHandler(
-		NodeServiceGetNodesProcedure,
+	mux.Handle("/node.v1.NodeService/GetNodes", connect_go.NewUnaryHandler(
+		"/node.v1.NodeService/GetNodes",
 		svc.GetNodes,
 		opts...,
 	))
-	mux.Handle(NodeServiceGetNodeProcedure, connect_go.NewUnaryHandler(
-		NodeServiceGetNodeProcedure,
+	mux.Handle("/node.v1.NodeService/GetNode", connect_go.NewUnaryHandler(
+		"/node.v1.NodeService/GetNode",
 		svc.GetNode,
 		opts...,
 	))

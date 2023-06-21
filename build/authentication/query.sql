@@ -38,9 +38,11 @@ WHERE id = $1 LIMIT 1;
 
 -- name: CreateGroup :one
 INSERT INTO groups (
-  name
+  name,
+  user_group
 ) VALUES (
-  $1
+  $1,
+  FALSE
 )
 RETURNING *;
 

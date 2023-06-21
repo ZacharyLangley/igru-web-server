@@ -45,9 +45,11 @@ func (q *Queries) CountGroupMembers(ctx context.Context, groupID pgtype.UUID) (i
 
 const createGroup = `-- name: CreateGroup :one
 INSERT INTO groups (
-  name
+  name,
+  user_group
 ) VALUES (
-  $1
+  $1,
+  FALSE
 )
 RETURNING id, name, user_group, created_at, updated_at
 `
