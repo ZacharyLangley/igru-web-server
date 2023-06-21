@@ -43,9 +43,7 @@ const CreateGroup: React.FC<CreateGroupProps> = () => {
                 header='Create Group'
                 footer={
                     <div className='create-group-actions'>
-                        <Button title={'Reset Form'} onClick={onResetCreateGroup}/>
-                        <div className='spacer'/>
-                        <Button title={'Create Group'} onClick={onCreateGroup}/>
+                        <Button title={'Create Group'} onClick={onCreateGroup} className={'create-btn'}/>
                     </div>
                 }>
                     <Form>

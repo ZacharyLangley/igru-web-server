@@ -3,9 +3,9 @@
     .create-group-actions {
         display: flex;
         flex-direction: row;
-        justify-content: space-between;
-        .spacer {
-            width: 18px;
+        justify-content: flex-end;
+        .create-btn {
+            max-width: 200px;
         }
     }
 }
