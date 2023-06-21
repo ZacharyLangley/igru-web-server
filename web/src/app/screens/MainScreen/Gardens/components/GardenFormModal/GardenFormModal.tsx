@@ -3,24 +3,31 @@ import { Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import Button from '../../../../../../common/components/Button/Button';
 import GardenForm from '../GardenForm/GardenForm';
 import './styles.scss';
+import useGarden from 'src/store/useGarden/useGarden';
 
 interface GardenFormModalProps {
     isOpen?: boolean;
     toggle?: () => void;
 }
 
+// This is temporary as to quickly get rid of once the garden form is complete
+const defaultGardenInfo = {
+    name:          undefined,
+    groupId:       '',
+    comment:       'Garden Mock Comment',
+    location:      'OUTSIDE',
+    growType:      'SOILLESS',
+    growSize:      '{\'value\':\'7.15\',\'metric\':\'sq. ft.\'}',
+    growStyle:     'HYDROPONIC',
+    containerSize: '{\'value\':\'7.15\',\'metric\':\'sq. ft.\'}',
+    tags:          '[\'Tag A\', \'Tag B\']',
+}
+
 
 const GardenFormModal: React.FC<GardenFormModalProps> = ({isOpen = false, toggle}) => {
-    const [formData, setFormData] = useState({
-        name:          undefined,
-		comment:       'Garden Mock Comment',
-		location:      'OUTSIDE',
-		growType:      'SOILLESS',
-		growSize:      '{\'value\':\'7.15\',\'metric\':\'sq. ft.\'}',
-		growStyle:     'HYDROPONIC',
-		containerSize: '{\'value\':\'7.15\',\'metric\':\'sq. ft.\'}',
-		tags:          '[\'Tag A\', \'Tag B\']',
-    });
+    const {createGarden} = useGarden();
+
+    const [formData, setFormData] = useState(defaultGardenInfo);
 
     const updateFormData = (key: string, value: number | string) => {
       setFormData({
@@ -30,10 +37,13 @@ const GardenFormModal: React.FC<GardenFormModalProps> = ({isOpen = false, toggle
     };
   
     const handleCreate = () => {
+        if (!formData.name) return;
+        createGarden(formData);
         toggle?.();
     }
 
     const handleCancel = () => {
+        setFormData(defaultGardenInfo);
         toggle?.();
     }
 

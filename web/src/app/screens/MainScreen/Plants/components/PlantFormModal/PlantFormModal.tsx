@@ -3,29 +3,32 @@ import { Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import Button from '../../../../../../common/components/Button/Button';
 import PlantForm from '../PlantForm/PlantForm';
 import './styles.scss';
+import usePlant from 'src/store/usePlant/usePlant';
 
 interface PlantFormModalProps {
     isOpen?: boolean;
     toggle?: () => void;
 }
 
+const defaultPlantInfo = {
+    name: undefined,
+    comment: 'Mock Plant Comment',
+    notes: 'Mock Plant Notes',
+    growCycleLength: '{\'value\':\'28\',\'metric\':\'days\'}',
+    parentage: 'Mock Parent Strain',
+    origin: 'Clone',
+    gender: 'Feminized',
+    daysFlowering: 2.4,
+    daysCured: 1.2,
+    harvestedWeight: '{\'value\':\'1.05\',\'metric\':\'lbs.\'}',
+    budDensity: 0.7,
+    budPistils: false,
+    tags: '[\'Tag A\', \'Tag B\']',
+}
 
 const PlantFormModal: React.FC<PlantFormModalProps> = ({isOpen = false, toggle}) => {
-    const [formData, setFormData] = useState({
-        name: undefined,
-        comment: 'Mock Plant Comment',
-        notes: 'Mock Plant Notes',
-		growCycleLength: '{\'value\':\'28\',\'metric\':\'days\'}',
-		parentage: 'Mock Parent Strain',
-		origin: 'Clone',
-		gender: 'Feminized',
-		daysFlowering: 2.4,
-		daysCured: 1.2,
-		harvestedWeight: '{\'value\':\'1.05\',\'metric\':\'lbs.\'}',
-		budDensity: 0.7,
-		budPistils: false,
-		tags: '[\'Tag A\', \'Tag B\']',
-    });
+    const {createPlant} = usePlant()
+    const [formData, setFormData] = useState(defaultPlantInfo);
 
     const updateFormData = (key: string, value: number | string) => {
       setFormData({
@@ -35,10 +38,13 @@ const PlantFormModal: React.FC<PlantFormModalProps> = ({isOpen = false, toggle})
     };
   
     const handleCreate = () => {
+        if (!formData.name) return;
+        createPlant(formData);
         toggle?.();
     }
 
     const handleCancel = () => {
+        setFormData(defaultPlantInfo);
         toggle?.();
     }
 

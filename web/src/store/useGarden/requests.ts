@@ -1,17 +1,14 @@
 import {
     createPromiseClient,
     createConnectTransport,
+    CallOptions
 } from '@bufbuild/connect-web';
 
 import { CreateGardenRequest, UpdateGardenRequest } from '../../client/garden/v1/garden_pb';
 import { GardenService } from '../../client/garden/v1/garden_connectweb';
+import { getUserCookie } from '../utils/cookies';
 
-const client = createPromiseClient(
-    GardenService,
-    createConnectTransport({
-        baseUrl: '',
-    })
-);
+const client = createPromiseClient(GardenService, createConnectTransport({ baseUrl: '' }));
 
 export const getGardenRequest = async (id: string) => {
     return await client.getGarden({id});
@@ -22,7 +19,11 @@ export const getAllGardensRequest = async () => {
 };
 
 export const createGardenRequest = async (garden: Partial<CreateGardenRequest>) => {
-    return await client.createGarden(garden);
+    const token = await getUserCookie();
+    if (!token) return;
+
+    const options: CallOptions = {headers: {session: token}}
+    return await client.createGarden(garden, options);
 };
 
 export const updateGardenRequest = async (garden: Partial<UpdateGardenRequest>) => {
