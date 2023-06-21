@@ -57,9 +57,10 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 		})
 		// Need to do a conditional here where if fullName is not submitted, then we use the email
 		res.Msg.User = &v1.User{
-			Id:       uuid.UUID(user.ID.Bytes).String(),
-			Email:    user.Email,
-			FullName: user.Email,
+			Id:         uuid.UUID(user.ID.Bytes).String(),
+			Email:      user.Email,
+			FullName:   user.FullName.String,
+			GlobalRole: v1.GroupRole(user.GlobalRole.Int32),
 		}
 		return err
 	}); err != nil {
@@ -99,9 +100,10 @@ func (s *Service) GetSessionUser(baseCtx gocontext.Context, req *connect.Request
 			return err
 		}
 		res.Msg.User = &v1.User{
-			Id:       uuid.UUID(user.ID.Bytes).String(),
-			Email:    user.Email,
-			FullName: user.Email,
+			Id:         uuid.UUID(user.ID.Bytes).String(),
+			Email:      user.Email,
+			FullName:   user.FullName.String,
+			GlobalRole: v1.GroupRole(user.GlobalRole.Int32),
 		}
 		return err
 	}); err != nil {
