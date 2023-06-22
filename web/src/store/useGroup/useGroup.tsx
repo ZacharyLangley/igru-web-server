@@ -130,8 +130,7 @@ const useGroup = create<GroupState & GroupActions>((set, get) => ({
         try {
             if (!userId) return;
             const response = await getAllGroupsByUserRequest(userId);
-            console.log(response)
-            if (response) set({groupsBySelectedUser: response?.groups});
+            if (response) set({groupsBySelectedUser: response?.groups, activeUserGroup: response?.groups[0]});
         } catch (error) {set({error})}
     }
 }));

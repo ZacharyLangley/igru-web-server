@@ -4,6 +4,7 @@ import Button from '../../../../../../common/components/Button/Button';
 import GardenForm from '../GardenForm/GardenForm';
 import './styles.scss';
 import useGarden from 'src/store/useGarden/useGarden';
+import useGroup from 'src/store/useGroup/useGroup';
 
 interface GardenFormModalProps {
     isOpen?: boolean;
@@ -13,7 +14,7 @@ interface GardenFormModalProps {
 // This is temporary as to quickly get rid of once the garden form is complete
 const defaultGardenInfo = {
     name:          undefined,
-    groupId:       '',
+    groupId:       undefined,
     comment:       'Garden Mock Comment',
     location:      'OUTSIDE',
     growType:      'SOILLESS',
@@ -26,7 +27,7 @@ const defaultGardenInfo = {
 
 const GardenFormModal: React.FC<GardenFormModalProps> = ({isOpen = false, toggle}) => {
     const {createGarden} = useGarden();
-
+    const {activeUserGroup} = useGroup();
     const [formData, setFormData] = useState(defaultGardenInfo);
 
     const updateFormData = (key: string, value: number | string) => {
@@ -38,7 +39,7 @@ const GardenFormModal: React.FC<GardenFormModalProps> = ({isOpen = false, toggle
   
     const handleCreate = () => {
         if (!formData.name) return;
-        createGarden(formData);
+        createGarden({...formData, groupId: activeUserGroup?.id});
         toggle?.();
     }
 

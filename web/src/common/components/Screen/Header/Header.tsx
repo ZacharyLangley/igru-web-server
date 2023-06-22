@@ -39,17 +39,11 @@ const Header: React.FC<HeaderProps> = ({
   onClick,
 }) => {
   const {user} = useUser();
-  const {groupsBySelectedUser, groups, getAllGroupsByUser, getAllGroups} = useGroup();
+  const {groupsBySelectedUser, getAllGroupsByUser} = useGroup();
 
-  console.log(user)
-  console.log(groupsBySelectedUser)
-  console.log(groups)
   useEffect(() => {
-    if (user?.id) {
-      getAllGroupsByUser(user?.id);
-      getAllGroups();
-    }
-  }, [user])
+    if (user?.id) getAllGroupsByUser(user?.id);
+  }, [user, getAllGroupsByUser]);
 
   return (
     <Navbar
@@ -68,7 +62,7 @@ const Header: React.FC<HeaderProps> = ({
       <NavbarBrand id={`${testID}:logo:container`} href='/' className='me-auto'>
         <Logo testID={`${testID}:logo`} />
       </NavbarBrand>
-      <SelectDropdown options={groupsBySelectedUser} />
+      <SelectDropdown label={'Active Group: '} options={groupsBySelectedUser} />
       <ProfileDropdown />
     </Navbar>
   );
