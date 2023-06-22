@@ -208,7 +208,7 @@ func (s *Service) CheckSessionPermissions(baseCtx gocontext.Context, req *connec
 	res := connect.NewResponse(&v1.CheckSessionPermissionsResponse{})
 	token, err := ExtractSessionToken(req.Header())
 	if err != nil {
-		return nil, err
+		return nil, connect.NewError(connect.CodeUnauthenticated, err)
 	}
 	sess, err := auth.DecodeToken(token)
 	if err != nil {
@@ -216,7 +216,6 @@ func (s *Service) CheckSessionPermissions(baseCtx gocontext.Context, req *connec
 		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrMissingToken)
 	}
 	res.Msg.Responses = make([]*v1.PermissionResponse, len(req.Msg.Requests))
-
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		user, err := queries.GetUser(ctx, sess.UserID)

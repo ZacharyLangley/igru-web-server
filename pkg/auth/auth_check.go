@@ -58,7 +58,7 @@ func (c Checker) AssertAny(ctx context.Context, req interface {
 		output.Valid = true
 	}
 	// Prep group permissions check
-	request := connect.NewRequest(&authenticationv1.CheckSessionPermissionsRequest{})
+	request := newRequest(req)
 	request.Msg.Requests = make([]*authenticationv1.PermissionRequest, 0, len(roles)*2)
 	for _, role := range roles {
 		request.Msg.Requests = append(request.Msg.Requests,
@@ -93,7 +93,7 @@ func (c Checker) AssertAny(ctx context.Context, req interface {
 func (c Checker) AssertRead(ctx context.Context, req interface {
 	Header() http.Header
 }, groupID uuid.NullUUID) (bool, error) {
-	request := connect.NewRequest(&authenticationv1.CheckSessionPermissionsRequest{})
+	request := newRequest(req)
 	request.Msg.Requests = []*authenticationv1.PermissionRequest{
 		{
 			Role: authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
@@ -130,7 +130,7 @@ func (c Checker) AssertRead(ctx context.Context, req interface {
 func (c Checker) AssertWrite(ctx context.Context, req interface {
 	Header() http.Header
 }, groupID uuid.NullUUID) (bool, error) {
-	request := connect.NewRequest(&authenticationv1.CheckSessionPermissionsRequest{})
+	request := newRequest(req)
 	request.Msg.Requests = []*authenticationv1.PermissionRequest{
 		{
 			Role: authenticationv1.GroupRole_GROUP_ROLE_ADMIN,
@@ -155,4 +155,19 @@ func (c Checker) AssertWrite(ctx context.Context, req interface {
 		}
 	}
 	return false, nil
+}
+
+func newRequest(request interface {
+	Header() http.Header
+}) *connect.Request[authenticationv1.CheckSessionPermissionsRequest] {
+	output := connect.NewRequest(&authenticationv1.CheckSessionPermissionsRequest{})
+	if request == nil {
+		return output
+	}
+	authHeader := request.Header().Get("SESSION")
+	if authHeader == "" {
+		return output
+	}
+	output.Header().Add("SESSION", authHeader)
+	return output
 }

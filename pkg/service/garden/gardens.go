@@ -53,7 +53,10 @@ func (s *Service) CreateGarden(baseCtx gocontext.Context, req *connect.Request[v
 			},
 		}
 		garden, err = queries.CreateGarden(ctx, params)
-		return fmt.Errorf("failed to create garden: %w", err)
+		if err != nil {
+			return fmt.Errorf("failed to create garden: %w", err)
+		}
+		return nil
 	}); err != nil {
 		return nil, fmt.Errorf("transaction failure: %w", err)
 	}
