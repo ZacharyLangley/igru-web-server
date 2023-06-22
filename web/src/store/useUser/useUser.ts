@@ -1,6 +1,7 @@
 import {create} from 'zustand';
 
 import {signUpRequest} from './requests';
+import { User } from 'client/authentication/v1/schema_pb';
 
 export enum Status {
     IDLE = 'IDLE',
@@ -10,7 +11,7 @@ export enum Status {
 }
 
 interface UserState {
-    user?: any;
+    user?: User;
     signUpStatus: Status
     error?: any
 }

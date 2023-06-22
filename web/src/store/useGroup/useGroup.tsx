@@ -25,6 +25,7 @@ export enum Status {
 
 interface GroupState {
     groups?: Group[];
+    activeUserGroup?: Group;
     selectedGroup?: Group;
     selectedGroupMembers?: GroupMember[];
     groupsBySelectedUser?: Group[];
@@ -47,10 +48,16 @@ interface GroupActions {
 
 const useGroup = create<GroupState & GroupActions>((set, get) => ({
     groups: undefined,
+    activeUserGroup: undefined,
+
     selectedGroup: undefined,
     selectedGroupMembers: undefined,
     groupsBySelectedUser: undefined,
     error: undefined,
+    setActiveGroup: async (group: Group) => {
+        if (!group) return;
+        set({activeUserGroup: group})
+    },
     createGroup: async (name: string) => {
         try {
             if (!name) return;
@@ -123,6 +130,7 @@ const useGroup = create<GroupState & GroupActions>((set, get) => ({
         try {
             if (!userId) return;
             const response = await getAllGroupsByUserRequest(userId);
+            console.log(response)
             if (response) set({groupsBySelectedUser: response?.groups});
         } catch (error) {set({error})}
     }
