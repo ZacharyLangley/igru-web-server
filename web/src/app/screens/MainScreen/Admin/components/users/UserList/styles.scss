@@ -1,0 +1,22 @@
+.user-list-container {
+    width: 600px;
+    .user-body-container {
+        max-height: 450px;
+        overflow-y: auto;
+        .user-list-item {
+            border-bottom: 1px solid grey;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            .item {
+                .label {
+                    font-weight: 600;
+                    margin-right: 8px;
+                }
+                .value {}
+            }
+            .actions {
+                margin-top: 8px;
+            }
+        }
+    }
+}

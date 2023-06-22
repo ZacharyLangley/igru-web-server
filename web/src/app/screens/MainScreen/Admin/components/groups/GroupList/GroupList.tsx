@@ -39,7 +39,6 @@ const GroupList: React.FC<GroupListProps> = () => {
                         {groups && groups?.map((group) => {
                             return (
                                 <div className='group-list-item' key={group.id}>
-                                    <div className='item'><span className='label'>{'ID:'}</span><span className='value'>{group.id}</span></div>
                                     <div className='item'><span className='label'>{'Name:'}</span><span className='value'>{group.name}</span></div>
                                     <div className='item'><span className='label'>{'Members:'}</span><span className='value'>{group.numMembers.toString()}</span></div>
                                     <div className='item'><span className='label'>{'Created:'}</span><span className='value'>{group.createdAt?.toJsonString()}</span></div>
