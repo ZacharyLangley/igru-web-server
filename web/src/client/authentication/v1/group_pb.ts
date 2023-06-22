@@ -307,6 +307,11 @@ export class GetGroupsRequest extends Message<GetGroupsRequest> {
    */
   pagination?: PaginationRequest;
 
+  /**
+   * @generated from field: bool include_user_groups = 2;
+   */
+  includeUserGroups = false;
+
   constructor(data?: PartialMessage<GetGroupsRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -316,6 +321,7 @@ export class GetGroupsRequest extends Message<GetGroupsRequest> {
   static readonly typeName = "authentication.v1.GetGroupsRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "pagination", kind: "message", T: PaginationRequest },
+    { no: 2, name: "include_user_groups", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetGroupsRequest {

@@ -10,15 +10,15 @@ import useGroup from 'src/store/useGroup/useGroup';
 interface GroupListProps {}
 
 const GroupList: React.FC<GroupListProps> = () => {
-    const {groups, getAllGroups, deleteGroup} = useGroup();
+    const {groups, getGroups, deleteGroup} = useGroup();
 
     useEffect(() => {
-        if (!groups) getAllGroups();
+        if (!groups) getGroups();
         else return;
     }, []);
 
     const onRefresh = async () => {
-        getAllGroups();
+        getGroups();
     }
 
     const onDelete = (groupId: string, name: string) => {

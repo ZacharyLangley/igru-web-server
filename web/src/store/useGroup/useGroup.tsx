@@ -7,6 +7,7 @@ import {
     updateGroupRequest,
     deleteGroupRequest,
     getGroupRequest,
+    getGroupsRequest,
     getAllGroupsRequest,
     addGroupMemberRequest,
     updateGroupMemberRequest,
@@ -36,6 +37,7 @@ interface GroupActions {
     deleteGroup: (id: string) => void;
     getGroup: (id: string) => void;
     getAllGroups: () => void;
+    getGroups: () => void;
     addGroupMember: (groupId: string, userId: string) => void;
     updateGroupMember: (groupId: string, userId: string, role: GroupRole) => void;
     removeGroupMember: (groupId: string, userId: string) => void;
@@ -75,6 +77,12 @@ const useGroup = create<GroupState & GroupActions>((set, get) => ({
             if (!id) return;
             const response = await getGroupRequest(id);
             if (response) set({selectedGroup: response.group})
+        } catch (error) {set({error})}
+    },
+    getGroups: async () => {
+        try {
+            const response = await getGroupsRequest();
+            if (response) set({groups: response.groups})
         } catch (error) {set({error})}
     },
     getAllGroups: async () => {

@@ -137,10 +137,19 @@ func (s *Service) GetGroups(baseCtx gocontext.Context, req *connect.Request[v1.G
 	}
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
-		groups, err := query.GetGroups(ctx, models.GetGroupsParams{
-			Limit:  req.Msg.Pagination.Length,
-			Offset: req.Msg.Pagination.Cursor,
-		})
+		var groups []models.Group
+		var err error
+		if req.Msg.IncludeUserGroups {
+			groups, err = query.GetAllGroups(ctx, models.GetAllGroupsParams{
+				Limit:  req.Msg.Pagination.Length,
+				Offset: req.Msg.Pagination.Cursor,
+			})
+		} else {
+			groups, err = query.GetGroups(ctx, models.GetGroupsParams{
+				Limit:  req.Msg.Pagination.Length,
+				Offset: req.Msg.Pagination.Cursor,
+			})
+		}
 		if err != nil {
 			return fmt.Errorf("failed to get groups: %w", err)
 		}

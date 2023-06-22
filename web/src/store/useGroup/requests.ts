@@ -32,7 +32,15 @@ export const getGroupRequest = async (id: string) => {
 
 export const getAllGroupsRequest = async () => {
     // @ts-ignore
-    const pagination: PaginationRequest = {cursor: 1, length: 10};
+    const pagination: PaginationRequest = {cursor: 0, length: 10};
+    const request: Partial<GetGroupsRequest> = {pagination, includeUserGroups: true}
+
+    return await client.getGroups(request);
+}
+
+export const getGroupsRequest = async () => {
+    // @ts-ignore
+    const pagination: PaginationRequest = {cursor: 0, length: 10};
     const request: Partial<GetGroupsRequest> = {pagination}
 
     return await client.getGroups(request);
