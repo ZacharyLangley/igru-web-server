@@ -1,7 +1,5 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
-import { Form, FormGroup, Input, Label } from 'reactstrap';
+import React, { useEffect } from 'react';
 import { GroupRole } from '../../../../../../../client/authentication/v1/schema_pb'
-
 import Button from '../../../../../../../common/components/Button/Button';
 import Card from '../../../../../../../common/components/Card/Card';
 
@@ -16,7 +14,7 @@ const UserList: React.FC<UserListProps> = () => {
     useEffect(() => {
         if (!users) getUsers();
         else return;
-    }, []);
+    });
 
     const onRefresh = async () => {
         getUsers();
