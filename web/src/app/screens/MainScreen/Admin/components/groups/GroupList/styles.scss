@@ -8,11 +8,16 @@
             padding-bottom: 8px;
             margin-bottom: 8px;
             .item {
+                display: flex;
+                flex-direction: row;
                 .label {
                     font-weight: 600;
                     margin-right: 8px;
+                    width: 90px;
                 }
-                .value {}
+                .value {
+                    flex: 1;
+                }
             }
             .actions {
                 margin-top: 8px;

@@ -49,7 +49,7 @@ const GardenFormModal: React.FC<GardenFormModalProps> = ({isOpen = false, toggle
     }
 
     return (
-        <Modal isOpen={true} toggle={toggle}>
+        <Modal isOpen={isOpen} toggle={toggle}>
             <ModalHeader toggle={toggle}>{'Add Garden'}</ModalHeader>
             <ModalBody>
                 <GardenForm formData={formData} onChange={updateFormData}/>

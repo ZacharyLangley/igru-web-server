@@ -1,23 +1,26 @@
-import React, { useEffect } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
+import { Form, FormGroup, Input, Label } from 'reactstrap';
 
 import Button from '../../../../../../../common/components/Button/Button';
 import Card from '../../../../../../../common/components/Card/Card';
 
 import './styles.scss';
 import useGroup from 'src/store/useGroup/useGroup';
+import useUser from 'src/store/useUser/useUser';
 
-interface GroupListProps {}
+interface UserGroupListProps {}
 
-const GroupList: React.FC<GroupListProps> = () => {
-    const {groups, getGroups, deleteGroup} = useGroup();
+const UserGroupList: React.FC<UserGroupListProps> = () => {
+    const {user} = useUser();
+    const {groupsBySelectedUser, getAllGroupsByUser, deleteGroup} = useGroup();
 
     useEffect(() => {
-        if (!groups) getGroups();
+        if (!groupsBySelectedUser) getAllGroupsByUser(user?.id);
         else return;
-    }, []);
+    }, [user]);
 
     const onRefresh = async () => {
-        getGroups();
+        getAllGroupsByUser(user?.id);
     }
 
     const onDelete = (groupId: string, name: string) => {
@@ -29,13 +32,13 @@ const GroupList: React.FC<GroupListProps> = () => {
     return (
         <div className="group-list-container">
             <Card
-                header='All Groups'
+                header='All Groups Current User is Assigned'
                 footer={
                     <Button title={'Refresh'} onClick={onRefresh}/>
                 }>
-                    {!groups && <div className='empty-data'><span className='message'>{'No Groups Currently Exist'}</span></div>}
+                    {!groupsBySelectedUser && <div className='empty-data'><span className='message'>{'No Groups Currently Exist'}</span></div>}
                     <div className='group-body-container'>
-                        {groups && groups?.map((group) => {
+                        {groupsBySelectedUser && groupsBySelectedUser?.map((group) => {
                             return (
                                 <div className='group-list-item' key={group.id}>
                                     <div className='item'><span className='label'>{'Name:'}</span><span className='value'>{group.name}</span></div>
@@ -52,4 +55,4 @@ const GroupList: React.FC<GroupListProps> = () => {
     )
 }
 
-export default GroupList;
+export default UserGroupList;

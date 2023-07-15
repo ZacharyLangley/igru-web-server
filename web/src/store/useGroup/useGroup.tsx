@@ -43,13 +43,13 @@ interface GroupActions {
     updateGroupMember: (groupId: string, userId: string, role: GroupRole) => void;
     removeGroupMember: (groupId: string, userId: string) => void;
     getAllGroupMembers: (groupId: string) => void;
-    getAllGroupsByUser: (userId: string) => void;
+    getAllGroupsByUser: (userId?: string) => void;
 }
 
 const useGroup = create<GroupState & GroupActions>((set, get) => ({
     groups: undefined,
+    // @ts-ignore
     activeUserGroup: undefined,
-
     selectedGroup: undefined,
     selectedGroupMembers: undefined,
     groupsBySelectedUser: undefined,
@@ -90,6 +90,7 @@ const useGroup = create<GroupState & GroupActions>((set, get) => ({
         try {
             const response = await getGroupsRequest();
             if (response) set({groups: response.groups})
+            if (get().activeUserGroup === undefined) set({ activeUserGroup: response.groups[0] })
         } catch (error) {set({error})}
     },
     getAllGroups: async () => {
@@ -126,7 +127,7 @@ const useGroup = create<GroupState & GroupActions>((set, get) => ({
             if (response) set({selectedGroupMembers: response.members})
         } catch (error) {set({error})}
     },
-    getAllGroupsByUser: async (userId: string) => {
+    getAllGroupsByUser: async (userId?: string) => {
         try {
             if (!userId) return;
             const response = await getAllGroupsByUserRequest(userId);

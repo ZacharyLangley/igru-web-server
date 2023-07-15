@@ -14,8 +14,13 @@ export const getGardenRequest = async (id: string) => {
     return await client.getGarden({id});
 };
 
-export const getAllGardensRequest = async () => {
-    return await client.getGardens({});
+export const getAllGardensRequest = async (groupId?: string) => {
+    const token = await getUserCookie();
+    if (!token) return;
+
+    const options: CallOptions = {headers: {session: token}};
+
+    return await client.getGardens({groupId}, options);
 };
 
 export const createGardenRequest = async (garden: Partial<CreateGardenRequest>) => {

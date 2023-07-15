@@ -2,6 +2,7 @@ import {create} from 'zustand';
 
 import { createGardenRequest, deleteGardenRequest, getAllGardensRequest, getGardenRequest, updateGardenRequest } from './requests';
 import { CreateGardenRequest, UpdateGardenRequest } from '../../client/garden/v1/garden_pb';
+import { Garden } from '../../client/garden/v1/schema_pb';
 
 export enum Status {
     IDLE = 'IDLE',
@@ -19,7 +20,7 @@ interface GardenState {
 
 interface GardenActions {
     getGarden: (id?: string) => void;
-    getAllGardens: () => void;
+    getAllGardens: (groupId?: string) => void;
     createGarden: (garden?: Partial<CreateGardenRequest>) => void;
     updateGarden: (garden?: Partial<UpdateGardenRequest>) => void;
     deleteGarden: (id?: string) => void;
@@ -42,11 +43,12 @@ const useGarden = create<GardenState & GardenActions>((set) => ({
             set({status: Status.FAILURE, error});
         }
     },
-    getAllGardens: async () => {
+    getAllGardens: async (groupId?: string) => {
         try {
+            if (!groupId) return;
             set({status: Status.PENDING, error: undefined});
-            const response = await getAllGardensRequest();
-            if (response) set({status: Status.SUCCESS, gardens: response});
+            const response = await getAllGardensRequest(groupId);
+            if (response) set({status: Status.SUCCESS, gardens: response?.gardens});
             else set({status: Status.FAILURE});
         } catch (error) {
             set({status: Status.FAILURE, error});

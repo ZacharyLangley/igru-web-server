@@ -1,5 +1,14 @@
 .admin-screen-container {
     display: flex;
     flex: 1;
-    justify-content: space-around;
+    flex-direction: column;
+
+    .panel {
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 40px;
+        .panel-item {
+            margin-right: 40px;
+        }
+    }
 }
