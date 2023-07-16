@@ -1,0 +1,32 @@
+.add-user-to-group-modal {
+    .modal-content {
+        .modal-body {
+            .body {
+                flex-direction: column;
+                justify-content: flex-start;
+                flex: 1;
+                .user-group-list {
+                    display: flex;
+                    flex-direction: column;
+                    .user-group-title {
+                        margin-top: 16px;
+                        margin-bottom: 8px;
+                        padding-bottom: 8px;
+                        text-align: left;
+                        font-size: 16px;
+                        font-weight: 500;
+                        border-bottom: 1px solid rgba(1, 1, 1, 0.2);
+                    }
+                }
+            }
+        }
+        .modal-footer {
+            .actions {
+                display: flex;
+                flex: 1;
+                flex-direction: row;
+                width: 100%;
+            }
+        }
+    }
+}

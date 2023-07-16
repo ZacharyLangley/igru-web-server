@@ -25,7 +25,7 @@ const UserList: React.FC<UserListProps> = () => {
             <Card
                 header='All Users'
                 footer={
-                    <Button title={'Refresh'} onClick={onRefresh}/>
+                    <Button title={'Refresh'} onClick={onRefresh} color={'secondary'}/>
                 }>
                     {!users && <div className='empty-data'><span className='message'>{'No Users Currently Exist'}</span></div>}
                     <div className='user-body-container'>
@@ -36,7 +36,7 @@ const UserList: React.FC<UserListProps> = () => {
                                     <div className='item'><span className='label'>{'Email:'}</span><span className='value'>{user.email}</span></div>
                                     <div className='item'><span className='label'>{'Is Admin:'}</span><span className='value'>{user.globalRole === GroupRole.ADMIN ? 'True' : 'False'}</span></div>
                                     <div className='item'><span className='label'>{'Created:'}</span><span className='value'>{user.createdAt?.toJsonString()}</span></div>
-                                    <div className='actions'><Button title={'Delete'} color={'danger'} onClick={() => deleteUser(user.id)}/></div>
+                                    <div className='actions'><Button disable={user?.email === 'admin@admin'} title={'Delete'} color={'danger'} onClick={() => deleteUser(user.id)}/></div>
                                 </div>
                             );
                         })}

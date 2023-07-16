@@ -39,6 +39,12 @@ const ErrorFooter: React.FC<ErrorFooterProps> = (props) => {
 
   const navigateToHome = () => navigate(RoutePath.HOME)
 
+  const handleSignOut = () => {
+    navigateToHome();
+    signOut();
+
+  }
+
   return (
     <div className={'error-footer-container'}>
         <div className='error-footer-button'>
@@ -46,7 +52,7 @@ const ErrorFooter: React.FC<ErrorFooterProps> = (props) => {
         </div>
         {
           !props.isPublic &&
-          <div className='error-footer-button'><Button title={errorFooterSignOutLabel} onClick={signOut}/></div>
+          <div className='error-footer-button'><Button title={errorFooterSignOutLabel} onClick={handleSignOut}/></div>
         }
     </div>
   )

@@ -33,6 +33,7 @@ interface GroupState {
 }
 
 interface GroupActions {
+    setActiveGroup: (group: Group) => void;
     createGroup: (name: string) => void;
     updateGroup: (group: Partial<UpdateGroupRequest>) => void;
     deleteGroup: (id: string) => void;
@@ -103,7 +104,7 @@ const useGroup = create<GroupState & GroupActions>((set, get) => ({
         try {
             if (!groupId || !userId) return;
             const response = await addGroupMemberRequest(groupId, userId)
-            if (response) await get().getAllGroupMembers(groupId);
+            if (response) await get().getAllGroupsByUser(userId);
         } catch (error) {set({error})}
     },
     updateGroupMember: async (groupId: string, userId: string, role: GroupRole) => {
@@ -117,7 +118,7 @@ const useGroup = create<GroupState & GroupActions>((set, get) => ({
         try {
             if (!groupId || !userId) return;
             const response = await removeGroupMemberRequest(groupId, userId);
-            if (response) await get().getAllGroupMembers(groupId);
+            if (response) await get().getAllGroupsByUser(userId);
         } catch (error) {set({error})}
     },
     getAllGroupMembers: async (groupId: string) => {
@@ -131,9 +132,9 @@ const useGroup = create<GroupState & GroupActions>((set, get) => ({
         try {
             if (!userId) return;
             const response = await getAllGroupsByUserRequest(userId);
-            if (response) set({groupsBySelectedUser: response?.groups, activeUserGroup: response?.groups[0]});
+            if (response) set({groupsBySelectedUser: response?.groups});
         } catch (error) {set({error})}
-    }
+    },
 }));
 
 export default useGroup;
