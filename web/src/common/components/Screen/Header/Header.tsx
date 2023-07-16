@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import {Navbar, NavbarBrand, Button} from 'reactstrap';
 
 import Logo from '../../Logo/Logo';
@@ -16,30 +16,12 @@ export interface HeaderProps {
 
 const menubarUnicode = '\u2261'
 
-const mockOptions = [
-  {
-    name: 'Group A',
-    value: 'Group A',
-    groupId: '1234-1234-1234-1234',
-  },
-  {
-    name: 'Group B',
-    value: 'Group B',
-    groupId: '1234-1234-1234-1234',
-  },
-  {
-    name: 'Group C',
-    value: 'Group C',
-    groupId: '1234-1234-1234-1234',
-  }
-]
-
 const Header: React.FC<HeaderProps> = ({
   testID = 'global-layout-header',
   onClick,
 }) => {
   const {user} = useUser();
-  const {groupsBySelectedUser, getAllGroupsByUser, activeUserGroup, setActiveGroup} = useGroup();
+  const {groupsBySelectedUser, getAllGroupsByUser, setActiveGroup} = useGroup();
 
   const handleGroupSelect = (group: any) => {
     setActiveGroup(group);

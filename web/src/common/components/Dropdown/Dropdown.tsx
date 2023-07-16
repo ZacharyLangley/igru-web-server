@@ -1,5 +1,5 @@
-import React, { useCallback, ChangeEventHandler } from 'react';
-import {Form, FormGroup, Input, Label} from 'reactstrap';
+import React, { useCallback } from 'react';
+import {Form, Input, Label} from 'reactstrap';
 import './styles.scss';
 
 interface SelectDropdownProps {

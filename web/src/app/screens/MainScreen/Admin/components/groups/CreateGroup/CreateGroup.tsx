@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { Form, FormGroup, Input, Label } from 'reactstrap';
 
 import Button from '../../../../../../../common/components/Button/Button';
@@ -31,10 +31,6 @@ const CreateGroup: React.FC<CreateGroupProps> = () => {
     const onCreateGroup = () => {
         if (!formData.name) return;
         createGroup(formData.name);
-    }
-
-    const onResetCreateGroup = () => {
-        setFormData({name: undefined});
     }
 
     return (

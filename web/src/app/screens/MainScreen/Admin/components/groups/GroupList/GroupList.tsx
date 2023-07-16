@@ -16,7 +16,7 @@ const GroupList: React.FC<GroupListProps> = () => {
     useEffect(() => {
         if (!groups) getGroups();
         else return;
-    }, []);
+    }, [getGroups, groups]);
 
     const onRefresh = async () => {
         getGroups();

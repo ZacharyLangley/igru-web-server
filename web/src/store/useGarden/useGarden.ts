@@ -2,7 +2,6 @@ import {create} from 'zustand';
 
 import { createGardenRequest, deleteGardenRequest, getAllGardensRequest, getGardenRequest, updateGardenRequest } from './requests';
 import { CreateGardenRequest, UpdateGardenRequest } from '../../client/garden/v1/garden_pb';
-import { Garden } from '../../client/garden/v1/schema_pb';
 
 export enum Status {
     IDLE = 'IDLE',
