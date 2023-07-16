@@ -23,7 +23,8 @@ const GardenListCard: React.FC<GardenListCardProps> = ({
   const {gardens, getAllGardens, deleteGarden} = useGarden();
 
   useEffect(() => {
-    getAllGardens(activeUserGroup?.id);
+    // @ts-ignore
+    getAllGardens(activeUserGroup);
   }, [activeUserGroup, getAllGardens])
 
 

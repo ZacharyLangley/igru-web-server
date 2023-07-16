@@ -39,8 +39,9 @@ const GardenFormModal: React.FC<GardenFormModalProps> = ({isOpen = false, toggle
   
     const handleCreate = () => {
         if (!formData.name) return;
-        createGarden({...formData, groupId: activeUserGroup?.id});
-        toggle?.();
+        const garden = {...formData, groupId: activeUserGroup}
+        // @ts-ignore
+        createGarden(garden);
     }
 
     const handleCancel = () => {

@@ -104,7 +104,7 @@ const useGroup = create<GroupState & GroupActions>((set, get) => ({
         try {
             if (!groupId || !userId) return;
             const response = await addGroupMemberRequest(groupId, userId)
-            if (response) await get().getAllGroupsByUser(userId);
+            if (response) await get().getAllGroupsByUser(groupId);
         } catch (error) {set({error})}
     },
     updateGroupMember: async (groupId: string, userId: string, role: GroupRole) => {
