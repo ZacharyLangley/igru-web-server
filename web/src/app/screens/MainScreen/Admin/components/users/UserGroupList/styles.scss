@@ -1,0 +1,25 @@
+.group-list-container {
+    width: 600px;
+    .group-body-container {
+        max-height: 450px;
+        overflow-y: auto;
+        .group-list-item {
+            border-bottom: 1px solid grey;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            .item {
+                .label {
+                    font-weight: 600;
+                    margin-right: 8px;
+                }
+                .value {}
+            }
+            .actions {
+                display: flex;
+                flex: 1;
+                flex-direction: row;
+                margin-top: 8px;
+            }
+        }
+    }
+}

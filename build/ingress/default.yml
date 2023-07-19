@@ -1,5 +1,5 @@
 grpc:
-  address: :80
+  address: :8000
 webProxyAddress: ""
 logger:
   development: true

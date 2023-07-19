@@ -11,6 +11,7 @@ import Recipes from '../screens/MainScreen/Recipes/Recipes';
 import Settings from '../screens/MainScreen/Settings/Settings';
 import Strains from '../screens/MainScreen/Strains/Strains';
 import {RoutePath} from '../types/routes';
+import Admin from '../screens/MainScreen/Admin/Admin';
 
 const PrivateRouter = createBrowserRouter([
   {
@@ -45,6 +46,10 @@ const PrivateRouter = createBrowserRouter([
       {
         path: RoutePath.SETTINGS,
         element: <Settings />,
+      },
+      {
+        path: RoutePath.ADMIN,
+        element: <Admin />,
       },
     ],
   },

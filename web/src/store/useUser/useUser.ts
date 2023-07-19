@@ -1,6 +1,11 @@
 import {create} from 'zustand';
 
-import {signUpRequest} from './requests';
+import {
+    signUpRequest,
+    getUsersRequest,
+    deleteUsersRequest,
+} from './requests';
+import { User } from 'client/authentication/v1/schema_pb';
 
 export enum Status {
     IDLE = 'IDLE',
@@ -10,7 +15,8 @@ export enum Status {
 }
 
 interface UserState {
-    user?: any;
+    users?: User[];
+    user?: User;
     signUpStatus: Status
     error?: any
 }
@@ -19,13 +25,14 @@ interface UserActions {
     signUp: (email?: string, password?: string) => void;
     setUser: (user: any) => void;
     resetSignUpStatus: () => void;
-    deleteUser: () => void;
+    deleteUser: (userId: any) => void;
     updateUser: () => void;
     getUsers: () => void;
     resetPassword: () => void;
 }
 
 const useUser = create<UserState & UserActions>((set) => ({
+    users: undefined,
     user: undefined,
     signUpStatus: Status.IDLE,
     error: undefined,
@@ -46,9 +53,18 @@ const useUser = create<UserState & UserActions>((set) => ({
     resetSignUpStatus: () => {
         set({signUpStatus: Status.IDLE, error: undefined})
     },
-    deleteUser: () => {},
+    deleteUser: async (userId: string) => {
+        try {
+            await deleteUsersRequest(userId);
+        } catch (error) {set({error})}
+    },
     updateUser: () => {},
-    getUsers: () => {},
+    getUsers: async () => {
+        try {
+            const response = await getUsersRequest();
+            if (response) set({users: response.users})
+        } catch (error) {set({error})}
+    },
     resetPassword: () => {}
 }));
 

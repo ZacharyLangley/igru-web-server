@@ -110,7 +110,7 @@ func validateCreateGroupRequest(req *v1.CreateGroupRequest) error {
 	if req == nil {
 		return connect.NewError(connect.CodeInternal, errInvalidRequestBody)
 	}
-	if len(req.Name) > 0 {
+	if len(req.Name) < 1 {
 		return connect.NewError(connect.CodeInvalidArgument, ValidationRequiredError{FieldName: "request.name"})
 	}
 	if len(req.Name) > 255 {

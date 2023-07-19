@@ -1,6 +1,6 @@
 version: "2"
 sql:
-- schema: "build/authentication/schema.sql"
+- schema: "build/authentication/migrations"
   queries: "build/authentication/query.sql"
   engine: "postgresql"
   gen:
@@ -8,7 +8,7 @@ sql:
       package: "authentication"
       out: "pkg/models/authentication"
       sql_package: pgx/v5
-- schema: "build/garden/schema.sql"
+- schema: "build/garden/migrations"
   queries: "build/garden/query.sql"
   engine: "postgresql"
   gen:
@@ -16,7 +16,7 @@ sql:
       package: "garden"
       out: "pkg/models/garden"
       sql_package: pgx/v5
-- schema: "build/node/schema.sql"
+- schema: "build/node/migrations"
   queries: "build/node/query.sql"
   engine: "postgresql"
   gen:

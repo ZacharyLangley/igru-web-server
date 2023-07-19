@@ -14,7 +14,7 @@ export interface CardProps extends RSCardProps {
   header?: string;
   title?: string;
   subtitle?: string;
-  footer?: string;
+  footer?: any;
 }
 
 const Card: React.FC<CardProps> = ({

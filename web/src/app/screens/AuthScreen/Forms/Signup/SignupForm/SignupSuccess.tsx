@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import language from 'src/common/language/index';
 import { RoutePath } from 'src/app/types/routes';
-import PrimaryButton from '../../../../../../common/components/Button/PrimaryButton/PrimaryButton';
+import Button from '../../../../../../common/components/Button/Button';
 import useUser from 'src/store/useUser/useUser';
 
 interface SignupSuccessProps {}
@@ -29,7 +29,7 @@ export const SignupSuccess: React.FC<SignupSuccessProps> = () => {
                 <p>{text.messageLineTop}</p>
                 <p>{text.messageLineBottom}</p>
             </div>
-            <PrimaryButton title={text.buttonTitle} onClick={onClick} />
+            <Button title={text.buttonTitle} onClick={onClick} />
         </div>
     )
 };

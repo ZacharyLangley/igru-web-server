@@ -1,8 +1,6 @@
 package authentication
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"errors"
 
 	"github.com/ZacharyLangley/igru-web-server/pkg/context"
@@ -15,36 +13,27 @@ import (
 )
 
 const (
-	adminEmail = "admin"
+	adminEmail = "admin@admin"
 	adminName  = "admin"
+
+	//nolint: gosec
+	defaultAdminPassword = "GankyCumdumpster69"
 )
 
-func randomPassword() (string, error) {
-	randBuffer := make([]byte, 16)
-	if _, err := rand.Read(randBuffer); err != nil {
-		return "", err
-	}
-	return base64.StdEncoding.EncodeToString(randBuffer), nil
-}
-
 func CreateAdmin(ctx context.Context, conn *database.Pool) error {
-	var password string
+	password := defaultAdminPassword
 	err := conn.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(conn)
 		// Check if account already exists
 		_, err := queries.GetUserByEmail(ctx, adminEmail)
-		found := errors.Is(err, pgx.ErrNoRows)
-		if err != nil && !found {
+		found := !errors.Is(err, pgx.ErrNoRows)
+		if err != nil && found {
 			return err
 		}
 		if found {
 			return nil
 		}
 		// Create new admin password
-		password, err = randomPassword()
-		if err != nil {
-			return err
-		}
 		hash, salt, err := generateCred(password)
 		if err != nil {
 			return err
@@ -77,6 +66,10 @@ func CreateAdmin(ctx context.Context, conn *database.Pool) error {
 	if err != nil {
 		return err
 	}
-	ctx.L().Info("created new admin account", zap.String("email", adminEmail), zap.String("password", password))
+	if password != "" {
+		ctx.L().Info("created new admin account", zap.String("email", adminEmail), zap.String("password", password))
+	} else {
+		ctx.L().Info("admin account already created")
+	}
 	return nil
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import Screen from '../../../common/components/Screen/Screen';
 import Dialog from '../../../common/components/Dialog/Dialog';
 import Branding from '../../../common/components/Branding/Branding';
-import PrimaryButton from '../../../common/components/Button/PrimaryButton/PrimaryButton';
+import Button from '../../../common/components/Button/Button';
 import language from '../../../common/language/index';
 
 import './styles.scss';
@@ -39,14 +39,20 @@ const ErrorFooter: React.FC<ErrorFooterProps> = (props) => {
 
   const navigateToHome = () => navigate(RoutePath.HOME)
 
+  const handleSignOut = () => {
+    navigateToHome();
+    signOut();
+
+  }
+
   return (
     <div className={'error-footer-container'}>
         <div className='error-footer-button'>
-          <PrimaryButton title={props.isPublic ? errorFooterNavigateUnauthLabel : errorFooterNavigateAuthLabel} onClick={navigateToHome}/>
+          <Button title={props.isPublic ? errorFooterNavigateUnauthLabel : errorFooterNavigateAuthLabel} onClick={navigateToHome}/>
         </div>
         {
           !props.isPublic &&
-          <div className='error-footer-button'><PrimaryButton title={errorFooterSignOutLabel} onClick={signOut}/></div>
+          <div className='error-footer-button'><Button title={errorFooterSignOutLabel} onClick={handleSignOut}/></div>
         }
     </div>
   )

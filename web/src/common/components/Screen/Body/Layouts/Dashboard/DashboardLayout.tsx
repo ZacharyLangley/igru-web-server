@@ -1,7 +1,6 @@
 import React from 'react';
 import {Container, Row, Col} from 'reactstrap';
 import ChartCardPlaceholder from '../../../../Placeholder/ChartCardPlaceholder/ChartCardPlaceholder';
-import TableCardPlaceHolder from '../../../../Placeholder/TableCardPlaceHolder/TableCardPlaceHolder';
 
 import './styles.scss';
 
@@ -37,8 +36,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         </Col>
       </Row>
       <Row id={`${testID}:row:bottom`} className={'dash-bottom-content'}>
-        <Col className=''>
-          <TableCardPlaceHolder />
+        <Col className='dash-bottom-col'>
+          {bottomContent}
         </Col>
       </Row>
     </Container>

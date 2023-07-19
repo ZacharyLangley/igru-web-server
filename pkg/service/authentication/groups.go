@@ -8,6 +8,7 @@ import (
 	"github.com/ZacharyLangley/igru-web-server/pkg/database"
 	models "github.com/ZacharyLangley/igru-web-server/pkg/models/authentication"
 	v1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/authentication/v1"
+	commonv1 "github.com/ZacharyLangley/igru-web-server/pkg/proto/common/v1"
 	"github.com/ZacharyLangley/igru-web-server/pkg/service/common"
 	"github.com/bufbuild/connect-go"
 	"github.com/google/uuid"
@@ -129,18 +130,35 @@ func (s *Service) GetGroup(baseCtx gocontext.Context, req *connect.Request[v1.Ge
 	return res, nil
 }
 
+var defaultPagination = &commonv1.PaginationRequest{
+	Length: defaultPageLength,
+}
+
 func (s *Service) GetGroups(baseCtx gocontext.Context, req *connect.Request[v1.GetGroupsRequest]) (*connect.Response[v1.GetGroupsResponse], error) {
 	ctx := context.New(baseCtx)
 	res := connect.NewResponse(&v1.GetGroupsResponse{})
 	if err := validatePaginationRequest(req.Msg); err != nil {
 		return nil, err
 	}
+	if req.Msg.Pagination == nil {
+		req.Msg.Pagination = defaultPagination
+	}
+
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		query := models.New(tx)
-		groups, err := query.GetGroups(ctx, models.GetGroupsParams{
-			Limit:  req.Msg.Pagination.Length,
-			Offset: req.Msg.Pagination.Cursor,
-		})
+		var groups []models.Group
+		var err error
+		if req.Msg.IncludeUserGroups {
+			groups, err = query.GetAllGroups(ctx, models.GetAllGroupsParams{
+				Limit:  req.Msg.Pagination.Length,
+				Offset: req.Msg.Pagination.Cursor,
+			})
+		} else {
+			groups, err = query.GetGroups(ctx, models.GetGroupsParams{
+				Limit:  req.Msg.Pagination.Length,
+				Offset: req.Msg.Pagination.Cursor,
+			})
+		}
 		if err != nil {
 			return fmt.Errorf("failed to get groups: %w", err)
 		}
@@ -252,6 +270,9 @@ func (s *Service) GetUserGroups(baseCtx gocontext.Context, req *connect.Request[
 	res := connect.NewResponse(&v1.GetUserGroupsResponse{})
 	if err := validatePaginationRequest(req.Msg); err != nil {
 		return nil, err
+	}
+	if req.Msg.Pagination == nil {
+		req.Msg.Pagination = defaultPagination
 	}
 	userID, err := uuid.Parse(req.Msg.UserId)
 	if err != nil {

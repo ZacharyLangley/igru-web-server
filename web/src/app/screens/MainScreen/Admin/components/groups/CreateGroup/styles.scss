@@ -1,0 +1,11 @@
+.create-group-container {
+    width: 400px;
+    .create-group-actions {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        .create-btn {
+            max-width: 200px;
+        }
+    }
+}

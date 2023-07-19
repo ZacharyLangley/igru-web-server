@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {Navbar, NavbarBrand, Button} from 'reactstrap';
 
 import Logo from '../../Logo/Logo';
 import { ProfileDropdown } from 'src/common/components/ProfileDropdown/ProfileDropdown';
+import SelectDropdown from 'src/common/components/Dropdown/Dropdown';
+
 import './styles.scss';
+import useGroup from 'src/store/useGroup/useGroup';
+import useUser from 'src/store/useUser/useUser';
 
 export interface HeaderProps {
   testID?: string;
@@ -16,6 +20,17 @@ const Header: React.FC<HeaderProps> = ({
   testID = 'global-layout-header',
   onClick,
 }) => {
+  const {user} = useUser();
+  const {groupsBySelectedUser, getAllGroupsByUser, setActiveGroup} = useGroup();
+
+  const handleGroupSelect = (group: any) => {
+    setActiveGroup(group);
+  }
+
+  useEffect(() => {
+    if (user?.id) getAllGroupsByUser(user?.id);
+  }, [user, getAllGroupsByUser]);
+
   return (
     <Navbar
       id={`${testID}:container`}
@@ -33,6 +48,7 @@ const Header: React.FC<HeaderProps> = ({
       <NavbarBrand id={`${testID}:logo:container`} href='/' className='me-auto'>
         <Logo testID={`${testID}:logo`} />
       </NavbarBrand>
+      <SelectDropdown label={'Active Group: '} options={groupsBySelectedUser} onSelect={handleGroupSelect}/>
       <ProfileDropdown />
     </Navbar>
   );

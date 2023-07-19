@@ -1,0 +1,24 @@
+.garden-list-item-container {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid grey;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    .item {
+        display: flex;
+        flex-direction: row;
+        .label {
+            font-weight: 600;
+            margin-right: 8px;
+            width: 90px;
+        }
+        .value {
+            flex: 1;
+        }
+    }
+    .actions {
+        flex: 1;
+        height: 50px;
+        margin-top: 8px;
+    }
+}

@@ -1,0 +1,16 @@
+.select-dropdown-container {
+    display: flex;
+    align-content: flex-start;
+    justify-content: flex-start;
+    .label {
+        width: 100px;
+        text-align: left;
+        margin-right: 8px;
+        font-size: medium;
+    }
+    .mb-3 {
+        width: 200px;
+        margin-bottom: 0px !important;
+        text-align: left;
+    }
+}

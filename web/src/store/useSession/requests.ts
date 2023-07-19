@@ -8,12 +8,7 @@ import { GetSessionsRequest, GetSessionUserResponse } from 'src/client/authentic
 import { SessionService } from 'src/client/authentication/v1/session_connectweb';
 import { PaginationRequest } from 'src/client/common/v1/pagination_pb';
 
-const client = createPromiseClient(
-    SessionService,
-    createConnectTransport({
-        baseUrl: '',
-    })
-);
+const client = createPromiseClient(SessionService, createConnectTransport({ baseUrl: '' }));
 
 export const signInRequest = async (email: string, password: string) => {
     var sessionToken = ""

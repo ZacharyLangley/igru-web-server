@@ -57,9 +57,10 @@ func (s *Service) CreateSession(baseCtx gocontext.Context, req *connect.Request[
 		})
 		// Need to do a conditional here where if fullName is not submitted, then we use the email
 		res.Msg.User = &v1.User{
-			Id:       uuid.UUID(user.ID.Bytes).String(),
-			Email:    user.Email,
-			FullName: user.Email,
+			Id:         uuid.UUID(user.ID.Bytes).String(),
+			Email:      user.Email,
+			FullName:   user.FullName.String,
+			GlobalRole: v1.GroupRole(user.GlobalRole.Int32),
 		}
 		return err
 	}); err != nil {
@@ -99,9 +100,10 @@ func (s *Service) GetSessionUser(baseCtx gocontext.Context, req *connect.Request
 			return err
 		}
 		res.Msg.User = &v1.User{
-			Id:       uuid.UUID(user.ID.Bytes).String(),
-			Email:    user.Email,
-			FullName: user.Email,
+			Id:         uuid.UUID(user.ID.Bytes).String(),
+			Email:      user.Email,
+			FullName:   user.FullName.String,
+			GlobalRole: v1.GroupRole(user.GlobalRole.Int32),
 		}
 		return err
 	}); err != nil {
@@ -206,7 +208,7 @@ func (s *Service) CheckSessionPermissions(baseCtx gocontext.Context, req *connec
 	res := connect.NewResponse(&v1.CheckSessionPermissionsResponse{})
 	token, err := ExtractSessionToken(req.Header())
 	if err != nil {
-		return nil, err
+		return nil, connect.NewError(connect.CodeUnauthenticated, err)
 	}
 	sess, err := auth.DecodeToken(token)
 	if err != nil {
@@ -214,7 +216,6 @@ func (s *Service) CheckSessionPermissions(baseCtx gocontext.Context, req *connec
 		return nil, connect.NewError(connect.CodeUnauthenticated, auth.ErrMissingToken)
 	}
 	res.Msg.Responses = make([]*v1.PermissionResponse, len(req.Msg.Requests))
-
 	if err := s.pool.RunTransaction(ctx, func(ctx context.Context, tx pgx.Tx) error {
 		queries := models.New(tx)
 		user, err := queries.GetUser(ctx, sess.UserID)

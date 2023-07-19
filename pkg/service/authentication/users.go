@@ -166,10 +166,11 @@ func (s *Service) GetUsers(baseCtx gocontext.Context, req *connect.Request[v1.Ge
 	res.Msg.Users = make([]*v1.User, 0, len(users))
 	for _, user := range users {
 		newUser := v1.User{
-			Id:        uuid.UUID(user.ID.Bytes).String(),
-			Email:     user.Email,
-			FullName:  user.Email,
-			CreatedAt: timestamppb.New(user.CreatedAt.Time),
+			Id:         uuid.UUID(user.ID.Bytes).String(),
+			Email:      user.Email,
+			FullName:   user.Email,
+			CreatedAt:  timestamppb.New(user.CreatedAt.Time),
+			GlobalRole: v1.GroupRole(user.GlobalRole.Int32),
 		}
 		if user.UpdatedAt.Valid {
 			newUser.UpdatedAt = timestamppb.New(user.UpdatedAt.Time)

@@ -47,6 +47,7 @@ message GetGroupResponse {
 
 message GetGroupsRequest {
   common.v1.PaginationRequest pagination = 1;
+  bool include_user_groups = 2;
 }
 message GetGroupsResponse {
   repeated authentication.v1.Group groups = 1;

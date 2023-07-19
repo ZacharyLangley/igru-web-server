@@ -38,9 +38,11 @@ WHERE id = $1 LIMIT 1;
 
 -- name: CreateGroup :one
 INSERT INTO groups (
-  name
+  name,
+  user_group
 ) VALUES (
-  $1
+  $1,
+  FALSE
 )
 RETURNING *;
 
@@ -60,8 +62,14 @@ SET name = $2, updated_at=CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING *;
 
+-- name: GetAllGroups :many
+SELECT * FROM groups
+LIMIT $1
+OFFSET $2;
+
 -- name: GetGroups :many
 SELECT * FROM groups
+WHERE user_group = FALSE
 LIMIT $1
 OFFSET $2;
 

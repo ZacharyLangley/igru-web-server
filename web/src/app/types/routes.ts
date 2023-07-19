@@ -7,4 +7,5 @@ export enum RoutePath {
   RECIPES = '/recipes',
   SETTINGS = '/settings',
   SIGN_UP = '/sign-up',
+  ADMIN = '/admin'
 }

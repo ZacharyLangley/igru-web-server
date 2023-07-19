@@ -45,9 +45,11 @@ func (q *Queries) CountGroupMembers(ctx context.Context, groupID pgtype.UUID) (i
 
 const createGroup = `-- name: CreateGroup :one
 INSERT INTO groups (
-  name
+  name,
+  user_group
 ) VALUES (
-  $1
+  $1,
+  FALSE
 )
 RETURNING id, name, user_group, created_at, updated_at
 `
@@ -209,6 +211,43 @@ func (q *Queries) DeleteUser(ctx context.Context, id pgtype.UUID) error {
 	return err
 }
 
+const getAllGroups = `-- name: GetAllGroups :many
+SELECT id, name, user_group, created_at, updated_at FROM groups
+LIMIT $1
+OFFSET $2
+`
+
+type GetAllGroupsParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) GetAllGroups(ctx context.Context, arg GetAllGroupsParams) ([]Group, error) {
+	rows, err := q.db.Query(ctx, getAllGroups, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Group
+	for rows.Next() {
+		var i Group
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.UserGroup,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getGroup = `-- name: GetGroup :one
 SELECT id, name, user_group, created_at, updated_at FROM groups
 WHERE id = $1 LIMIT 1
@@ -245,8 +284,8 @@ type GetGroupMembersRow struct {
 	UserID    pgtype.UUID
 	FullName  pgtype.Text
 	Role      int32
-	AddedAt   pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	AddedAt   pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
 }
 
 func (q *Queries) GetGroupMembers(ctx context.Context, arg GetGroupMembersParams) ([]GetGroupMembersRow, error) {
@@ -277,6 +316,7 @@ func (q *Queries) GetGroupMembers(ctx context.Context, arg GetGroupMembersParams
 
 const getGroups = `-- name: GetGroups :many
 SELECT id, name, user_group, created_at, updated_at FROM groups
+WHERE user_group = FALSE
 LIMIT $1
 OFFSET $2
 `

@@ -23,8 +23,10 @@ interface SessionActions {
     validateSessionPermissions: () => void;
 }
 
+const DEBUG_BYPASS_AUTH = false
+
 const useSession = create<SessionState & SessionActions>((set) => ({
-    sessionValidated: false,
+    sessionValidated: DEBUG_BYPASS_AUTH,
     signInStatus: Status.IDLE,
     error: undefined,
 
