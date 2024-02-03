@@ -1,15 +1,27 @@
 import React from 'react'
+import { Outlet } from 'react-router-dom';
 import { Card, Image, Title, Group, Divider, Button, Anchor, Stack } from '@mantine/core';
 
 import logo from '../../../common/assets/branding/IGRU_White_logo.png';
-import { Outlet } from 'react-router-dom';
+import {AuthFormProvider, useAuthForm} from '../../../common/contexts/authenticationContext';
 
 export const AuthDialog = React.memo(() => {
+    const form = useAuthForm({
+        initialValues: {
+          email: '',
+          userName: '',
+          password: '',
+          confirmPassword: ''
+        },
+    })
+
     return (
         <Card shadow="xl" padding="xl" radius="md" withBorder>
             <AuthDialogHeader />
             <Divider my={'md'}/>
-            <Outlet />
+            <AuthFormProvider form={form}>
+                <Outlet />
+            </AuthFormProvider>
             <Divider my={'md'}/>
             <AuthDialogFooter/>
         </Card>
