@@ -2,25 +2,27 @@ import React from 'react';
 import {createBrowserRouter} from 'react-router-dom';
 
 import Error from '../screens/ErrorScreen/ErrorScreen';
-import AuthScreen from '../screens/AuthScreen/AuthScreen';
-import Signin from '../screens/AuthScreen/Forms/Signin/Signin';
 import Signup from '../screens/AuthScreen/Forms/Signup/Signup';
 import {RoutePath} from '../types/routes';
+
+import AuthScreen2 from '../screens/AuthScreen2/AuthScreen2';
+import SignInForm from '../screens/AuthScreen2/SignInForm';
+import { SignUpForm } from '../screens/AuthScreen2/SignUpForm';
 
 const PrivateRouter = createBrowserRouter([
   {
     path: RoutePath.HOME,
-    element: <AuthScreen />,
+    element: <AuthScreen2 />,
     errorElement: <Error isPublic={true}/>,
     children: [
       {
         path: RoutePath.HOME,
-        element: <Signin />,
+        element: <SignInForm />,
 
       },
       {
         path: RoutePath.SIGN_UP,
-        element: <Signup />,
+        element: <SignUpForm />,
       },
     ],
   },
