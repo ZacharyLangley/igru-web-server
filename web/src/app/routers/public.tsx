@@ -12,7 +12,7 @@ const PrivateRouter = createBrowserRouter([
   {
     path: RoutePath.HOME,
     element: <AuthScreen2 />,
-    errorElement: <Error isPublic={true}/>,
+    errorElement: <Error />,
     children: [
       {
         path: RoutePath.HOME,

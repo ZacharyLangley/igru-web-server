@@ -1,28 +1,25 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
-import { Outlet, useNavigate, useLocation, Route } from 'react-router-dom';
+import React, { useCallback, useMemo } from 'react'
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Card, Image, Title, Group, Divider, Button, Anchor, Stack } from '@mantine/core';
 
 import logo from '../../../common/assets/branding/IGRU_White_logo.png';
-import {AuthFormProvider, useAuthForm, AuthFormValues} from '../../../common/contexts/authenticationContext';
+import {AuthFormProvider, useAuthForm, AuthFormValues, useAuthFormContext} from '../../../common/contexts/authenticationContext';
 import useSession from 'src/store/useSession/useSession';
 import useUser, { Status } from 'src/store/useUser/useUser';
 import { RoutePath } from '../../types/routes';
 
 const isLoginValid = (formData: AuthFormValues) => (
-    formData.email &&
-    formData.email.length >= 6 &&
-    formData.password &&
-    formData.password.length >= 8
+    (formData?.email.length >= 6 ) &&
+    (formData?.password?.length >= 8)
 )
 
 const isSignUpValid = (formData: AuthFormValues) => (
-    formData.email &&
-    formData.email.length >= 6 &&
-    formData.password &&
-    formData.password.length >= 8 &&
-    formData.password === formData.confirmPassword &&
-    formData.userName && formData.userName.length >= 4
-  )
+    formData?.email?.length >= 6 &&
+    formData?.userName?.length > 3 &&
+    formData?.password.length >= 8 &&
+    formData?.password === formData.confirmPassword &&
+    formData?.userName.length >= 4
+)
   
 
 export const AuthDialog = React.memo(() => {
@@ -43,20 +40,25 @@ export const AuthDialog = React.memo(() => {
     })
 
     const handleButtonClick = useCallback(async (values: AuthFormValues) => {
+        console.log('handleButtonClick', location.pathname, values, isSignUpValid(values))
         if (location.pathname === RoutePath.HOME && isLoginValid(values)) {
+            console.log('SignIn')
             const user = await signIn(values.email, values.password);
             setUser(user);
             return;
         }
-        else if (location.pathname === RoutePath.SIGN_UP && isSignUpValid(values)) {
-            const signUpStatus = await signUp(values.email, values.password);
-            if (signUpStatus === Status.SUCCESS) navigate(RoutePath.SIGN_UP_SUCCESS);
-            else if (signUpStatus === Status.FAILURE) navigate(RoutePath.SIGN_UP_FAILURE);
-            return;
+        if (location.pathname === RoutePath.SIGN_UP) {
+            if (isSignUpValid(values)) {
+                console.log('SignUp', values, isSignUpValid(values))
+                const signUpStatus = await signUp(values.email, values.password);
+                if (signUpStatus === Status.SUCCESS) navigate(RoutePath.SIGN_UP_SUCCESS);
+                else if (signUpStatus === Status.FAILURE) navigate(RoutePath.SIGN_UP_FAILURE);
+                return;
+            }
         }
         else if (location?.pathname === RoutePath.SIGN_UP_SUCCESS) navigate(RoutePath.HOME);
         else if (location?.pathname === RoutePath.SIGN_UP_FAILURE) navigate(RoutePath.SIGN_UP);
-        else navigate(RoutePath.HOME);
+        else return;
     }, [location?.pathname, signIn, signUp, setUser, navigate])
 
     return (
@@ -92,6 +94,7 @@ const AuthDialogHeader = React.memo(() => {
 const AuthDialogFooter = React.memo(() => {
     const navigate = useNavigate();
     const location = useLocation();
+    const form = useAuthFormContext();
     const buttonTitle = useMemo(() => {
         if (location?.pathname === RoutePath.HOME) return 'Login';
         else if (location?.pathname === RoutePath.SIGN_UP) return 'Sign Up';
@@ -101,7 +104,7 @@ const AuthDialogFooter = React.memo(() => {
 
     const linkTitle = useMemo(() => {
         if (location?.pathname === RoutePath.HOME) return 'Need an Account?';
-        else if (location?.pathname === RoutePath.SIGN_UP) return 'Already have an Account';
+        else if (location?.pathname === RoutePath.SIGN_UP) return 'Already have an Account?';
         else return;
     }, [location?.pathname]);
 
@@ -113,10 +116,16 @@ const AuthDialogFooter = React.memo(() => {
         else navigate(RoutePath.HOME)
     }, [location?.pathname, navigate]);
 
+    const isDisabled = useMemo(() => {
+        if (location.pathname === RoutePath.HOME) return !(isLoginValid(form.values));
+        else if (location.pathname === RoutePath.SIGN_UP) return !(isSignUpValid(form.values));
+        else return false;
+    }, [location?.pathname, form.values])
+
     return (
         <Group justify="space-between">
             { linkTitle && <Anchor size={'sm'} underline={'never'} onClick={handleNavigation}>{linkTitle}</Anchor> }
-            <Button color={'#469d4b'} radius={'md'} type={'submit'} fullWidth={isFullwidth}>{buttonTitle}</Button>
+            <Button color={'#469d4b'} radius={'md'} type={'submit'} fullWidth={isFullwidth} disabled={isDisabled}>{buttonTitle}</Button>
         </Group>
     )
 })
