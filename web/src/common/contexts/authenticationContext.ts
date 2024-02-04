@@ -1,6 +1,6 @@
 import { createFormContext } from '@mantine/form';
 
-interface AuthFormValues {
+export interface AuthFormValues {
     email: string;
     userName: string;
     password: string;

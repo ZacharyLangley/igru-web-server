@@ -1,7 +1,8 @@
 import React from 'react';
-
 import { PasswordInput, Stack, TextInput } from '@mantine/core';
+
 import { useAuthFormContext } from '../../../common/contexts/authenticationContext';
+
 const inputStyle = { width: '100%' }
 
 export const SignInForm = React.memo(() => {

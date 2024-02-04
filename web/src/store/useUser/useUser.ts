@@ -22,7 +22,7 @@ interface UserState {
 }
 
 interface UserActions {
-    signUp: (email?: string, password?: string) => void;
+    signUp: (email?: string, password?: string) => Promise<Status>;
     setUser: (user: any) => void;
     resetSignUpStatus: () => void;
     deleteUser: (userId: any) => void;
@@ -42,11 +42,19 @@ const useUser = create<UserState & UserActions>((set) => ({
             if (email && password) {
                 set({signUpStatus: Status.PENDING, error: undefined});
                 const response = await signUpRequest(email, password);
-                if (response) set({signUpStatus: Status.SUCCESS});
-                else set({signUpStatus: Status.FAILURE})
+                if (response) {
+                    set({signUpStatus: Status.SUCCESS});
+                    return Status.SUCCESS
+                }
+                else {
+                    set({signUpStatus: Status.FAILURE})
+                    return Status.FAILURE
+                }
             }
+            return Status.IDLE;
         } catch (error) {
             set({signUpStatus: Status.FAILURE, error});
+            return Status.FAILURE
         }
     },
     setUser: (user: any) => set({user}),
