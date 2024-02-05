@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import language from '../../../common/language/index';
 
 import './styles.scss';
 
 import { AppShell, Center, Card, Image, Title, Group, Divider, Button, Stack, Text, MantineStyleProp } from '@mantine/core';
 import logo from '../../../common/assets/branding/IGRU_White_logo.png';
+import { useNavigate } from 'react-router-dom';
+import { RoutePath } from 'src/app/types/routes';
 
 const errorFooterNavigateUnauthLabel = language("error.label.footer.navigate.unauth")
 
@@ -12,7 +14,14 @@ const errorTitleLabel = language("error.label.title");
 const errorMessageLabel= language("error.label.message");
 const messageStyle: MantineStyleProp = { textAlign: 'center', maxWidth: 400 };
 
-const ErrorScreen = React.memo(() => {
+export interface ErrorScreenProps {
+  isPublic?: boolean;
+}
+
+const ErrorScreen = React.memo((props: ErrorScreenProps) => {
+  const navigate = useNavigate();
+
+  const handleButtonClick = useCallback(() => navigate(RoutePath.HOME), []);
 
   return (
     <AppShell padding="md">
@@ -35,7 +44,7 @@ const ErrorScreen = React.memo(() => {
                     <Text style={messageStyle}>{errorMessageLabel}</Text>
                   </Stack>
                   <Divider my={'md'}/>
-                  <Button color={'#469d4b'} radius={'md'} fullWidth>{'Go Home'}</Button>
+                  <Button color={'#469d4b'} radius={'md'} fullWidth onClick={handleButtonClick}>{'Go Home'}</Button>
                   </Card>
                 </Center>
             </Group>

@@ -1,12 +1,12 @@
 {
     "branding.name": "IGRU",
 
-    "auth.sign_in.header": "SIGN INTO YOUR ACCOUNT",
+    "auth.sign_in.header": "Log into your Account",
     "auth.sign_in.title": "Need an account?",
     "auth.sign_in.link_title": "Click Here",
     "auth.sign_in.button_title": "LOGIN",
 
-    "auth.sign_up.header": "CREATE YOUR ACCOUNT",
+    "auth.sign_up.header": "Create your Account",
     "auth.sign_up.header.success": "SIGN UP SUCCESSUL",
     "auth.sign_up.header.failure": "SOMETHING WENT WRONG",
     "auth.sign_up.title": "Already a user?",

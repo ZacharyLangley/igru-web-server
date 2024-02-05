@@ -2,7 +2,7 @@ import React from 'react'
 import { AppShell, Center, Group } from '@mantine/core';
 import AuthDialog from './AuthDialog';
 
-export const AuthScreen2 = React.memo(() => {
+export const AuthScreen = React.memo(() => {
     return (
         <AppShell padding="md">
             <AppShell.Main h={'100%'} flex={1}>
@@ -24,4 +24,4 @@ export const AuthScreen2 = React.memo(() => {
     )
 })
 
-export default AuthScreen2;
+export default AuthScreen;
