@@ -20,40 +20,40 @@ import {RoutePath} from '../../types/routes';
 import language from '../../../common/language/index';
 
 interface MainScreenProps {}
-
+const lang = language();
 const sidebarOptions: SidebarOptions[] = [
   {
-    label: language("sidebar.option.home"),
+    label: lang.sidebar.options.home,
     path: RoutePath.HOME,
     icon: allIcon,
   },
   {
-    label: language("sidebar.option.tasks"),
+    label: lang.sidebar.options.tasks,
     path: RoutePath.TASKS,
     icon: tasksIcon,
   },
   {
-    label: language("sidebar.option.gardens"),
+    label: lang.sidebar.options.gardens,
     path: RoutePath.GARDENS,
     icon: gardensIcon,
   },
   {
-    label: language("sidebar.option.plants"),
+    label: lang.sidebar.options.plants,
     path: RoutePath.PLANTS,
     icon: plantsIcon,
   },
   {
-    label: language("sidebar.option.strains"),
+    label: lang.sidebar.options.strains,
     path: RoutePath.STRAINS,
     icon: strainsIcon,
   },
   {
-    label: language("sidebar.option.recipes"),
+    label: lang.sidebar.options.recipes,
     path: RoutePath.RECIPES,
     icon: recipesIcon,
   },
   {
-    label: language("sidebar.option.settings"),
+    label: lang.sidebar.options.settings,
     path: RoutePath.SETTINGS,
     icon: settingsIcon,
   },

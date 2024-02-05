@@ -2,8 +2,10 @@ import React from 'react';
 import { PasswordInput, Stack, TextInput } from '@mantine/core';
 
 import { useAuthFormContext } from '../../../common/contexts/authenticationContext';
+import language from '../../../common/language/index';
 
-const inputStyle = { width: '100%' }
+const lang = language();
+const inputStyle = { width: '100%' };
 
 export const SignInForm = React.memo(() => {
 
@@ -14,13 +16,13 @@ export const SignInForm = React.memo(() => {
             <TextInput
                 withAsterisk
                 radius={'md'}
-                label={"Email"}
+                label={lang.inputs.email.label}
                 style={inputStyle}
                 {...form.getInputProps('email')}
             />
             <PasswordInput
                 withAsterisk
-                label={'Password'}
+                label={lang.inputs.password.label}
                 radius={'md'}
                 style={inputStyle}
                 {...form.getInputProps('password')}

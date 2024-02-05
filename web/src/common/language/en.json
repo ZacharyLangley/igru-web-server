@@ -1,47 +1,75 @@
 {
-    "branding.name": "IGRU",
+    "branding": {
+        "name": "IGRU"
+    },
 
-    "auth.sign_in.header": "Log into your Account",
-    "auth.sign_in.title": "Need an account?",
-    "auth.sign_in.link_title": "Click Here",
-    "auth.sign_in.button_title": "LOGIN",
+    "auth": {
+        "login": {
+            "header": "Log into your Account",
+            "linkTitle": "Need an Account?",
+            "buttonTitle": "LOGIN"
+        },
+        "signUp": {
+            "header": "Create your Account",
+            "linkTitle": "Already a have an Account?",
+            "buttonTitle": "SIGN UP"
+        },
+        "signUpSuccess": {
+            "header": "Sign Up Successful",
+            "title": "Thank you for signing up for IGRU.",
+            "message": "Feel free to click the link below to go back to the login page and authenticate with your account."
+            
+        },
+        "signUpError": {
+            "header": "Something went wrong.",
+            "title": "You registration to IGRU failed unexpectedly.",
+            "message": "'Feel free to click the link below to go try again"
+        }
+    },
 
-    "auth.sign_up.header": "Create your Account",
-    "auth.sign_up.header.success": "SIGN UP SUCCESSUL",
-    "auth.sign_up.header.failure": "SOMETHING WENT WRONG",
-    "auth.sign_up.title": "Already a user?",
-    "auth.sign_up.link_title": "Click Here",
-    "auth.sign_up.button_title": "SIGN UP",
+    "inputs": {
+        "email": {
+            "label": "Email"
+        },
+        "name": {
+            "label": "Name",
+            "description": "Custom Name for your Account"
+        },
+        "password": {
+            "label": "Password",
+            "description": "Min. 8 Chars, Uppercase, Lowercase, Special Chars"
+        },
+        "confirmPassword": {
+            "label": "Confirm Password",
+            "description": "Must match above Password"
+        }
+    },
 
-    "auth.sign_up.success.message_top": "Thank you for signing up for IGRU.",
-    "auth.sign_up.success.message_bottom": "Feel free to click the link below to go back to the login page and authenticate your account.",    
-    "auth.sign_up.success.button_title": "Proceed to Sign In",
+    "error": {
+        "title": "Woah there, lil' buddy!",
+        "subtitle": "An Error has Occured",
+        "message": "Something must have hit you hard to end up here. Hope I don't see the other guy.",
+        "unauthButtonTitle": "Go to Sign In Page",
+        "authButtonTitle": "Go to Home Dashboard"
+    },
 
-    "auth.sign_up.error.message_top": "It appears that your registration to IGRU failed unexpectedly.",
-    "auth.sign_up.error.message_bottom": "Feel free to click the link below to go try again",    
-    "auth.sign_up.error.button_title": "Proceed to Sign Up Form",
+    "navbar": {
+        "dropdown": {
+            "welcome": "Welcome",
+            "profile": "Profile",
+            "signout": "Sign Out"
+        }
+    },
 
-    "navbar.dropdown.header": "Welcome", 
-    "navbar.dropdown.profile": "Profile",
-    "navbar.dropdown.signout": "Sign Out",
-
-    "sidebar.option.home": "Home",
-    "sidebar.option.tasks": "Tasks",
-    "sidebar.option.gardens": "Gardens",
-    "sidebar.option.plants": "Plants",
-    "sidebar.option.strains": "Strains",
-    "sidebar.option.recipes": "Recipes",
-    "sidebar.option.settings": "Settings",
-
-    "input.label.email": "Email",
-    "input.label.full_name": "Name",
-    "input.label.password": "Password",
-    "input.label.confirm_password": "Confirm Password",
-    "input.label.optional": "Optional",
-
-    "error.label.title": "An Error has Occured",
-    "error.label.message": "Something must have hit you hard to end up here. Hope I don't see the other guy.",
-    "error.label.footer.navigate.unauth": "Go to Sign In Page",
-    "error.label.footer.navigate.auth": "Go to Home Dashboard",
-    "error.label.footer.signout": "Sign Out"
+    "sidebar": {
+        "options": {
+            "home": "Home",
+            "tasks": "Tasks",
+            "gardens": "Gardens",
+            "plants": "Plants",
+            "strains": "Strains",
+            "recipes": "Recipes",
+            "settings": "Settings"
+        }
+    }
 }

@@ -22,6 +22,8 @@ const isSignUpValid = (formData: AuthFormValues) => (
     formData?.userName.length >= 4
 )
 
+const lang = language();
+
 export const AuthDialog = React.memo(() => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -73,45 +75,38 @@ export const AuthDialog = React.memo(() => {
     )
 });
 
-const brandingTitle = language('branding.name')
-const authDialogLoginTitle = language('auth.sign_in.header');
-const authDialogSignUpTitle = language('auth.sign_up.header');
+const nameStyle = {color: '#494850'};
+const titleStyle = {color: '#469d4b'};
 
 const AuthDialogHeader = React.memo(() => {
     const location = useLocation();
-    const title = location?.pathname === RoutePath.HOME ? authDialogLoginTitle : authDialogSignUpTitle;
+    const title = location?.pathname === RoutePath.HOME ? lang.auth.login.header : lang.auth.signUp.header;
 
     return (
         <Stack mih={50} gap="xs" justify="center" align="center">
             <Group>
                 <Image src={logo} height={150} width={150} alt={'branding'}/>
             </Group>
-            <Title order={1} style={{color: '#494850'}}>{brandingTitle}</Title>
-            <Title order={2} style={{color: '#469d4b'}}>{title}</Title>
+            <Title order={1} style={nameStyle}>{lang.branding.name}</Title>
+            <Title order={2} style={titleStyle}>{title}</Title>
         </Stack>
     )
 });
-
-const loginButtonTitle = language('auth.sign_in.button_title');
-
-const signUpButtonTitle = language('auth.sign_up.button_title');
-const signUpButtonSuccessTitle = language('auth.sign_up.success.button_title');
-const signUpButtonFailureTitle = language('auth.sign_up.error.button_title');
 
 const AuthDialogFooter = React.memo(() => {
     const navigate = useNavigate();
     const location = useLocation();
     const form = useAuthFormContext();
     const buttonTitle = useMemo(() => {
-        if (location?.pathname === RoutePath.HOME) return loginButtonTitle;
-        else if (location?.pathname === RoutePath.SIGN_UP) return signUpButtonTitle;
-        else if (location?.pathname === RoutePath.SIGN_UP_SUCCESS) return signUpButtonSuccessTitle;
-        else if (location?.pathname === RoutePath.SIGN_UP_FAILURE) return signUpButtonFailureTitle;
+        if (location?.pathname === RoutePath.HOME) return lang.auth.login.buttonTitle;
+        else if (location?.pathname === RoutePath.SIGN_UP) return lang.auth.signUp.buttonTitle;
+        else if (location?.pathname === RoutePath.SIGN_UP_SUCCESS) return lang.auth.signUpSuccess.header;
+        else if (location?.pathname === RoutePath.SIGN_UP_FAILURE) return lang.auth.signUpError.header;
     }, [location?.pathname]);
 
     const linkTitle = useMemo(() => {
-        if (location?.pathname === RoutePath.HOME) return 'Need an Account?';
-        else if (location?.pathname === RoutePath.SIGN_UP) return 'Already have an Account?';
+        if (location?.pathname === RoutePath.HOME) return lang.auth.login.linkTitle;
+        else if (location?.pathname === RoutePath.SIGN_UP) return lang.auth.signUp.linkTitle;
         else return;
     }, [location?.pathname]);
 

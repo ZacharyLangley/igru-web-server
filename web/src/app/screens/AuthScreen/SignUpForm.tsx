@@ -1,9 +1,11 @@
 import React from 'react'
-import { Center, MantineStyleProp, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
+import { MantineStyleProp, PasswordInput, Stack, Text, TextInput } from '@mantine/core';
 
 import { useAuthFormContext } from '../../../common/contexts/authenticationContext';
+import language from '../../../common/language/index';
 
-const inputStyle = { width: '100%' }
+const lang = language();
+const inputStyle = { width: '100%' };
 
 export const SignUpForm = React.memo(() => {
     const form = useAuthFormContext();
@@ -12,27 +14,27 @@ export const SignUpForm = React.memo(() => {
             <TextInput
                 withAsterisk
                 radius={'md'}
-                label={"Email"}
+                label={lang.inputs.email.label}
                 style={inputStyle}
                 {...form.getInputProps('email')} />
             <TextInput
                 withAsterisk
                 radius={'md'}
-                label={"Name"}
-                description={'Custom Name for your Account'}
+                label={lang.inputs.name.label}
+                description={lang.inputs.name.description}
                 style={inputStyle}
                 {...form.getInputProps('userName')} />
             <PasswordInput
                 withAsterisk
-                label={'Password'}
-                description={'Min. 8 Chars, Uppercase, Lowercase, Special Chars'}
+                label={lang.inputs.password.label}
+                description={lang.inputs.password.description}
                 radius={'md'}
                 style={inputStyle}
                 {...form.getInputProps('password')} />
             <PasswordInput
                 withAsterisk
-                label={'Confirm Password'}
-                description={'Must match above Password'}
+                label={lang.inputs.confirmPassword.label}
+                description={lang.inputs.confirmPassword.description}
                 radius={'md'}
                 style={inputStyle}
                 {...form.getInputProps('confirmPassword')} />
@@ -45,8 +47,8 @@ const messageStyle: MantineStyleProp = { textAlign: 'center', maxWidth: 400 };
 export const SignUpFailure = React.memo(() => {
     return (
         <Stack>
-            <Text size={'xl'} style={messageStyle}>{'You registration to IGRU failed unexpectedly.'}</Text>
-            <Text style={messageStyle}>{'Feel free to click the link below to go try again'}</Text>
+            <Text size={'xl'} style={messageStyle}>{lang.auth.signUpError.title}</Text>
+            <Text style={messageStyle}>{lang.auth.signUpError.message}</Text>
         </Stack>
     )
 });
@@ -54,8 +56,8 @@ export const SignUpFailure = React.memo(() => {
 export const SignUpSuccess = React.memo(() => {
     return (
         <Stack>
-            <Text size={'xl'} style={messageStyle}>{'Thank you for signing up for IGRU.'}</Text>
-            <Text style={messageStyle}>{'Feel free to click the link below to go back to the login page and authenticate with your account.'}</Text>
+            <Text size={'xl'} style={messageStyle}>{lang.auth.signUpSuccess.title}</Text>
+            <Text style={messageStyle}>{lang.auth.signUpSuccess.message}</Text>
         </Stack>
     )
 });
