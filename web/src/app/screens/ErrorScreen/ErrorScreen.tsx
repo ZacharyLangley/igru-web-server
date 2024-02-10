@@ -17,7 +17,7 @@ export interface ErrorScreenProps {
 const ErrorScreen = React.memo((props: ErrorScreenProps) => {
   const navigate = useNavigate();
 
-  const handleButtonClick = useCallback(() => navigate(RoutePath.HOME), []);
+  const handleButtonClick = useCallback(() => navigate(RoutePath.HOME), [navigate]);
   const buttonTitle = props?.isPublic ? lang.error.unauthButtonTitle : lang.error.authButtonTitle;
 
   return (
