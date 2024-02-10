@@ -9,9 +9,8 @@ import profileIcon from 'src/common/assets/icons/nav/profile_icon.png';
 import useSession from 'src/store/useSession/useSession';
 import useUser from 'src/store/useUser/useUser';
 
-const welcomeLabel = language('navbar.dropdown.header');
-const profileLabel = language('navbar.dropdown.profile');
-const signOutLabel = language('navbar.dropdown.signout');
+const lang = language();
+
 const adminLabel = 'Admin'
 interface ProfileDropdownProps {}
 
@@ -48,11 +47,11 @@ export const ProfileDropdown:React.FC<ProfileDropdownProps>  = () => {
                     <Icon src={profileIcon} />
                 </DropdownToggle>
                 <DropdownMenu container="body">
-                    <DropdownItem header>{`${welcomeLabel}, ${name}`}</DropdownItem>
+                    <DropdownItem header>{`${lang.navbar.dropdown.welcome}, ${name}`}</DropdownItem>
                     <DropdownItem onClick={onAdminClick}>{adminLabel}</DropdownItem>
-                    <DropdownItem>{profileLabel}</DropdownItem>
+                    <DropdownItem>{lang.navbar.dropdown.profile}</DropdownItem>
                     <DropdownItem divider />
-                    <DropdownItem onClick={onSignOutClick}>{signOutLabel}</DropdownItem>
+                    <DropdownItem onClick={onSignOutClick}>{lang.navbar.dropdown.signout}</DropdownItem>
                 </DropdownMenu>
             </Dropdown>
         </div>

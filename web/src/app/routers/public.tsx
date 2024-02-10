@@ -2,10 +2,11 @@ import React from 'react';
 import {createBrowserRouter} from 'react-router-dom';
 
 import Error from '../screens/ErrorScreen/ErrorScreen';
-import AuthScreen from '../screens/AuthScreen/AuthScreen';
-import Signin from '../screens/AuthScreen/Forms/Signin/Signin';
-import Signup from '../screens/AuthScreen/Forms/Signup/Signup';
 import {RoutePath} from '../types/routes';
+
+import AuthScreen from '../screens/AuthScreen/AuthScreen';
+import SignInForm from '../screens/AuthScreen/SignInForm';
+import { SignUpForm, SignUpSuccess, SignUpFailure } from '../screens/AuthScreen/SignUpForm';
 
 const PrivateRouter = createBrowserRouter([
   {
@@ -15,12 +16,20 @@ const PrivateRouter = createBrowserRouter([
     children: [
       {
         path: RoutePath.HOME,
-        element: <Signin />,
+        element: <SignInForm />,
 
       },
       {
         path: RoutePath.SIGN_UP,
-        element: <Signup />,
+        element: <SignUpForm />,
+      },
+      {
+        path: RoutePath.SIGN_UP_SUCCESS,
+        element: <SignUpSuccess />,
+      },
+      {
+        path: RoutePath.SIGN_UP_FAILURE,
+        element: <SignUpFailure />,
       },
     ],
   },

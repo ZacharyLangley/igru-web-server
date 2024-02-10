@@ -1,80 +1,67 @@
-import React from 'react';
-import Screen from '../../../common/components/Screen/Screen';
-import Dialog from '../../../common/components/Dialog/Dialog';
-import Branding from '../../../common/components/Branding/Branding';
-import Button from '../../../common/components/Button/Button';
-import language from '../../../common/language/index';
+import React, { useCallback } from 'react';
 
-import './styles.scss';
-import useSession from 'src/store/useSession/useSession';
+import { AppShell, Center, Card, Image, Title, Group, Divider, Button, Stack, Text, MantineStyleProp } from '@mantine/core';
+import logo from '../../../common/assets/branding/IGRU_White_logo.png';
 import { useNavigate } from 'react-router-dom';
 import { RoutePath } from 'src/app/types/routes';
+
+import language from '../../../common/language/index';
+
+const lang = language();
+const messageStyle: MantineStyleProp = { textAlign: 'center', maxWidth: 400 };
 
 export interface ErrorScreenProps {
   isPublic?: boolean;
 }
 
-export interface ErrorContentProps {
-  title: string;
-  message: string;
-}
-
-export interface ErrorFooterProps {
-  isPublic?: boolean;
-}
-
-const ErrorContent: React.FC<ErrorContentProps> = (props) => (
-  <div className={'error-text-container'}>
-    <div className={'error-title'}>{props.title}</div>
-    <div className={'error-message'}>{props.message}</div>
-  </div>
-)
-const errorFooterNavigateUnauthLabel = language("error.label.footer.navigate.unauth")
-const errorFooterNavigateAuthLabel = language("error.label.footer.navigate.auth")
-const errorFooterSignOutLabel = language("error.label.footer.signout")
-
-const ErrorFooter: React.FC<ErrorFooterProps> = (props) => {
+const ErrorScreen = React.memo((props: ErrorScreenProps) => {
   const navigate = useNavigate();
-  const {signOut} = useSession();
 
-  const navigateToHome = () => navigate(RoutePath.HOME)
-
-  const handleSignOut = () => {
-    navigateToHome();
-    signOut();
-
-  }
+  const handleButtonClick = useCallback(() => navigate(RoutePath.HOME), [navigate]);
+  const buttonTitle = props?.isPublic ? lang.error.unauthButtonTitle : lang.error.authButtonTitle;
 
   return (
-    <div className={'error-footer-container'}>
-        <div className='error-footer-button'>
-          <Button title={props.isPublic ? errorFooterNavigateUnauthLabel : errorFooterNavigateAuthLabel} onClick={navigateToHome}/>
-        </div>
-        {
-          !props.isPublic &&
-          <div className='error-footer-button'><Button title={errorFooterSignOutLabel} onClick={handleSignOut}/></div>
-        }
-    </div>
+    <AppShell padding="md">
+        <AppShell.Main h={'100%'} flex={1}>
+            <Group
+                mih={0}
+                h={'95vh'}
+                w={'95vw'}
+                flex={1}
+                gap="sm"
+                justify="center"
+                align="center"
+                wrap="wrap">
+                <Center w={900}>
+                  <Card shadow="xl" padding="xl" radius="md" withBorder>
+                  <ErrorHeader />
+                  <Divider my={'md'}/>
+                  <Stack>
+                    <Text size={'xl'} style={messageStyle}>{lang.error.subtitle}</Text>
+                    <Text style={messageStyle}>{lang.error.message}</Text>
+                  </Stack>
+                  <Divider my={'md'}/>
+                  <Button color={'#469d4b'} radius={'md'} fullWidth onClick={handleButtonClick}>{buttonTitle}</Button>
+                  </Card>
+                </Center>
+            </Group>
+        </AppShell.Main>
+    </AppShell>
   )
-}
+});
 
-const errorTitleLabel = language("error.label.title");
-const errorMessageLabel= language("error.label.message");
+const nameStyle = {color: '#494850'};
+const titleStyle = {color: '#469d4b'};
 
-const ErrorScreen: React.FC<ErrorScreenProps> = (props) => {
+const ErrorHeader = React.memo(() => {
   return (
-    <Screen>
-      <div id={'error-screen'} className={'error-screen-container'}>
-        <div className={'error-screen-content'}>
-          <Dialog
-            header={<Branding />}
-            body={<ErrorContent title={errorTitleLabel} message={errorMessageLabel}/>}
-            footer={<ErrorFooter isPublic={props.isPublic}/>}
-          />
-        </div>
-      </div>
-    </Screen>
+      <Stack mih={50} gap="xs" justify="center" align="center">
+          <Group>
+              <Image src={logo} height={150} width={150} alt={'branding'}/>
+          </Group>
+          <Title order={1} style={nameStyle}>{lang.branding.name}</Title>
+          <Title order={2} style={titleStyle}>{lang.error.title}</Title>
+      </Stack>
   )
-};
-
+});
 export default ErrorScreen;

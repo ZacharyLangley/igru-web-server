@@ -12,9 +12,7 @@ export interface LogoProps {
   hideName?: boolean;
 }
 
-const text = {
-  brandingLabel: language('branding.name')
-}
+const lang = language();
 
 const Logo: React.FC<LogoProps> = ({
   testID = 'igru-branding-logo',
@@ -41,7 +39,7 @@ const Logo: React.FC<LogoProps> = ({
     {
       !hideName &&
       <div id={`${testID}:text`} className={'logo-text'}>
-        {text.brandingLabel}
+        {lang.branding.name}
       </div>
     }
   </div>

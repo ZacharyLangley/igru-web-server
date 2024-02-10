@@ -1,12 +1,9 @@
-import React, {useState} from 'react';
+import React, {useCallback} from 'react';
 import {Outlet, useNavigate} from 'react-router-dom';
 
-import Layout from '../../../common/components/Screen/Screen';
-import Header from '../../../common/components/Screen/Header/Header';
-import Body from '../../../common/components/Screen/Body/Body';
-import Sidebar, {
-  SidebarOptions,
-} from '../../../common/components/Screen/Sidebar/Sidebar';
+import { AppShell, Burger, Group, Image, Stack, Title, UnstyledButton } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import logo from '../../../common/assets/branding/IGRU_White_logo_mini.png';
 
 import allIcon from '../../../common/assets/icons/nav/all_icon.png';
 import tasksIcon from '../../../common/assets/icons/nav/tasks_icon.png';
@@ -21,70 +18,127 @@ import language from '../../../common/language/index';
 
 interface MainScreenProps {}
 
+export interface SidebarOptions {
+  label: string;
+  path: string;
+  icon: string;
+}
+
+const lang = language();
 const sidebarOptions: SidebarOptions[] = [
   {
-    label: language("sidebar.option.home"),
+    label: lang.sidebar.options.home,
     path: RoutePath.HOME,
     icon: allIcon,
   },
   {
-    label: language("sidebar.option.tasks"),
+    label: lang.sidebar.options.tasks,
     path: RoutePath.TASKS,
     icon: tasksIcon,
   },
   {
-    label: language("sidebar.option.gardens"),
+    label: lang.sidebar.options.gardens,
     path: RoutePath.GARDENS,
     icon: gardensIcon,
   },
   {
-    label: language("sidebar.option.plants"),
+    label: lang.sidebar.options.plants,
     path: RoutePath.PLANTS,
     icon: plantsIcon,
   },
   {
-    label: language("sidebar.option.strains"),
+    label: lang.sidebar.options.strains,
     path: RoutePath.STRAINS,
     icon: strainsIcon,
   },
   {
-    label: language("sidebar.option.recipes"),
+    label: lang.sidebar.options.recipes,
     path: RoutePath.RECIPES,
     icon: recipesIcon,
   },
   {
-    label: language("sidebar.option.settings"),
+    label: lang.sidebar.options.settings,
     path: RoutePath.SETTINGS,
     icon: settingsIcon,
   },
 ];
 
-const MainScreen: React.FC<MainScreenProps> = () => {
-  const [openSidebar, setOpenSidebar] = useState(false);
-  const navigate = useNavigate();
-  const toggleSidebar = () => {
-    setOpenSidebar(!openSidebar);
-  };
+const headerConfig = { height: 60 };
 
-  const onOptionSelection = (path?: string) => {
-    if (path) navigate(path);
-    toggleSidebar();
-  };
+const MainScreen: React.FC<MainScreenProps> = () => {
+  const [mobileOpened, { toggle: toggleMobile }] = useDisclosure(false);
+  const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(false);
 
   return (
-    <Layout>
-      <Header onClick={toggleSidebar} />
-      <Body>
-        <Outlet />
-      </Body>
-      <Sidebar
-        isOpen={openSidebar}
-        onClose={toggleSidebar}
-        onOptionSelection={onOptionSelection}
-        options={sidebarOptions}
-      />
-    </Layout>
+    <AppShell
+      header={headerConfig}
+      navbar={{
+        width: 200,
+        breakpoint: 'sm',
+        collapsed: { mobile: !mobileOpened, desktop: !desktopOpened },
+      }}
+      padding="md"
+    >
+      <AppShell.Header>
+        <Group h="100%" px="md">
+          <Burger opened={mobileOpened} onClick={toggleMobile} hiddenFrom="sm" size="sm" />
+          <Burger opened={desktopOpened} onClick={toggleDesktop} visibleFrom="sm" size="sm" />
+          <HeaderBranding />
+        </Group>
+      </AppShell.Header>
+      <AppShell.Navbar p="md">
+        {sidebarOptions.map((item, index) => (
+          <NavbarItem key={index} index={index} {...item}/>
+        ))}
+      </AppShell.Navbar>
+      <AppShell.Main>
+          <Outlet />
+      </AppShell.Main>
+    </AppShell>
   );
 };
+
+interface NavBarItemProps {
+  key: number;
+  index: number;
+  label: string;
+  path: string;
+  icon: string; 
+}
+
+const NavbarItem = React.memo((props: NavBarItemProps) => {
+  const navigate = useNavigate();
+  const handleNavigate = useCallback(() => {
+    navigate(props.path);
+  }, [navigate, props?.path])
+  return (
+    <UnstyledButton onClick={handleNavigate}>
+      <Stack gap={'xl'} justify='center' style={{ paddingTop: 8, paddingBottom: 8}}>
+        <Group gap={'md'} align='center' style={{ paddingBottom: 8 }}>
+          <Image src={props.icon} height={35} width={100} alt={'branding'} />
+          <Title order={5} style={titleStyle}>{props.label}</Title>
+        </Group>
+      </Stack>
+    </UnstyledButton>
+  )
+})
+
+const titleStyle = {color: '#494850'};
+
+const HeaderBranding = React.memo(() => {
+  const navigate = useNavigate();
+  const handleNavigate = useCallback(() => {
+    navigate(RoutePath.HOME);
+  }, [navigate])
+
+  return (
+    <UnstyledButton onClick={handleNavigate}>
+      <Group gap={'sm'}>
+        <Image src={logo} height={35} width={100} alt={'branding'}/>
+        <Title order={2} style={titleStyle}>{lang.branding.name}</Title>
+      </Group>
+    </UnstyledButton>
+  )
+});
 
 export default MainScreen;
