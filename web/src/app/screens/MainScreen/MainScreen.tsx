@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
 import {Outlet, useNavigate} from 'react-router-dom';
 
-import { AppShell, Burger, Group, Image, Stack, Title, UnstyledButton } from '@mantine/core';
+import { AppShell, Burger, Group, Image, Stack, Title, UnstyledButton, Avatar } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import logo from '../../../common/assets/branding/IGRU_White_logo_mini.png';
 
@@ -15,6 +15,7 @@ import settingsIcon from '../../../common/assets/icons/nav/settings_icon.png';
 
 import {RoutePath} from '../../types/routes';
 import language from '../../../common/language/index';
+import GroupSelect from './components/GroupSelect/GroupSelect';
 
 interface MainScreenProps {}
 
@@ -81,9 +82,15 @@ const MainScreen: React.FC<MainScreenProps> = () => {
     >
       <AppShell.Header>
         <Group h="100%" px="md">
-          <Burger opened={mobileOpened} onClick={toggleMobile} hiddenFrom="sm" size="sm" />
-          <Burger opened={desktopOpened} onClick={toggleDesktop} visibleFrom="sm" size="sm" />
-          <HeaderBranding />
+          <Group flex={1} justify={'flex-start'}>
+            <Burger opened={mobileOpened} onClick={toggleMobile} hiddenFrom="sm" size="sm" />
+            <Burger opened={desktopOpened} onClick={toggleDesktop} visibleFrom="sm" size="sm" />
+            <HeaderBranding />
+          </Group>
+          <Group justify='flex-end' flex={2}>
+            <GroupSelect />
+            <Avatar radius="xl" />
+          </Group>
         </Group>
       </AppShell.Header>
       <AppShell.Navbar p="md">
