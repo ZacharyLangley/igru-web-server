@@ -33,7 +33,7 @@ interface GroupState {
 }
 
 interface GroupActions {
-    setActiveGroup: (group: Group) => void;
+    setActiveGroup: (group?: Group) => void;
     createGroup: (name: string) => void;
     updateGroup: (group: Partial<UpdateGroupRequest>) => void;
     deleteGroup: (id: string) => void;
@@ -55,7 +55,7 @@ const useGroup = create<GroupState & GroupActions>((set, get) => ({
     selectedGroupMembers: undefined,
     groupsBySelectedUser: undefined,
     error: undefined,
-    setActiveGroup: async (group: Group) => {
+    setActiveGroup: async (group?: Group) => {
         if (!group) return;
         set({activeUserGroup: group})
     },

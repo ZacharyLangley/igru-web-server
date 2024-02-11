@@ -42,6 +42,10 @@
         "confirmPassword": {
             "label": "Confirm Password",
             "description": "Must match above Password"
+        },
+        "activeGroupSelect": {
+            "label": "Group:",
+            "nothingFound": "Group(s) not found..."
         }
     },
 
