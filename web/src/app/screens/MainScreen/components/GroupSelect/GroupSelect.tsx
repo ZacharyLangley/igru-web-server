@@ -3,6 +3,9 @@ import { Select, ComboboxItem, Group, Text } from '@mantine/core';
 
 import useGroup from 'src/store/useGroup/useGroup';
 import useUser from 'src/store/useUser/useUser';
+import language from '../../../../../common/language/index';
+
+const lang = language();
 
 export const GroupSelect = React.memo(() => {
 
@@ -31,7 +34,7 @@ export const GroupSelect = React.memo(() => {
 
     return (
         <Group flex={2} align="center" justify='flex-end'>
-            <Text style={{textAlign: 'right'}}>{'Group:'}</Text>
+            <Text style={{textAlign: 'right'}}>{lang.inputs.activeGroupSelect.label}</Text>
             <Select
                 data={options}
                 value={defaultGroup?.value}
@@ -39,7 +42,7 @@ export const GroupSelect = React.memo(() => {
                 onChange={handleGroupSelect}
                 styles={{ dropdown: { maxHeight: 300, overflowY: 'auto' } }}
                 searchable
-                nothingFoundMessage={'Group(s) not found...'}
+                nothingFoundMessage={lang.inputs.activeGroupSelect.nothingFound}
             />
         </Group>
     )
