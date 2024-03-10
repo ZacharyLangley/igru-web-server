@@ -16,6 +16,7 @@ import settingsIcon from '../../../common/assets/icons/nav/settings_icon.png';
 import {RoutePath} from '../../types/routes';
 import language from '../../../common/language/index';
 import GroupSelect from './components/GroupSelect/GroupSelect';
+import ProfileDropdown from './components/ProfileDropdown/ProfileDropdown';
 
 interface MainScreenProps {}
 
@@ -89,7 +90,7 @@ const MainScreen: React.FC<MainScreenProps> = () => {
           </Group>
           <Group justify='flex-end' flex={2}>
             <GroupSelect />
-            <Avatar radius="xl" />
+            <ProfileDropdown />
           </Group>
         </Group>
       </AppShell.Header>
