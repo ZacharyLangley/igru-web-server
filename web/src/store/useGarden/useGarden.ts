@@ -22,7 +22,7 @@ interface GardenActions {
     getAllGardens: (groupId?: string) => void;
     createGarden: (garden?: Partial<CreateGardenRequest>) => void;
     updateGarden: (garden?: Partial<UpdateGardenRequest>) => void;
-    deleteGarden: (id?: string) => void;
+    deleteGarden: (id?: string, groupId?: string) => void;
 
 }
 
@@ -75,11 +75,11 @@ const useGarden = create<GardenState & GardenActions>((set) => ({
             set({status: Status.FAILURE, error});
         }
     },
-    deleteGarden: async (id?: string) => {
+    deleteGarden: async (id?: string, groupId?: string) => {
         try {
-            if (!id) return;
+            if (!id || !groupId) return;
             set({status: Status.PENDING, error: undefined});
-            const response = await deleteGardenRequest(id);
+            const response = await deleteGardenRequest(id, groupId);
             if (response) set({status: Status.SUCCESS});
             else set({status: Status.FAILURE});
         } catch (error) {

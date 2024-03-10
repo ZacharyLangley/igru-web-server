@@ -24,13 +24,13 @@ const GardenListCard: React.FC<GardenListCardProps> = ({
 
   useEffect(() => {
     // @ts-ignore
-    getAllGardens(activeUserGroup);
+    getAllGardens(activeUserGroup.id);
   }, [activeUserGroup, getAllGardens])
 
 
-  const onDelete = (id: string) => {
-    if (id) {
-      deleteGarden(id)
+  const onDelete = (id: string, groupId: string) => {
+    if (id && groupId) {
+      deleteGarden(id, groupId)
     } else return;
 }
 
@@ -62,7 +62,7 @@ const GardenListCard: React.FC<GardenListCardProps> = ({
               <span className={'label'}>{'Create At: '}</span>
               <span className={'value'}>{garden?.createdAt?.toJsonString()}</span>
             </div>
-            <div className='actions'><Button title={'Delete'} color={'danger'} onClick={() => onDelete(garden.id)}/></div>
+            <div className='actions'><Button title={'Delete'} color={'danger'} onClick={() => onDelete(garden.id, garden.groupId)}/></div>
           </div>
         )
       })}
