@@ -58,10 +58,10 @@
     },
 
     "navbar": {
-        "dropdown": {
-            "welcome": "Welcome",
+        "profileDropdown": {
+            "logout": "Sign Out",
             "profile": "Profile",
-            "signout": "Sign Out"
+            "welcome": "Welcome"
         }
     },
 

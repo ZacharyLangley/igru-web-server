@@ -35,6 +35,6 @@ export const updateGardenRequest = async (garden: Partial<UpdateGardenRequest>) 
     return await client.updateGarden(garden);
 };
 
-export const deleteGardenRequest = async (id: string) => {
-    return await client.deleteGarden({id});
+export const deleteGardenRequest = async (id?: string, groupId?: string) => {
+    return await client.deleteGarden({id, groupId});
 };

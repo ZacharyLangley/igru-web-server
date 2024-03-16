@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
-import {Outlet, useNavigate} from 'react-router-dom';
+import {Outlet, useLocation, useNavigate} from 'react-router-dom';
 
-import { AppShell, Burger, Group, Image, Stack, Title, UnstyledButton, Avatar } from '@mantine/core';
+import { AppShell, Burger, Group, Image, Stack, Title, UnstyledButton } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import logo from '../../../common/assets/branding/IGRU_White_logo_mini.png';
 
@@ -16,6 +16,7 @@ import settingsIcon from '../../../common/assets/icons/nav/settings_icon.png';
 import {RoutePath} from '../../types/routes';
 import language from '../../../common/language/index';
 import GroupSelect from './components/GroupSelect/GroupSelect';
+import ProfileDropdown from './components/ProfileDropdown/ProfileDropdown';
 
 interface MainScreenProps {}
 
@@ -89,7 +90,7 @@ const MainScreen: React.FC<MainScreenProps> = () => {
           </Group>
           <Group justify='flex-end' flex={2}>
             <GroupSelect />
-            <Avatar radius="xl" />
+            <ProfileDropdown />
           </Group>
         </Group>
       </AppShell.Header>
@@ -115,22 +116,31 @@ interface NavBarItemProps {
 
 const NavbarItem = React.memo((props: NavBarItemProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const handleNavigate = useCallback(() => {
     navigate(props.path);
   }, [navigate, props?.path])
+
+  const isSelected = location.pathname === props.path;
+
   return (
     <UnstyledButton onClick={handleNavigate}>
       <Stack gap={'xl'} justify='center' style={{ paddingTop: 8, paddingBottom: 8}}>
         <Group gap={'md'} align='center' style={{ paddingBottom: 8 }}>
           <Image src={props.icon} height={35} width={100} alt={'branding'} />
-          <Title order={5} style={titleStyle}>{props.label}</Title>
+          <Title order={5} style={isSelected ? selectedTitleStyle : unselectedTitleStyle}>{props.label}</Title>
         </Group>
       </Stack>
     </UnstyledButton>
   )
 })
 
-const titleStyle = {color: '#494850'};
+const selectedTitleStyle = { color: '#469d4b' };
+
+const unselectedTitleStyle = { color: '#494850' };
+
+const titleStyle = { color: '#494850' };
 
 const HeaderBranding = React.memo(() => {
   const navigate = useNavigate();
