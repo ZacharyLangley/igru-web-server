@@ -49,7 +49,7 @@ const PlantFormModal: React.FC<PlantFormModalProps> = ({isOpen = false, toggle})
     }
 
     return (
-        <Modal isOpen={true} toggle={toggle}>
+        <Modal isOpen={isOpen} toggle={toggle}>
             <ModalHeader toggle={toggle}>{'Add Plant'}</ModalHeader>
             <ModalBody>
                 <PlantForm formData={formData} onChange={updateFormData}/>

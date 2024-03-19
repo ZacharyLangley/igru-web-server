@@ -32,7 +32,7 @@ const GardenListCard: React.FC<GardenListCardProps> = ({
     if (id && groupId) {
       deleteGarden(id, groupId)
     } else return;
-}
+  }
 
   return (
     <Card testID={testID}>

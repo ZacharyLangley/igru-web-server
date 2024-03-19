@@ -90,8 +90,10 @@ const useGroup = create<GroupState & GroupActions>((set, get) => ({
     getGroups: async () => {
         try {
             const response = await getGroupsRequest();
-            if (response) set({groups: response.groups})
-            if (get().activeUserGroup === undefined) set({ activeUserGroup: response.groups[0] })
+            if (response) {
+                set({groups: response.groups})
+                if (get().activeUserGroup === undefined) set({ activeUserGroup: response.groups[0] })
+            }
         } catch (error) {set({error})}
     },
     getAllGroups: async () => {

@@ -18,10 +18,10 @@ interface PlantState {
 
 interface PlantActions {
     getPlant: (id?: string) => void;
-    getAllPlants: () => void;
+    getAllPlants: (groupId?: string) => void;
     createPlant: (plant: Partial<CreatePlantRequest>) => void;
     updatePlant: (plant: Partial<UpdatePlantRequest>) => void;
-    deletePlant: (id?: string) => void;
+    deletePlant: (id?: string, groupId?: string) => void;
 
 }
 
@@ -41,10 +41,11 @@ const usePlant = create<PlantState & PlantActions>((set) => ({
             set({status: Status.FAILURE, error});
         }
     },
-    getAllPlants: async () => {
+    getAllPlants: async (groupId?: string) => {
         try {
+            if (!groupId) return;
             set({status: Status.PENDING, error: undefined});
-            const response = await getAllPlantsRequest();
+            const response = await getAllPlantsRequest(groupId);
             if (response) set({status: Status.SUCCESS, plants: response});
             else set({status: Status.FAILURE});
         } catch (error) {

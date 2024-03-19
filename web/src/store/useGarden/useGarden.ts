@@ -80,7 +80,10 @@ const useGarden = create<GardenState & GardenActions>((set) => ({
             if (!id || !groupId) return;
             set({status: Status.PENDING, error: undefined});
             const response = await deleteGardenRequest(id, groupId);
-            if (response) set({status: Status.SUCCESS});
+            if (response) {
+                const response = await getAllGardensRequest(groupId);
+                set({status: Status.SUCCESS, gardens: response?.gardens});
+            }
             else set({status: Status.FAILURE});
         } catch (error) {
             set({status: Status.FAILURE, error});
